@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ROLES, ENGINES, VERTICALS } from "@/lib/roles";
 import { useTeam } from "@/lib/store";
+import { RoleIcon } from "./RoleIcon";
 import {
   ChevronRight,
   Check,
@@ -281,6 +282,11 @@ export function DeployView() {
                     <span className="font-semibold text-white/90">
                       {engine.name}
                     </span>
+                    {engine.id === "crewai" && (
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20">
+                        Recommended
+                      </span>
+                    )}
                   </div>
                   {isSelected && (
                     <motion.div
@@ -317,6 +323,46 @@ export function DeployView() {
               </motion.button>
             );
           })}
+
+          {/* LLM Per-Role Cost */}
+          <div className="glass-card p-5">
+            <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-3">
+              LLM Assignment Per Role · Estimated Cost
+            </h3>
+            <div className="space-y-2">
+              {selectedRoles.map((role) => {
+                const llmMap: Record<number, { model: string; cost: string; reason: string }> = {
+                  1: { model: "Claude Opus 4.6", cost: "$2.40", reason: "Complex business analysis" },
+                  2: { model: "Claude Sonnet 4", cost: "$0.60", reason: "Process pattern matching" },
+                  3: { model: "Claude Sonnet 4", cost: "$0.45", reason: "Schema validation" },
+                  4: { model: "Claude Opus 4.6", cost: "$1.80", reason: "Code generation" },
+                  5: { model: "Claude Haiku 4.5", cost: "$0.12", reason: "Monitoring alerts" },
+                };
+                const config = llmMap[role.stage_order] || llmMap[3];
+                return (
+                  <div key={role.role_id} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <RoleIcon name={role.icon} size={12} />
+                      <span className="text-white/50">{role.display_name}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-white/25 font-mono text-[10px]">{config.model}</span>
+                      <span className="text-white/60 font-mono font-semibold w-14 text-right">{config.cost}</span>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="border-t border-white/5 pt-2 mt-2 flex items-center justify-between text-xs">
+                <span className="text-white/30">Estimated per run</span>
+                <span className="text-white/80 font-mono font-bold">
+                  ${selectedRoles.reduce((sum, role) => {
+                    const costs: Record<number, number> = { 1: 2.4, 2: 0.6, 3: 0.45, 4: 1.8, 5: 0.12 };
+                    return sum + (costs[role.stage_order] || 0.5);
+                  }, 0).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Right: Generated Plan Preview */}

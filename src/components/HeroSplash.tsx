@@ -72,8 +72,16 @@ export function HeroSplash() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-lg text-white/40 max-w-xl mx-auto leading-relaxed"
+          transition={{ delay: 0.7 }}
+          className="text-xl text-white/50 font-medium tracking-wide"
+        >
+          Define it. <span className="bg-gradient-to-r from-[var(--accent-purple)] to-[var(--accent-cyan)] bg-clip-text text-transparent font-semibold">Arc builds it.</span>
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="text-sm text-white/30 max-w-lg mx-auto leading-relaxed"
         >
           Compose AI agent teams. Wire them through tollgated workflows.
           Deploy on any engine.
@@ -81,8 +89,8 @@ export function HeroSplash() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="text-sm text-white/25 font-mono"
+          transition={{ delay: 1.1 }}
+          className="text-xs text-white/20 font-mono"
         >
           Engine-agnostic · MCP + A2A protocols · Arc governance
         </motion.p>

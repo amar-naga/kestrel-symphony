@@ -238,14 +238,42 @@ export function CockpitView() {
         </motion.div>
       </motion.div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Metrics Grid — Quality gauge prominent */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Quality Gauge — spans 1 col but visually dominant */}
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          whileHover={{ y: -4, scale: 1.02 }}
+          className="glass-card p-6 relative overflow-hidden flex flex-col items-center justify-center"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-green)]/5 to-transparent" />
+          <div className="relative z-10 text-center">
+            <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-2">
+              Quality Score
+            </div>
+            <motion.div
+              className="text-5xl font-bold tabular-nums"
+              style={{ color: "var(--accent-green)" }}
+              animate={{ textShadow: ["0 0 0px rgba(0,200,150,0)", "0 0 20px rgba(0,200,150,0.4)", "0 0 0px rgba(0,200,150,0)"] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              {metrics.avgQuality.toFixed(1)}%
+            </motion.div>
+            <Sparkline data={metrics.qualityHistory} color="#00c896" width={100} height={20} />
+            <div className="text-[10px] text-white/20 mt-1">
+              Trending up · all tollgates passing
+            </div>
+          </div>
+        </motion.div>
+
         <MetricCard
           icon={Zap}
           label="Total Tokens"
           value={metrics.totalTokens}
           accent="#7b2ff7"
-          delay={0.1}
+          delay={0.15}
           sparkData={metrics.tokenHistory}
         />
         <MetricCard
@@ -254,21 +282,12 @@ export function CockpitView() {
           value={Math.floor(metrics.totalCost * 100) / 100}
           suffix="$"
           accent="#f59e0b"
-          delay={0.15}
+          delay={0.2}
           sparkData={metrics.costHistory}
         />
         <MetricCard
-          icon={TrendingUp}
-          label="Avg Quality"
-          value={Math.floor(metrics.avgQuality * 10) / 10}
-          suffix="%"
-          accent="#00c896"
-          delay={0.2}
-          sparkData={metrics.qualityHistory}
-        />
-        <MetricCard
           icon={Shield}
-          label="Tollgates"
+          label="Tollgates Passed"
           value={metrics.tollgatesPassed}
           accent="#4361ee"
           delay={0.25}
@@ -292,12 +311,25 @@ export function CockpitView() {
           </h2>
         </div>
 
+        {/* Column headers */}
+        <div className="flex items-center gap-4 px-4 mb-2">
+          <div className="w-8" />
+          <div className="w-10" />
+          <div className="flex-1 text-[9px] font-mono text-white/20 uppercase tracking-wider">Role</div>
+          <div className="w-16 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Tokens</div>
+          <div className="w-14 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Quality</div>
+          <div className="w-16 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Cost</div>
+          <div className="w-20 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">LLM</div>
+        </div>
+
         <div className="space-y-3">
           {selectedRoles.map((role, i) => {
             const accent = stageAccents[role.stage_order] || "#7b2ff7";
             const status = getRoleStatus(role.stage_order);
             const tokenSpend = Math.floor(20000 + Math.random() * 40000);
             const quality = Math.floor(88 + Math.random() * 12);
+            const llmModels: Record<number, string> = { 1: "Opus", 2: "Sonnet", 3: "Sonnet", 4: "Opus", 5: "Haiku" };
+            const llm = llmModels[role.stage_order] || "Sonnet";
 
             return (
               <motion.div
@@ -367,22 +399,24 @@ export function CockpitView() {
                 </div>
 
                 {/* Per-role metrics */}
-                <div className="flex items-center gap-8 text-xs text-white/30">
-                  <div className="text-right">
+                <div className="flex items-center gap-0 text-xs text-white/30">
+                  <div className="text-right w-16">
                     <div className="text-white/50 font-mono tabular-nums">
                       {tokenSpend.toLocaleString()}
                     </div>
-                    <div className="text-[9px] text-white/20">tokens</div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right w-14">
                     <div className="text-white/50 font-mono tabular-nums">{quality}%</div>
-                    <div className="text-[9px] text-white/20">quality</div>
                   </div>
-                  <div className="text-right w-[50px]">
-                    <div className="text-white/50 font-mono tabular-nums">
+                  <div className="text-right w-16">
+                    <div className="text-[var(--accent-amber)] font-mono tabular-nums font-semibold">
                       ${(tokenSpend * 0.00015).toFixed(2)}
                     </div>
-                    <div className="text-[9px] text-white/20">cost</div>
+                  </div>
+                  <div className="text-right w-20">
+                    <div className="text-white/30 font-mono tabular-nums text-[10px]">
+                      {llm}
+                    </div>
                   </div>
                 </div>
               </motion.div>

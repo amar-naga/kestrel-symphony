@@ -126,18 +126,22 @@ function GlassCard({
             transition={{ delay: 0.3 + index * 0.12 }}
           >
             <span
-              className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full"
-              style={{
-                color: accent,
-                background: `${accent}12`,
-                border: `1px solid ${accent}25`,
-              }}
+              className="text-lg font-bold font-mono leading-none"
+              style={{ color: accent }}
             >
-              Stage {role.stage_order}
+              {role.stage_order}
             </span>
-            <span className="text-[10px] text-white/20 font-mono">
-              {stageBadges[role.stage_order]}
-            </span>
+            <div className="flex flex-col">
+              <span
+                className="text-[9px] font-mono uppercase tracking-widest leading-none"
+                style={{ color: `${accent}99` }}
+              >
+                Stage
+              </span>
+              <span className="text-[10px] text-white/25 font-mono leading-tight">
+                {stageBadges[role.stage_order]}
+              </span>
+            </div>
           </motion.div>
 
           {/* Icon with glow */}
@@ -233,6 +237,72 @@ export function CatalogView() {
           </p>
         </motion.div>
       </div>
+
+      {/* Solution Packs */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex items-center justify-center gap-3"
+      >
+        <span className="text-[10px] font-mono text-white/20 uppercase tracking-wider mr-1">
+          Quick Select
+        </span>
+        {[
+          {
+            label: "Public Transit Pack",
+            desc: "All 5 roles",
+            roles: ROLES.map((r) => r.role_id),
+            color: "#06b6d4",
+          },
+          {
+            label: "Governance Only",
+            desc: "3 roles",
+            roles: ["lumi-requirements-dev", "lumi-process-leader", "lumi-data-steward"],
+            color: "#7b2ff7",
+          },
+          {
+            label: "Build & Deploy",
+            desc: "2 roles",
+            roles: ["lumi-agent-engineer", "lumi-agent-ops"],
+            color: "#00c896",
+          },
+        ].map((pack) => {
+          const allSelected = pack.roles.every((r) =>
+            state.selectedRoles.includes(r)
+          );
+          return (
+            <motion.button
+              key={pack.label}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                pack.roles.forEach((roleId) => {
+                  const isSelected = state.selectedRoles.includes(roleId);
+                  if (allSelected) {
+                    if (isSelected) dispatch({ type: "TOGGLE_ROLE", roleId });
+                  } else {
+                    if (!isSelected) dispatch({ type: "TOGGLE_ROLE", roleId });
+                  }
+                });
+              }}
+              className="glass-subtle px-4 py-2 flex items-center gap-2 cursor-pointer transition-all"
+              style={{
+                borderColor: allSelected ? `${pack.color}30` : undefined,
+                background: allSelected ? `${pack.color}08` : undefined,
+              }}
+            >
+              {allSelected && (
+                <Check size={10} style={{ color: pack.color }} />
+              )}
+              <span className="text-xs font-medium text-white/50">
+                {pack.label}
+              </span>
+              <span className="text-[10px] text-white/20">{pack.desc}</span>
+            </motion.button>
+          );
+        })}
+      </motion.div>
 
       {/* Role Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 max-w-[1400px] mx-auto">

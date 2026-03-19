@@ -54,35 +54,45 @@ function DataFlowLine({ delay = 0 }: { delay?: number }) {
   );
 }
 
-function TollgateNode({ mode, delay }: { mode: string; delay: number }) {
+function TollgateNode({ mode, delay, gateName }: { mode: string; delay: number; gateName?: string }) {
+  const isEnforced = mode === "enforced";
+  const color = isEnforced ? "rgba(230,57,70," : "rgba(245,158,11,";
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay, type: "spring", stiffness: 300, damping: 20 }}
-      className="flex flex-col items-center gap-1.5 mx-1"
+      className="flex flex-col items-center gap-2 mx-2"
     >
       <motion.div
-        className="w-10 h-10 rounded-xl glass-subtle flex items-center justify-center relative"
-        whileHover={{ scale: 1.15, rotate: 5 }}
+        className="w-14 h-14 rounded-2xl glass-card flex flex-col items-center justify-center relative"
+        whileHover={{ scale: 1.12, rotate: 3 }}
         animate={{
-          boxShadow: mode === "enforced"
-            ? ["0 0 0px rgba(230,57,70,0)", "0 0 20px rgba(230,57,70,0.3)", "0 0 0px rgba(230,57,70,0)"]
-            : ["0 0 0px rgba(245,158,11,0)", "0 0 20px rgba(245,158,11,0.3)", "0 0 0px rgba(245,158,11,0)"],
+          boxShadow: [
+            `0 0 0px ${color}0)`,
+            `0 0 25px ${color}0.35)`,
+            `0 0 0px ${color}0)`,
+          ],
         }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        {mode === "enforced" ? (
-          <Shield size={16} className="text-red-400" />
+        {isEnforced ? (
+          <Shield size={18} className="text-red-400" />
         ) : (
-          <AlertTriangle size={16} className="text-amber-400" />
+          <AlertTriangle size={18} className="text-amber-400" />
         )}
-        {/* Scan line */}
         <div className="scan-line" />
       </motion.div>
-      <span className="text-[8px] text-white/30 font-mono uppercase tracking-wider">
-        Tollgate
-      </span>
+      <div className="flex flex-col items-center">
+        <span className="text-[8px] text-white/30 font-mono uppercase tracking-wider">
+          Tollgate
+        </span>
+        {gateName && (
+          <span className="text-[7px] text-white/15 font-mono truncate max-w-[70px]">
+            {gateName}
+          </span>
+        )}
+      </div>
     </motion.div>
   );
 }
@@ -189,6 +199,11 @@ export function ComposerView() {
                 );
               })}
             </div>
+            <p className="text-[10px] text-white/20 max-w-[280px] leading-relaxed">
+              {state.governanceMode === "enforced"
+                ? "Enforced — blocks the pipeline until all tollgate criteria pass. Failed gates require resolution before handoff."
+                : "Advisory — warns on tollgate failures but allows the pipeline to continue. Issues logged for review."}
+            </p>
           </div>
         </div>
       </motion.div>
@@ -295,7 +310,11 @@ export function ComposerView() {
                 {!isLast && (
                   <div className="flex items-center shrink-0">
                     <DataFlowLine delay={i * 0.5} />
-                    <TollgateNode mode={state.governanceMode} delay={0.6 + i * 0.15} />
+                    <TollgateNode
+                      mode={state.governanceMode}
+                      delay={0.6 + i * 0.15}
+                      gateName={role.stage_name}
+                    />
                     <DataFlowLine delay={i * 0.5 + 0.3} />
                   </div>
                 )}
