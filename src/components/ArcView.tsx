@@ -158,30 +158,37 @@ function PhasePipeline({ activePhase, onSelect }: { activePhase: string; onSelec
             {/* Phase node */}
             <motion.button
               onClick={() => onSelect(phase.id)}
-              className="relative flex flex-col items-center gap-2 px-6 py-3 rounded-xl transition-all"
+              className="relative flex flex-col items-center gap-2 px-8 py-4 rounded-xl transition-all cursor-pointer"
               style={{
-                background: isActive ? `${phase.color}15` : "var(--surface-secondary)",
-                border: isActive ? `1.5px solid ${phase.color}50` : "1px solid var(--border-primary)",
-                boxShadow: isActive ? `0 0 20px ${phase.color}20` : "none",
+                background: isActive ? `${phase.color}12` : "var(--surface-secondary)",
+                border: isActive ? `2px solid ${phase.color}` : "1px solid var(--border-primary)",
+                boxShadow: isActive ? `0 0 24px ${phase.color}20` : "none",
+                minWidth: 110,
               }}
-              whileHover={{ scale: 1.04, boxShadow: `0 0 24px ${phase.color}25` }}
+              whileHover={{ scale: 1.05, boxShadow: `0 0 28px ${phase.color}30` }}
               whileTap={{ scale: 0.97 }}
             >
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
                 style={{
                   background: isActive ? `${phase.color}25` : "var(--surface-primary)",
-                  color: isActive ? phase.color : "var(--text-secondary)",
+                  color: isActive ? phase.color : "var(--text-faint)",
                   border: isActive ? `2px solid ${phase.color}` : "1px solid var(--border-primary)",
                 }}
               >
                 {i + 1}
               </div>
               <span
-                className="text-xs font-semibold"
+                className="text-sm font-semibold"
                 style={{ color: isActive ? phase.color : "var(--text-secondary)" }}
               >
                 {phase.label}
+              </span>
+              <span
+                className="text-[9px]"
+                style={{ color: isActive ? phase.color : "var(--text-ghost)" }}
+              >
+                {isActive ? "Editing" : "Click to configure"}
               </span>
               {isActive && (
                 <motion.div
@@ -315,7 +322,7 @@ export function ArcView() {
   const { state } = useApp();
 
   /* ── Local state ──────────────────────────────────────────── */
-  const [activePhase, setActivePhase] = useState("build");
+  const [activePhase, setActivePhase] = useState("plan");
   const [criteria, setCriteria] = useState<Record<string, Criterion[]>>(structuredClone(DEFAULT_CRITERIA));
   const [thresholds, setThresholds] = useState<Record<string, number>>({ ...DEFAULT_THRESHOLDS });
   const [phaseModes, setPhaseModes] = useState<Record<string, "enforced" | "advisory">>({ ...DEFAULT_MODES });
