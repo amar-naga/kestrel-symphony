@@ -188,14 +188,19 @@ export function HeroSplash() {
           {TECH_BADGES.map((badge) => (
             <span
               key={badge}
-              className="glass-subtle px-3 py-1.5 text-[11px] font-mono text-white/30 tracking-wide"
+              className="px-3 py-1.5 rounded-xl text-[11px] font-mono tracking-wide"
+              style={{
+                background: "var(--surface-primary)",
+                border: "1px solid var(--border-secondary)",
+                color: "var(--text-faint)",
+              }}
             >
               {badge}
             </span>
           ))}
         </motion.div>
 
-        {/* Enter Demo button with glow pulse */}
+        {/* Enter Demo button */}
         <motion.div variants={fadeUp} className="mt-12">
           <motion.button
             whileHover={{ scale: 1.04 }}
@@ -203,20 +208,15 @@ export function HeroSplash() {
             onClick={() => dispatch({ type: "SET_VIEW", view: "board" })}
             className="relative group cursor-pointer"
           >
-            {/* Glow pulse behind button */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[#FF6B2C] to-[#FF8F5C] rounded-2xl blur-xl"
-              animate={{
-                opacity: [0.3, 0.55, 0.3],
+            <div
+              className="relative px-8 py-4 rounded-2xl flex items-center gap-3 font-semibold tracking-wide"
+              style={{
+                background: "linear-gradient(135deg, #FF6B2C, #CC5623)",
+                color: "#ffffff",
+                boxShadow: "0 4px 20px rgba(255,107,44,0.3)",
               }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <div className="relative glass-card px-8 py-4 flex items-center gap-3 text-white shimmer-effect">
-              <span className="font-semibold tracking-wide">Enter Demo</span>
+            >
+              Enter Demo
               <ArrowRight
                 size={18}
                 className="group-hover:translate-x-1 transition-transform"
@@ -228,18 +228,22 @@ export function HeroSplash() {
         {/* Bottom brand */}
         <motion.div
           variants={fadeUp}
-          className="mt-16 flex flex-col items-center gap-2"
+          className="mt-16 flex flex-col items-center gap-3"
         >
-          <span className="text-[11px] text-white/20 tracking-wide">
+          <span className="text-[11px] tracking-wide" style={{ color: "var(--text-faint)" }}>
             by{" "}
-            <span className="text-white/30 font-medium">Lumicorp AI</span>
-            {" "}
-            <span className="text-white/15">·</span>
-            {" "}
-            <span className="text-white/20 font-mono">lumicorp.ai</span>
+            <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>Lumi AI</span>
+            {" · "}
+            <span className="font-mono" style={{ color: "var(--text-faint)" }}>lumicorp.ai</span>
           </span>
-          <span className="text-[9px] font-mono tracking-[0.25em] text-white/10 uppercase px-3 py-1 border border-white/[0.06] rounded">
-            Confidential
+          <span
+            className="text-[9px] font-mono tracking-[0.25em] uppercase px-3 py-1 rounded"
+            style={{
+              color: "var(--text-ghost)",
+              border: "1px solid var(--border-secondary)",
+            }}
+          >
+            Confidential · Demo Build v0.5
           </span>
         </motion.div>
       </motion.div>
