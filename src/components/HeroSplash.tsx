@@ -77,50 +77,38 @@ export function HeroSplash() {
             }}
             className="relative"
           >
-            {/* Orbiting dots */}
+            {/* Slow floating dots — drift down from top, arc around, float back up */}
             {[
-              { size: 120, duration: 8, dotSize: 6, color: "#FF6B2C", opacity: 0.9, delay: 0 },
-              { size: 120, duration: 8, dotSize: 4, color: "#FF8F5C", opacity: 0.6, delay: 2.5 },
-              { size: 150, duration: 12, dotSize: 5, color: "#FF6B2C", opacity: 0.7, delay: 1 },
-              { size: 150, duration: 12, dotSize: 3, color: "#CC5623", opacity: 0.5, delay: 4 },
-              { size: 100, duration: 6, dotSize: 4, color: "#FF8F5C", opacity: 0.8, delay: 0.5 },
-              { size: 100, duration: 6, dotSize: 3, color: "#FF6B2C", opacity: 0.4, delay: 3 },
-            ].map((orbit, i) => (
+              { dotSize: 5, color: "#FF6B2C", opacity: 0.85, duration: 14, delay: 0,
+                x: [20, 50, 30, -40, -50, -20, 20],
+                y: [-70, -30, 20, 30, -10, -50, -70] },
+              { dotSize: 4, color: "#FF8F5C", opacity: 0.6, duration: 18, delay: 3,
+                x: [-30, -50, -20, 40, 55, 25, -30],
+                y: [-65, -15, 35, 20, -25, -55, -65] },
+              { dotSize: 3, color: "#FF6B2C", opacity: 0.45, duration: 16, delay: 6,
+                x: [45, 15, -35, -45, -10, 35, 45],
+                y: [-60, -20, 10, -15, -45, -55, -60] },
+            ].map((dot, i) => (
               <motion.div
                 key={i}
                 className="absolute rounded-full"
                 style={{
-                  width: orbit.dotSize,
-                  height: orbit.dotSize,
-                  background: orbit.color,
-                  opacity: orbit.opacity,
-                  boxShadow: `0 0 ${orbit.dotSize * 2}px ${orbit.color}`,
+                  width: dot.dotSize,
+                  height: dot.dotSize,
+                  background: dot.color,
+                  opacity: dot.opacity,
+                  boxShadow: `0 0 ${dot.dotSize * 3}px ${dot.color}60`,
                   top: "50%",
                   left: "50%",
-                  marginTop: -orbit.dotSize / 2,
-                  marginLeft: -orbit.dotSize / 2,
+                  marginTop: -dot.dotSize / 2,
+                  marginLeft: -dot.dotSize / 2,
                 }}
-                animate={{
-                  x: [
-                    Math.cos(0) * orbit.size / 2,
-                    Math.cos(Math.PI / 2) * orbit.size / 2,
-                    Math.cos(Math.PI) * orbit.size / 2,
-                    Math.cos(3 * Math.PI / 2) * orbit.size / 2,
-                    Math.cos(2 * Math.PI) * orbit.size / 2,
-                  ],
-                  y: [
-                    Math.sin(0) * orbit.size / 2,
-                    Math.sin(Math.PI / 2) * orbit.size / 2,
-                    Math.sin(Math.PI) * orbit.size / 2,
-                    Math.sin(3 * Math.PI / 2) * orbit.size / 2,
-                    Math.sin(2 * Math.PI) * orbit.size / 2,
-                  ],
-                }}
+                animate={{ x: dot.x, y: dot.y }}
                 transition={{
-                  duration: orbit.duration,
+                  duration: dot.duration,
                   repeat: Infinity,
-                  ease: "linear",
-                  delay: orbit.delay,
+                  ease: "easeInOut",
+                  delay: dot.delay,
                 }}
               />
             ))}
