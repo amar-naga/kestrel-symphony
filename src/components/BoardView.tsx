@@ -323,6 +323,10 @@ export function BoardView() {
   const handlePull = (story: JiraStory) => {
     setPullingStoryId(story.id);
     setTimeout(() => {
+      // Generate blueprint if story doesn't have one
+      if (!story.blueprint) {
+        dispatch({ type: "SET_BLUEPRINT", storyId: story.id, blueprint: generateBlueprint(story) });
+      }
       dispatch({ type: "PULL_STORY", storyId: story.id });
       dispatch({ type: "SET_ACTIVE_STORY", storyId: story.id });
       dispatch({ type: "SET_VIEW", view: "blueprint" });

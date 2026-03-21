@@ -3,7 +3,7 @@
 import { useReducer, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppContext, appReducer, defaultState } from "@/lib/store";
-import { SAMPLE_STORIES } from "@/lib/sample-data";
+import { SAMPLE_STORIES, generateBlueprint } from "@/lib/sample-data";
 import { Navigation } from "@/components/Navigation";
 import { FloatingOrbs } from "@/components/FloatingOrbs";
 import { HeroSplash } from "@/components/HeroSplash";
@@ -30,9 +30,16 @@ export default function Home() {
   const ViewComponent = viewComponents[state.currentView];
   const showNav = state.currentView !== "hero";
 
-  // Initialize stories on mount so all views have data
+  // Initialize stories on mount with pre-attached blueprints
   useEffect(() => {
-    dispatch({ type: "INIT_STORIES", stories: SAMPLE_STORIES });
+    const storiesWithBlueprints = SAMPLE_STORIES.map((story) => {
+      if (story.blueprint) return story;
+      if (story.status === "ready") {
+        return { ...story, blueprint: generateBlueprint(story) };
+      }
+      return story;
+    });
+    dispatch({ type: "INIT_STORIES", stories: storiesWithBlueprints });
   }, []);
 
   // Apply theme to document body
