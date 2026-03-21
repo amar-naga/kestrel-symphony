@@ -834,26 +834,44 @@ export function TollgateView() {
                   )}
                 </motion.div>
 
-                {/* Tollgate Summary */}
-                <div className="grid grid-cols-3 gap-4 mb-6 px-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--text-primary)" }}>
+                {/* Tollgate Summary — 3 vertical cards */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div
+                    className="rounded-xl p-4 text-center"
+                    style={{
+                      background: "var(--surface-secondary)",
+                      border: "1px solid var(--border-secondary)",
+                    }}
+                  >
+                    <div className="text-2xl font-bold tabular-nums mb-1" style={{ color: "var(--text-primary)" }}>
                       {tollgate.criteria.filter(c => c.passed).length}/{tollgate.criteria.length}
                     </div>
                     <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                       Criteria Passed
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold tabular-nums" style={{ color: (tollgate.passed || !!tollgate.override) ? "#4ade80" : "#f87171" }}>
+                  <div
+                    className="rounded-xl p-4 text-center"
+                    style={{
+                      background: "var(--surface-secondary)",
+                      border: "1px solid var(--border-secondary)",
+                    }}
+                  >
+                    <div className="text-2xl font-bold tabular-nums mb-1" style={{ color: "var(--text-primary)" }}>
                       {tollgate.overallScore}%
                     </div>
                     <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                       Overall Score
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+                  <div
+                    className="rounded-xl p-4 text-center"
+                    style={{
+                      background: "var(--surface-secondary)",
+                      border: "1px solid var(--border-secondary)",
+                    }}
+                  >
+                    <div className="text-2xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>
                       {tollgate.mode === "enforced" ? "Enforced" : "Advisory"}
                     </div>
                     <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
