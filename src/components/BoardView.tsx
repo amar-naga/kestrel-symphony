@@ -23,16 +23,16 @@ import type { JiraStory, StoryStatus, StoryType, StoryPriority, PhaseStatus } fr
 
 const COLUMNS: { status: StoryStatus; label: string; color: string }[] = [
   { status: "backlog", label: "Backlog", color: "#6b7280" },
-  { status: "ready", label: "Ready", color: "#3b82f6" },
-  { status: "in_symphony", label: "In Symphony", color: "#8b5cf6" },
-  { status: "done", label: "Done", color: "#10b981" },
+  { status: "ready", label: "Ready", color: "#999999" },
+  { status: "in_symphony", label: "In Symphony", color: "#FF6B2C" },
+  { status: "done", label: "Done", color: "#4ade80" },
 ];
 
 const TYPE_CONFIG: Record<StoryType, { icon: React.ReactNode; bg: string; text: string; label: string }> = {
-  feature: { icon: <Lightbulb size={12} />, bg: "rgba(59,130,246,0.15)", text: "#60a5fa", label: "Feature" },
-  bug: { icon: <Bug size={12} />, bg: "rgba(239,68,68,0.15)", text: "#f87171", label: "Bug" },
-  spike: { icon: <Zap size={12} />, bg: "rgba(245,158,11,0.15)", text: "#fbbf24", label: "Spike" },
-  epic: { icon: <BookOpen size={12} />, bg: "rgba(139,92,246,0.15)", text: "#a78bfa", label: "Epic" },
+  feature: { icon: <Lightbulb size={12} />, bg: "rgba(255,107,44,0.15)", text: "#FF8F5C", label: "Feature" },
+  bug: { icon: <Bug size={12} />, bg: "rgba(248,113,113,0.15)", text: "#f87171", label: "Bug" },
+  spike: { icon: <Zap size={12} />, bg: "rgba(251,191,36,0.15)", text: "#fbbf24", label: "Spike" },
+  epic: { icon: <BookOpen size={12} />, bg: "rgba(255,107,44,0.15)", text: "#FF6B2C", label: "Epic" },
 };
 
 const PRIORITY_COLORS: Record<StoryPriority, string> = {
@@ -43,9 +43,9 @@ const PRIORITY_COLORS: Record<StoryPriority, string> = {
 };
 
 const PHASE_STATUS_COLOR: Record<PhaseStatus, string> = {
-  passed: "#10b981",
-  active: "#3b82f6",
-  failed: "#ef4444",
+  passed: "#4ade80",
+  active: "#FF6B2C",
+  failed: "#f87171",
   pending: "#4b5563",
   skipped: "#6b7280",
 };
@@ -78,7 +78,7 @@ function MiniPipeline({ phases }: { phases: NonNullable<JiraStory["phases"]> }) 
                   boxShadow: isActive ? `0 0 8px ${color}` : "none",
                 }}
               />
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                 {phase.name}
                 {isPassed && " \u2713"}
                 {isActive && " \ud83d\udd04"}
@@ -117,8 +117,8 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
       transition={{ duration: 0.25 }}
       onClick={isInSymphony ? onOpen : undefined}
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "var(--surface-primary)",
+        border: "1px solid var(--border-primary)",
         borderRadius: 16,
         padding: 16,
         cursor: isInSymphony ? "pointer" : "default",
@@ -126,11 +126,11 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
       }}
-      whileHover={isInSymphony ? { borderColor: "rgba(139,92,246,0.4)", y: -2 } : {}}
+      whileHover={isInSymphony ? { borderColor: "rgba(255,107,44,0.4)", y: -2 } : {}}
     >
       {/* Header: key + priority */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", fontFamily: "monospace" }}>
           {story.key}
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -149,7 +149,7 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
       </div>
 
       {/* Title */}
-      <p style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.9)", lineHeight: 1.4, margin: 0, marginBottom: 10 }}>
+      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", lineHeight: 1.4, margin: 0, marginBottom: 10 }}>
         {story.title}
       </p>
 
@@ -179,8 +179,8 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
             fontSize: 11,
             padding: "2px 8px",
             borderRadius: 9999,
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(255,255,255,0.5)",
+            background: "var(--surface-primary)",
+            color: "var(--text-muted)",
           }}
         >
           {story.component}
@@ -194,8 +194,8 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
               fontWeight: 600,
               padding: "2px 6px",
               borderRadius: 4,
-              background: "rgba(255,255,255,0.06)",
-              color: "rgba(255,255,255,0.45)",
+              background: "var(--surface-primary)",
+              color: "var(--text-muted)",
               marginLeft: "auto",
             }}
           >
@@ -225,9 +225,9 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
             gap: 6,
             padding: "8px 0",
             borderRadius: 10,
-            border: "1px solid rgba(139,92,246,0.3)",
-            background: "rgba(139,92,246,0.1)",
-            color: "#a78bfa",
+            border: "1px solid rgba(255,107,44,0.3)",
+            background: "rgba(255,107,44,0.1)",
+            color: "#FF8F5C",
             fontSize: 12,
             fontWeight: 600,
             cursor: "pointer",
@@ -292,7 +292,7 @@ export function BoardView() {
               width: 32,
               height: 32,
               borderRadius: 8,
-              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -307,7 +307,7 @@ export function BoardView() {
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: "rgba(255,255,255,0.95)",
+              color: "var(--text-primary)",
               margin: 0,
               letterSpacing: "-0.02em",
             }}
@@ -317,7 +317,7 @@ export function BoardView() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 44 }}>
           <span className="text-white/40"><Clock size={13} /></span>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
+          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
             Sprint 14 &middot; Mar 10&ndash;24, 2026
           </span>
           <span
@@ -325,8 +325,8 @@ export function BoardView() {
               fontSize: 11,
               padding: "2px 8px",
               borderRadius: 9999,
-              background: "rgba(139,92,246,0.15)",
-              color: "#a78bfa",
+              background: "rgba(255,107,44,0.15)",
+              color: "#FF8F5C",
               marginLeft: 8,
             }}
           >
@@ -351,8 +351,8 @@ export function BoardView() {
             <div
               key={col.status}
               style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--surface-secondary)",
+                border: "1px solid var(--border-secondary)",
                 borderRadius: 20,
                 padding: 16,
                 backdropFilter: "blur(12px)",
@@ -368,7 +368,7 @@ export function BoardView() {
                   justifyContent: "space-between",
                   marginBottom: 16,
                   paddingBottom: 12,
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  borderBottom: "1px solid var(--border-secondary)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -380,7 +380,7 @@ export function BoardView() {
                       backgroundColor: col.color,
                     }}
                   />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>
                     {col.label}
                   </span>
                 </div>
@@ -416,7 +416,7 @@ export function BoardView() {
                     style={{
                       textAlign: "center",
                       padding: "24px 12px",
-                      color: "rgba(255,255,255,0.2)",
+                      color: "var(--text-ghost)",
                       fontSize: 12,
                     }}
                   >

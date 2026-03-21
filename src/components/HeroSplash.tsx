@@ -50,7 +50,7 @@ export function HeroSplash() {
         className="absolute w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, rgba(123, 47, 247, 0.15) 0%, rgba(56, 152, 236, 0.08) 40%, transparent 70%)",
+            "radial-gradient(circle, rgba(255, 107, 44, 0.15) 0%, rgba(255, 143, 92, 0.08) 40%, transparent 70%)",
           filter: "blur(100px)",
         }}
         animate={{
@@ -76,7 +76,7 @@ export function HeroSplash() {
               ease: "easeInOut",
             }}
           >
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#FF6B2C] via-[#FF8F5C] to-[#CC5623] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
               <img
                 src="/kestrel-logo.png"
                 alt="Kestrel Symphony"
@@ -95,7 +95,7 @@ export function HeroSplash() {
             AI-Native SDLC
           </span>
           <br />
-          <span className="bg-gradient-to-r from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#FF6B2C] via-[#FF8F5C] to-[#CC5623] bg-clip-text text-transparent">
             Orchestration
           </span>
         </motion.h1>
@@ -167,7 +167,7 @@ export function HeroSplash() {
           >
             {/* Glow pulse behind button */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[var(--accent-purple)] to-[var(--accent-cyan)] rounded-2xl blur-xl"
+              className="absolute inset-0 bg-gradient-to-r from-[#FF6B2C] to-[#FF8F5C] rounded-2xl blur-xl"
               animate={{
                 opacity: [0.3, 0.55, 0.3],
               }}

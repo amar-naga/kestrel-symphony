@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 
 const orbs = [
-  { x: "15%", y: "30%", size: 400, color: "rgba(123, 47, 247, 0.15)", delay: 0, duration: 25 },
-  { x: "75%", y: "20%", size: 350, color: "rgba(67, 97, 238, 0.1)", delay: 2, duration: 30 },
-  { x: "50%", y: "70%", size: 300, color: "rgba(0, 212, 255, 0.08)", delay: 4, duration: 22 },
-  { x: "85%", y: "65%", size: 250, color: "rgba(0, 200, 150, 0.06)", delay: 1, duration: 28 },
-  { x: "30%", y: "80%", size: 200, color: "rgba(123, 47, 247, 0.08)", delay: 3, duration: 35 },
+  { x: "15%", y: "30%", size: 400, color: "rgba(255, 107, 44, 0.05)", delay: 0, duration: 25 },
+  { x: "75%", y: "20%", size: 350, color: "rgba(255, 143, 92, 0.04)", delay: 2, duration: 30 },
+  { x: "50%", y: "70%", size: 300, color: "rgba(150, 150, 150, 0.03)", delay: 4, duration: 22 },
+  { x: "85%", y: "65%", size: 250, color: "rgba(100, 100, 100, 0.03)", delay: 1, duration: 28 },
+  { x: "30%", y: "80%", size: 200, color: "rgba(255, 107, 44, 0.03)", delay: 3, duration: 35 },
 ];
 
 export function FloatingOrbs() {

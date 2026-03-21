@@ -147,7 +147,7 @@ export const SAMPLE_STORIES: JiraStory[] = [
     blueprint: {
       storyId: "s6",
       reasoning:
-        "RBAC stories require Plan + Build + Deploy. The auth module has had 3 tollgate failures in the last 8 stories — recommending security-focused Code Auditor role. Similar stories NCP-1089 and NCP-1134 averaged 14 dev-hours with vendor team.",
+        "RBAC stories require Plan + Build + Deploy. The auth module has had 3 tollgate failures in the last 8 stories — recommending security-focused Code Auditor role. Similar stories NCP-1089 and NCP-1134 averaged 14 dev-hours with the dev team.",
       phases: [
         { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
         { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub"], humanMode: "review", estimatedMinutes: 45, estimatedCost: 4.20 },
@@ -267,7 +267,7 @@ export function generateBlueprint(story: JiraStory): Blueprint {
   const hasAuthComponent = story.component === "auth";
   return {
     storyId: story.id,
-    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories — adding security-focused Code Auditor role. " : "has been stable — standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${Math.floor(Math.random() * 6) + 10} dev-hours with vendor team.`,
+    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories — adding security-focused Code Auditor role. " : "has been stable — standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${Math.floor(Math.random() * 6) + 10} dev-hours with the dev team.`,
     phases: [
       { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
       { id: "build", name: "Build", roles: ["Agent Engineer", hasAuthComponent ? "Code Auditor" : "Data Steward"], tools: ["Claude Code", "GitHub", "Supabase"], humanMode: "review", estimatedMinutes: 45, estimatedCost: 4.20 },
@@ -281,6 +281,133 @@ export function generateBlueprint(story: JiraStory): Blueprint {
 }
 
 /* ================================================================
+   SESSION DATA — pre-built messages for NCP-1252 Plan phase
+   ================================================================ */
+
+export const RBAC_PLAN_MESSAGES: SessionMessage[] = [
+  {
+    id: "pm1",
+    role: "Requirements Dev",
+    roleIcon: "FileText",
+    roleColor: "#FF6B2C",
+    content: "Starting requirements analysis for RBAC admin panel. Pulling context from NCP-1200 epic and reviewing the existing auth module. We need 4 roles: Super Admin, Account Manager, Support Agent, and Viewer.",
+    timestamp: "2026-03-21T08:16:20Z",
+    artifacts: ["ncp-1200-epic-context.md"],
+  },
+  {
+    id: "pm2",
+    role: "Process Leader",
+    roleIcon: "ClipboardCheck",
+    roleColor: "#8B8B8B",
+    content: "I'll define the approval gates and edge cases while you structure the requirements. Key question: should permission changes require Super Admin approval, or can Account Managers self-serve? Based on SOC 2 compliance, I'm recommending Super Admin approval with audit logging.",
+    timestamp: "2026-03-21T08:19:45Z",
+  },
+  {
+    id: "pm3",
+    role: "Requirements Dev",
+    roleIcon: "FileText",
+    roleColor: "#FF6B2C",
+    content: "Agreed on Super Admin approval. I've mapped out 12 permission groups across 8 admin pages. Each role gets a specific permission matrix. Documenting the hierarchy: Super Admin > Account Manager > Support Agent > Viewer.",
+    timestamp: "2026-03-21T08:25:10Z",
+    artifacts: ["rbac-requirements-spec.md"],
+  },
+  {
+    id: "pm4",
+    role: "Process Leader",
+    roleIcon: "ClipboardCheck",
+    roleColor: "#8B8B8B",
+    content: "Reviewing the permission matrix now. Edge case identified: what happens when an Account Manager is downgraded to Support Agent while they have active sessions? Recommending immediate session invalidation with a grace notification. Adding this to acceptance criteria.",
+    timestamp: "2026-03-21T08:30:22Z",
+    referencesRole: "Requirements Dev",
+  },
+  {
+    id: "pm5",
+    role: "Requirements Dev",
+    roleIcon: "FileText",
+    roleColor: "#FF6B2C",
+    content: "Good edge case. Updated the spec to include role transition handling. All acceptance criteria now have explicit pass/fail conditions. The spec covers: role hierarchy, permission inheritance, audit logging, role transitions, and tenant isolation requirements.",
+    timestamp: "2026-03-21T08:36:40Z",
+    artifacts: ["rbac-requirements-spec.md"],
+  },
+  {
+    id: "pm6",
+    role: "Process Leader",
+    roleIcon: "ClipboardCheck",
+    roleColor: "#8B8B8B",
+    content: "Requirements look complete. I've finalized the approval gate definition: all permission changes require Super Admin sign-off, audit log entries are immutable, and the Build phase must enforce tenant isolation. Handing over to Build with confidence.",
+    timestamp: "2026-03-21T08:40:55Z",
+    artifacts: ["approval-gate-definition.md"],
+  },
+];
+
+export const RBAC_PLAN_LOG: SessionLogEntry[] = [
+  { id: "pl1", timestamp: "2026-03-21T08:15:00Z", action: "Phase started", role: "Symphony", details: "Plan phase initiated for NCP-1252" },
+  { id: "pl2", timestamp: "2026-03-21T08:15:05Z", action: "Role joined", role: "Requirements Dev", details: "Connected to Jira and Confluence via MCP" },
+  { id: "pl3", timestamp: "2026-03-21T08:15:08Z", action: "Role joined", role: "Process Leader", details: "SOP validation mode activated" },
+  { id: "pl4", timestamp: "2026-03-21T08:16:20Z", action: "Artifact received", role: "Requirements Dev", tool: "Jira MCP", details: "Loaded NCP-1200 epic context" },
+  { id: "pl5", timestamp: "2026-03-21T08:19:45Z", action: "Cross-reference", role: "Process Leader", details: "Referencing SOC 2 compliance requirements" },
+  { id: "pl6", timestamp: "2026-03-21T08:25:10Z", action: "Artifact created", role: "Requirements Dev", tool: "Confluence MCP", details: "RBAC Requirements Spec v1 published" },
+  { id: "pl7", timestamp: "2026-03-21T08:30:22Z", action: "Security finding", role: "Process Leader", details: "Edge case: role downgrade with active sessions" },
+  { id: "pl8", timestamp: "2026-03-21T08:36:40Z", action: "Artifact updated", role: "Requirements Dev", tool: "Confluence MCP", details: "Spec updated with role transition handling" },
+  { id: "pl9", timestamp: "2026-03-21T08:40:55Z", action: "Artifact created", role: "Process Leader", tool: "Confluence MCP", details: "Approval Gate Definition finalized" },
+  { id: "pl10", timestamp: "2026-03-21T08:42:00Z", action: "Phase ready", role: "Symphony", details: "Plan phase complete — triggering tollgate evaluation" },
+];
+
+/* ================================================================
+   SESSION DATA — pre-built messages for NCP-1252 Deploy phase
+   ================================================================ */
+
+export const RBAC_DEPLOY_MESSAGES: SessionMessage[] = [
+  {
+    id: "dm1",
+    role: "Agent Ops",
+    roleIcon: "Activity",
+    roleColor: "#FF8F5C",
+    content: "Picking up Build artifacts from feature/ncp-1252-rbac. Running CI pipeline — linting, type checks, and 47 unit tests. All green. Preparing staging deployment.",
+    timestamp: "2026-03-21T09:15:08Z",
+    artifacts: ["ci-pipeline-log.txt"],
+  },
+  {
+    id: "dm2",
+    role: "Agent Ops",
+    roleIcon: "Activity",
+    roleColor: "#FF8F5C",
+    content: "Deploying to staging environment via Vercel preview. Migration 001-rbac.sql applied successfully. RBAC middleware active on staging. Starting smoke tests...",
+    timestamp: "2026-03-21T09:18:30Z",
+    artifacts: ["staging-deploy-url.txt"],
+  },
+  {
+    id: "dm3",
+    role: "Agent Ops",
+    roleIcon: "Activity",
+    roleColor: "#FF8F5C",
+    content: "Smoke tests passed: 12/12 endpoints responding correctly. Permission checks verified for all 4 roles. Tenant isolation confirmed — cross-tenant requests return 403. P95 latency: 45ms. Promoting to production.",
+    timestamp: "2026-03-21T09:22:15Z",
+    artifacts: ["smoke-test-report.json"],
+  },
+  {
+    id: "dm4",
+    role: "Agent Ops",
+    roleIcon: "Activity",
+    roleColor: "#FF8F5C",
+    content: "Production deployment complete. CloudWatch alarms configured: error rate > 1%, P95 > 200ms, and permission denial spike > 50/min. Rollback procedure tested and documented. RBAC feature flag enabled for enterprise tier.",
+    timestamp: "2026-03-21T09:26:40Z",
+    artifacts: ["production-deploy-manifest.json", "rollback-procedure.md"],
+  },
+];
+
+export const RBAC_DEPLOY_LOG: SessionLogEntry[] = [
+  { id: "dl1", timestamp: "2026-03-21T09:14:00Z", action: "Phase started", role: "Symphony", details: "Deploy phase initiated for NCP-1252" },
+  { id: "dl2", timestamp: "2026-03-21T09:14:05Z", action: "Role joined", role: "Agent Ops", details: "Connected to GitHub Actions, Vercel, and CloudWatch via MCP" },
+  { id: "dl3", timestamp: "2026-03-21T09:15:08Z", action: "Tests passing", role: "Agent Ops", tool: "GitHub Actions", details: "CI pipeline: 47/47 tests, lint clean, types clean" },
+  { id: "dl4", timestamp: "2026-03-21T09:18:30Z", action: "Code pushed", role: "Agent Ops", tool: "Vercel", details: "Staging deployment live at preview-ncp-1252.vercel.app" },
+  { id: "dl5", timestamp: "2026-03-21T09:22:15Z", action: "Tests passing", role: "Agent Ops", tool: "GitHub Actions", details: "Smoke tests: 12/12 passed, P95: 45ms" },
+  { id: "dl6", timestamp: "2026-03-21T09:26:40Z", action: "Code pushed", role: "Agent Ops", tool: "Vercel", details: "Production deployment complete — feature flag enabled" },
+  { id: "dl7", timestamp: "2026-03-21T09:27:00Z", action: "MCP connected", role: "Agent Ops", tool: "CloudWatch", details: "Monitoring alarms configured" },
+  { id: "dl8", timestamp: "2026-03-21T09:27:30Z", action: "Phase ready", role: "Symphony", details: "Deploy phase complete — triggering tollgate evaluation" },
+];
+
+/* ================================================================
    SESSION DATA — pre-built messages for NCP-1252 Build phase
    ================================================================ */
 
@@ -289,7 +416,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m1",
     role: "Agent Engineer",
     roleIcon: "Cpu",
-    roleColor: "#4361ee",
+    roleColor: "#FF6B2C",
     content: "Analyzing the RBAC requirements spec from Plan phase. I see 4 roles (Super Admin, Account Manager, Support Agent, Viewer) with 12 permission groups across 8 admin pages. Starting with the middleware layer.",
     timestamp: "2026-03-21T08:45:12Z",
     artifacts: ["rbac-requirements-spec.md"],
@@ -298,7 +425,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m2",
     role: "Code Auditor",
     roleIcon: "ShieldCheck",
-    roleColor: "#e63946",
+    roleColor: "#f87171",
     content: "I'll review the permission model as Agent Engineer builds it. Flagging from the Plan spec: the Process Leader noted that permission changes require Super Admin approval with audit logging. I'll verify that's enforced in the implementation.",
     timestamp: "2026-03-21T08:45:45Z",
     referencesRole: "Process Leader",
@@ -307,7 +434,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m3",
     role: "Agent Engineer",
     roleIcon: "Cpu",
-    roleColor: "#4361ee",
+    roleColor: "#FF6B2C",
     content: "Created the permission middleware. Using a hierarchical model — Super Admin inherits all permissions, Account Manager inherits Support Agent permissions, etc. Connected to GitHub via MCP — pushing to feature/ncp-1252-rbac branch.",
     timestamp: "2026-03-21T08:52:30Z",
     artifacts: ["rbac-middleware.ts"],
@@ -316,7 +443,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m4",
     role: "Code Auditor",
     roleIcon: "ShieldCheck",
-    roleColor: "#e63946",
+    roleColor: "#f87171",
     content: "Reviewing rbac-middleware.ts. The hierarchy model is clean, but I found an issue: the permission check doesn't validate the user's tenant scope. A Super Admin in Tenant A could technically modify Tenant B's users. Adding tenant isolation to my review notes.",
     timestamp: "2026-03-21T08:56:18Z",
     referencesRole: "Agent Engineer",
@@ -325,7 +452,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m5",
     role: "Agent Engineer",
     roleIcon: "Cpu",
-    roleColor: "#4361ee",
+    roleColor: "#FF6B2C",
     content: "Good catch. Adding tenant_id scoping to every permission check. Updated the middleware to include `AND tenant_id = $currentTenant` in all authorization queries. Also added 47 unit tests covering all role × resource × action combinations.",
     timestamp: "2026-03-21T09:04:42Z",
     artifacts: ["rbac-middleware.ts", "rbac.test.ts"],
@@ -334,7 +461,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     id: "m6",
     role: "Code Auditor",
     roleIcon: "ShieldCheck",
-    roleColor: "#e63946",
+    roleColor: "#f87171",
     content: "Tenant scoping confirmed. All 47 tests passing. Running security scan now... No vulnerabilities detected. The audit logging requirement from the Plan phase is properly implemented — every permission change writes to the audit_events table with actor, action, and timestamp. Ready for tollgate.",
     timestamp: "2026-03-21T09:12:55Z",
   },
@@ -358,14 +485,14 @@ export const RBAC_BUILD_LOG: SessionLogEntry[] = [
    ================================================================ */
 
 export const ROLE_CATALOG = [
-  { id: "Requirements Dev", icon: "FileText", color: "#4361ee", description: "Translates business needs into structured specs" },
-  { id: "Process Leader", icon: "ClipboardCheck", color: "#7b2ff7", description: "Builds SOPs, edge cases, and approval gates" },
-  { id: "Data Steward", icon: "Database", color: "#00c896", description: "Validates data schemas and quality constraints" },
-  { id: "Agent Engineer", icon: "Cpu", color: "#4361ee", description: "Builds, tests, and validates implementations" },
-  { id: "Code Auditor", icon: "ShieldCheck", color: "#e63946", description: "Security scanning and code quality review" },
-  { id: "UX Designer", icon: "Palette", color: "#f59e0b", description: "Interface design and usability validation" },
-  { id: "Architect", icon: "Network", color: "#06b6d4", description: "Technical architecture and system design" },
-  { id: "Agent Ops", icon: "Activity", color: "#00c896", description: "Deploys, monitors, and manages production" },
+  { id: "Requirements Dev", icon: "FileText", color: "#FF6B2C", description: "Translates business needs into structured specs" },
+  { id: "Process Leader", icon: "ClipboardCheck", color: "#8B8B8B", description: "Builds SOPs, edge cases, and approval gates" },
+  { id: "Data Steward", icon: "Database", color: "#666666", description: "Validates data schemas and quality constraints" },
+  { id: "Agent Engineer", icon: "Cpu", color: "#FF6B2C", description: "Builds, tests, and validates implementations" },
+  { id: "Code Auditor", icon: "ShieldCheck", color: "#f87171", description: "Security scanning and code quality review" },
+  { id: "UX Designer", icon: "Palette", color: "#999999", description: "Interface design and usability validation" },
+  { id: "Architect", icon: "Network", color: "#777777", description: "Technical architecture and system design" },
+  { id: "Agent Ops", icon: "Activity", color: "#FF8F5C", description: "Deploys, monitors, and manages production" },
 ] as const;
 
 /* ================================================================

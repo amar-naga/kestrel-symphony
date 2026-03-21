@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer } from "react";
+import { useReducer, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppContext, appReducer, defaultState } from "@/lib/store";
 import { Navigation } from "@/components/Navigation";
@@ -11,6 +11,7 @@ import { BlueprintView } from "@/components/BlueprintView";
 import { SessionView } from "@/components/SessionView";
 import { TollgateView } from "@/components/TollgateView";
 import { CockpitView } from "@/components/CockpitView";
+import { PlatformInspector } from "@/components/PlatformInspector";
 
 const viewComponents = {
   hero: HeroSplash,
@@ -23,13 +24,28 @@ const viewComponents = {
 
 export default function Home() {
   const [state, dispatch] = useReducer(appReducer, defaultState);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const ViewComponent = viewComponents[state.currentView];
   const showNav = state.currentView !== "hero";
 
+  // Apply theme to document body
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+
   return (
     <AppContext.Provider value={{ state, dispatch }}>
-      <FloatingOrbs />
-      {showNav && <Navigation />}
+      {theme === "dark" && <FloatingOrbs />}
+      {showNav && (
+        <Navigation
+          onToggleInspector={() => setInspectorOpen((prev) => !prev)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      )}
       <main className={`flex-1 ${showNav ? "pt-16" : ""} pb-12 px-6 relative z-10`}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -43,6 +59,9 @@ export default function Home() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Platform Inspector Panel */}
+      <PlatformInspector open={inspectorOpen} onClose={() => setInspectorOpen(false)} />
     </AppContext.Provider>
   );
 }

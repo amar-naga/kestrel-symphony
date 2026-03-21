@@ -1,8 +1,15 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/lib/store";
-import { RBAC_BUILD_MESSAGES, RBAC_BUILD_LOG } from "@/lib/sample-data";
+import {
+  RBAC_BUILD_MESSAGES,
+  RBAC_BUILD_LOG,
+  RBAC_PLAN_MESSAGES,
+  RBAC_PLAN_LOG,
+  RBAC_DEPLOY_MESSAGES,
+  RBAC_DEPLOY_LOG,
+} from "@/lib/sample-data";
 import {
   FileText,
   Cpu,
@@ -12,7 +19,6 @@ import {
   Database,
   Send,
   CheckCircle,
-  AlertTriangle,
   Clock,
   Wrench,
   ChevronRight,
@@ -20,6 +26,11 @@ import {
   TestTube,
   FileCode,
   ArrowRight,
+  Loader2,
+  Terminal,
+  GitBranch,
+  Zap,
+  CircleDot,
 } from "lucide-react";
 import type { SessionMessage, SessionLogEntry, Artifact, PhaseState } from "@/lib/store";
 
@@ -46,15 +57,61 @@ const artifactIconMap: Record<string, React.ComponentType<{ className?: string; 
 };
 
 const ACTION_COLORS: Record<string, string> = {
-  "Role joined": "#10b981",
-  "Phase started": "#8b5cf6",
-  "Phase ready": "#8b5cf6",
-  "Code pushed": "#3b82f6",
-  "Code updated": "#3b82f6",
-  "Security finding": "#ef4444",
-  "Security scan": "#10b981",
-  "Artifact received": "#a855f6",
-  "Cross-reference": "#f59e0b",
+  "Role joined": "#4ade80",
+  "Phase started": "#FF6B2C",
+  "Phase ready": "#FF6B2C",
+  "Code pushed": "#999999",
+  "Code updated": "#999999",
+  "Security finding": "#f87171",
+  "Security scan": "#4ade80",
+  "Artifact received": "#FF8F5C",
+  "Cross-reference": "#fbbf24",
+  "MCP connected": "#888888",
+  "Tests passing": "#4ade80",
+};
+
+const AGENT_ACTIVITIES: Record<string, string[]> = {
+  "Agent Engineer": [
+    "Analyzing requirements spec...",
+    "Scaffolding middleware layer...",
+    "Writing permission check logic...",
+    "Pushing to GitHub via MCP...",
+    "Adding unit tests...",
+    "Adding tenant scoping...",
+    "47 tests written and passing ✓",
+  ],
+  "Code Auditor": [
+    "Loading security review context...",
+    "Scanning permission model...",
+    "Cross-referencing Plan phase artifacts...",
+    "Reviewing tenant isolation...",
+    "Running Snyk security scan...",
+    "0 vulnerabilities detected ✓",
+  ],
+  "Requirements Dev": [
+    "Loading epic context from Jira...",
+    "Analyzing auth module patterns...",
+    "Mapping permission groups...",
+    "Defining role hierarchy...",
+    "Writing acceptance criteria...",
+    "Spec complete ✓",
+  ],
+  "Process Leader": [
+    "Loading SOC 2 compliance requirements...",
+    "Defining approval gates...",
+    "Analyzing edge cases...",
+    "Validating acceptance criteria...",
+    "Finalizing gate definitions...",
+    "Approval gates defined ✓",
+  ],
+  "Agent Ops": [
+    "Running CI pipeline...",
+    "Deploying to staging...",
+    "Executing smoke tests...",
+    "Configuring monitoring alarms...",
+    "Promoting to production...",
+    "Production deploy complete ✓",
+  ],
 };
 
 function getActionColor(action: string): string {
@@ -69,11 +126,11 @@ function formatTime(ts: string): string {
 function humanModeLabel(mode: string): { label: string; color: string } {
   switch (mode) {
     case "collaborative":
-      return { label: "Collaborative", color: "#10b981" };
+      return { label: "Collaborative", color: "#FF6B2C" };
     case "review":
-      return { label: "Review", color: "#f59e0b" };
+      return { label: "Review-based", color: "#fbbf24" };
     case "delegated":
-      return { label: "Delegated", color: "#8b5cf6" };
+      return { label: "Delegated", color: "#4ade80" };
     default:
       return { label: mode, color: "#6b7280" };
   }
@@ -83,31 +140,144 @@ function humanModeLabel(mode: string): { label: string; color: string } {
    SUB-COMPONENTS
    ================================================================ */
 
-function RoleAvatar({ role, color, size = 32 }: { role: string; color: string; iconName?: string; size?: number }) {
+function RoleAvatar({ role, color, active, size = 32 }: { role: string; color: string; iconName?: string; size?: number; active?: boolean }) {
   const Icon = roleIconMap[role] ?? Cpu;
   return (
-    <div
-      className="flex items-center justify-center rounded-full shrink-0"
-      style={{
-        width: size,
-        height: size,
-        background: `${color}25`,
-        border: `2px solid ${color}60`,
-        boxShadow: `0 0 12px ${color}20`,
-        color,
-      }}
-    >
-      <Icon size={size * 0.45} />
+    <div className="relative">
+      <div
+        className="flex items-center justify-center rounded-full shrink-0"
+        style={{
+          width: size,
+          height: size,
+          background: `${color}25`,
+          border: `2px solid ${color}60`,
+          boxShadow: active ? `0 0 16px ${color}40` : `0 0 8px ${color}15`,
+          color,
+          transition: "box-shadow 0.3s ease",
+        }}
+      >
+        <Icon size={size * 0.45} />
+      </div>
+      {active && (
+        <motion.div
+          className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+          style={{ background: color, borderColor: "var(--background)" }}
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      )}
     </div>
   );
 }
 
-function McpBadge({ name }: { name: string }) {
+function McpBadge({ name, connected }: { name: string; connected?: boolean }) {
   return (
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-white/50 bg-white/[0.06] border border-white/[0.08]">
+      {connected && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
       <Wrench size={10} className="opacity-50" />
       {name}
     </span>
+  );
+}
+
+/* ── Typing Indicator ─────────────────────────────────────── */
+
+function TypingIndicator({ role, color, activity }: { role: string; color: string; activity: string }) {
+  const Icon = roleIconMap[role] ?? Cpu;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      className="flex gap-3 px-4 py-3"
+    >
+      <RoleAvatar role={role} color={color} size={36} active />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-semibold" style={{ color }}>{role}</span>
+          <motion.span
+            className="text-[10px] text-white/30 flex items-center gap-1"
+            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Loader2 size={10} className="animate-spin" />
+            working
+          </motion.span>
+        </div>
+        <div
+          className="text-sm text-white/50 leading-relaxed rounded-xl px-4 py-3 flex items-center gap-2"
+          style={{
+            background: "var(--surface-secondary)",
+            border: `1px solid ${color}15`,
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <Terminal size={13} style={{ color }} className="shrink-0" />
+          <motion.span
+            key={activity}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="font-mono text-xs"
+            style={{ color: `${color}aa` }}
+          >
+            {activity}
+          </motion.span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Live Activity Bar ─────────────────────────────────────── */
+
+function LiveActivityBar({ agents, progress }: { agents: { role: string; color: string; status: string }[]; progress: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="px-6 py-2 flex items-center gap-4 border-b border-white/[0.04]"
+      style={{ background: "var(--surface-secondary)" }}
+    >
+      {/* Progress bar */}
+      <div className="flex items-center gap-2 flex-1">
+        <span className="text-[10px] font-mono text-white/25 shrink-0">Progress</span>
+        <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: "linear-gradient(90deg, #FF6B2C, #FF8F5C)" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
+        </div>
+        <span className="text-[10px] font-mono text-white/30 tabular-nums">{progress}%</span>
+      </div>
+
+      {/* Agent status chips */}
+      <div className="flex items-center gap-2 shrink-0">
+        {agents.map((a) => (
+          <motion.span
+            key={a.role}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+            style={{
+              background: `${a.color}12`,
+              color: a.color,
+              border: `1px solid ${a.color}25`,
+            }}
+            animate={a.status === "active" ? { borderColor: [`${a.color}25`, `${a.color}60`, `${a.color}25`] } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            {a.status === "active" ? (
+              <CircleDot size={8} />
+            ) : a.status === "done" ? (
+              <CheckCircle size={8} />
+            ) : (
+              <Clock size={8} />
+            )}
+            {a.role.split(" ").pop()}
+          </motion.span>
+        ))}
+      </div>
+    </motion.div>
   );
 }
 
@@ -120,7 +290,7 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.08, ease: "easeOut" }}
+      transition={{ duration: 0.4, delay: 0.05, ease: "easeOut" }}
       className="flex gap-3 px-4 py-3"
     >
       <RoleAvatar role={msg.role} color={roleColor} iconName={msg.roleIcon} size={36} />
@@ -144,8 +314,8 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
         <div
           className="text-sm text-white/75 leading-relaxed rounded-xl px-4 py-3"
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--surface-secondary)",
+            border: "1px solid var(--border-secondary)",
             backdropFilter: "blur(12px)",
           }}
         >
@@ -156,8 +326,11 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
         {msg.artifacts && msg.artifacts.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {msg.artifacts.map((a) => (
-              <span
+              <motion.span
                 key={a}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.3 }}
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium cursor-pointer transition-colors hover:bg-white/[0.08]"
                 style={{
                   background: `${roleColor}12`,
@@ -167,7 +340,7 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
               >
                 <FileCode size={10} />
                 {a}
-              </span>
+              </motion.span>
             ))}
           </div>
         )}
@@ -178,26 +351,36 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
 
 /* ── Artifact Card ───────────────────────────────────────── */
 
-function ArtifactCard({ artifact }: { artifact: Artifact }) {
+function ArtifactCard({ artifact, isNew }: { artifact: Artifact; isNew?: boolean }) {
   const Icon = artifactIconMap[artifact.type] ?? FileText;
   const roleColor =
-    artifact.fromRole === "Agent Engineer" ? "#4361ee" :
-    artifact.fromRole === "Code Auditor" ? "#e63946" :
-    artifact.fromRole === "Requirements Dev" ? "#4361ee" :
-    artifact.fromRole === "Process Leader" ? "#7b2ff7" :
+    artifact.fromRole === "Agent Engineer" ? "#FF6B2C" :
+    artifact.fromRole === "Code Auditor" ? "#f87171" :
+    artifact.fromRole === "Requirements Dev" ? "#FF6B2C" :
+    artifact.fromRole === "Process Leader" ? "#8B8B8B" :
     "#888";
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 8 }}
       animate={{ opacity: 1, x: 0 }}
-      className="rounded-xl px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.06]"
+      className="rounded-xl px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.06] relative"
       style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--surface-secondary)",
+        border: isNew ? `1px solid ${roleColor}30` : "1px solid var(--border-secondary)",
         backdropFilter: "blur(8px)",
       }}
     >
+      {isNew && (
+        <motion.div
+          className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+          style={{ background: `${roleColor}20`, color: roleColor }}
+          animate={{ opacity: [1, 0.5, 1] }}
+          transition={{ duration: 1.5, repeat: 3 }}
+        >
+          new
+        </motion.div>
+      )}
       <div className="flex items-start gap-3">
         <div
           className="flex items-center justify-center rounded-lg shrink-0 mt-0.5"
@@ -221,7 +404,7 @@ function ArtifactCard({ artifact }: { artifact: Artifact }) {
             </span>
           </div>
           {artifact.preview && (
-            <p className="text-xs text-white/40 mt-1 line-clamp-2 leading-relaxed">{artifact.preview}</p>
+            <p className="text-xs text-white/40 mt-1 line-clamp-2 leading-relaxed font-mono">{artifact.preview}</p>
           )}
         </div>
       </div>
@@ -231,13 +414,13 @@ function ArtifactCard({ artifact }: { artifact: Artifact }) {
 
 /* ── Log Entry ───────────────────────────────────────────── */
 
-function LogEntry({ entry }: { entry: SessionLogEntry }) {
+function LogEntry({ entry, isNew }: { entry: SessionLogEntry; isNew?: boolean }) {
   const actionColor = getActionColor(entry.action);
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex items-start gap-3 px-4 py-2 text-xs"
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      className={`flex items-start gap-3 px-4 py-2 text-xs ${isNew ? "bg-white/[0.02]" : ""}`}
     >
       <span className="text-white/25 shrink-0 font-mono w-10 mt-0.5">{formatTime(entry.timestamp)}</span>
       <span
@@ -263,6 +446,72 @@ function LogEntry({ entry }: { entry: SessionLogEntry }) {
           )}
         </span>
       </div>
+      {isNew && (
+        <motion.div
+          className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 mt-1.5"
+          animate={{ opacity: [1, 0.3, 1] }}
+          transition={{ duration: 1, repeat: 3 }}
+        />
+      )}
+    </motion.div>
+  );
+}
+
+/* ── Phase Complete Animation ─────────────────────────────── */
+
+function PhaseCompleteOverlay({ onStay, onTollgate, phaseName }: { onStay: () => void; onTollgate: () => void; phaseName?: string }) {
+  return (
+    <motion.div
+      className="absolute inset-0 z-30 flex items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="text-center"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, type: "spring", bounce: 0.3 }}
+      >
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+        >
+          <CheckCircle size={64} className="text-emerald-400 mx-auto mb-4" />
+        </motion.div>
+        <h2 className="text-2xl font-bold text-white/90 mb-2">{phaseName ?? "Phase"} Complete</h2>
+        <p className="text-sm text-white/50 mb-6">All agents have finished their work. Ready for tollgate evaluation.</p>
+        <div className="flex items-center gap-3 justify-center">
+          <motion.button
+            onClick={onStay}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+            style={{
+              background: "var(--surface-hover)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-primary)",
+            }}
+            whileHover={{ scale: 1.05, background: "var(--surface-hover)" }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Stay in Session
+          </motion.button>
+          <motion.button
+            onClick={onTollgate}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{
+              background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
+              boxShadow: "0 4px 20px rgba(255,107,44,0.4)",
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ShieldCheck size={16} />
+            Run Tollgate Evaluation
+            <ArrowRight size={14} />
+          </motion.button>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -274,8 +523,15 @@ function LogEntry({ entry }: { entry: SessionLogEntry }) {
 export function SessionView() {
   const { state, dispatch } = useApp();
   const [visibleMessages, setVisibleMessages] = useState<SessionMessage[]>([]);
+  const [visibleLogs, setVisibleLogs] = useState<SessionLogEntry[]>([]);
   const [rightTab, setRightTab] = useState<"artifacts" | "log">("artifacts");
   const [inputValue, setInputValue] = useState("");
+  const [typingAgent, setTypingAgent] = useState<{ role: string; color: string; activity: string } | null>(null);
+  const [phaseProgress, setPhaseProgress] = useState(0);
+  const [showComplete, setShowComplete] = useState(false);
+  const [agentStatuses, setAgentStatuses] = useState<{ role: string; color: string; status: string }[]>([]);
+  const [newArtifactIds, setNewArtifactIds] = useState<Set<string>>(new Set());
+  const [sessionArtifacts, setSessionArtifacts] = useState<Artifact[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -288,23 +544,131 @@ export function SessionView() {
   // Blueprint phase for tools + human mode
   const blueprintPhase = activeStory?.blueprint?.phases?.find((bp) => bp.id === activePhase?.id);
 
-  // Stagger messages on mount
+  // Stagger messages with typing indicators
   useEffect(() => {
     if (!activeStory || !activePhase) return;
 
     setVisibleMessages([]);
-    const allMessages = RBAC_BUILD_MESSAGES;
+    setVisibleLogs([]);
+    setPhaseProgress(0);
+    setShowComplete(false);
+    setNewArtifactIds(new Set());
+    setSessionArtifacts([]);
+
+    const phaseId = activePhase.id;
+    const allMessages =
+      phaseId === "plan" ? RBAC_PLAN_MESSAGES :
+      phaseId === "deploy" ? RBAC_DEPLOY_MESSAGES :
+      RBAC_BUILD_MESSAGES;
+    const allLogs =
+      phaseId === "plan" ? RBAC_PLAN_LOG :
+      phaseId === "deploy" ? RBAC_DEPLOY_LOG :
+      RBAC_BUILD_LOG;
     const timers: ReturnType<typeof setTimeout>[] = [];
 
+    // Set initial agent statuses
+    const roleColors: Record<string, string> = {
+      "Agent Engineer": "#FF6B2C",
+      "Code Auditor": "#f87171",
+      "Requirements Dev": "#FF6B2C",
+      "Process Leader": "#8B8B8B",
+      "Agent Ops": "#FF8F5C",
+      "Data Steward": "#666666",
+    };
+    setAgentStatuses(
+      activePhase.roles.map((r) => ({
+        role: r,
+        color: roleColors[r] ?? "#888",
+        status: "waiting",
+      }))
+    );
+
+    // Stagger: typing indicator → message → log entries
+    let elapsed = 500;
+
     allMessages.forEach((msg, i) => {
-      const timer = setTimeout(() => {
+      const role = msg.role;
+      const color = msg.roleColor;
+      const activities = AGENT_ACTIVITIES[role] ?? ["Processing..."];
+      const activityIdx = Math.min(i, activities.length - 1);
+
+      // Show typing indicator
+      timers.push(setTimeout(() => {
+        setTypingAgent({ role, color, activity: activities[activityIdx] });
+        setAgentStatuses((prev) =>
+          prev.map((a) => a.role === role ? { ...a, status: "active" } : a)
+        );
+      }, elapsed));
+
+      elapsed += 1200 + Math.random() * 800; // Variable typing duration
+
+      // Show message, hide typing
+      timers.push(setTimeout(() => {
+        setTypingAgent(null);
         setVisibleMessages((prev) => [...prev, msg]);
-      }, (i + 1) * 800);
-      timers.push(timer);
+        setPhaseProgress(Math.min(Math.round(((i + 1) / allMessages.length) * 95), 95));
+
+        // Mark new artifacts and add to session artifacts list
+        if (msg.artifacts) {
+          setNewArtifactIds((prev) => {
+            const next = new Set(prev);
+            msg.artifacts!.forEach((a) => next.add(a));
+            return next;
+          });
+          setSessionArtifacts((prev) => {
+            const existing = new Set(prev.map((a) => a.name));
+            const newOnes = msg.artifacts!
+              .filter((name) => !existing.has(name))
+              .map((name) => ({
+                name,
+                type: name.endsWith(".ts") || name.endsWith(".tsx") || name.endsWith(".sql") ? "code" as const :
+                      name.endsWith(".test.ts") ? "test" as const :
+                      name.endsWith(".md") ? "doc" as const : "doc" as const,
+                fromRole: msg.role,
+                preview: `Generated by ${msg.role} during ${activePhase?.name ?? ""} phase`,
+              }));
+            return [...prev, ...newOnes];
+          });
+        }
+      }, elapsed));
+
+      elapsed += 400;
+
+      // Add corresponding log entries
+      const logsForThisMsg = allLogs.filter((_, li) => {
+        const msgIdx = Math.floor((li / allLogs.length) * allMessages.length);
+        return msgIdx === i;
+      });
+
+      logsForThisMsg.forEach((log, li) => {
+        timers.push(setTimeout(() => {
+          setVisibleLogs((prev) => [...prev, log]);
+        }, elapsed + li * 200));
+      });
+
+      elapsed += 600;
     });
 
-    // Also set log entries
-    dispatch({ type: "SET_LOG", entries: RBAC_BUILD_LOG });
+    // Phase complete
+    timers.push(setTimeout(() => {
+      setPhaseProgress(100);
+      setAgentStatuses((prev) => prev.map((a) => ({ ...a, status: "done" })));
+      // Add final log entry
+      setVisibleLogs((prev) => [
+        ...prev,
+        {
+          id: "l-complete",
+          timestamp: new Date().toISOString(),
+          action: "Phase ready",
+          role: "Symphony",
+          details: `${activePhase.name} phase complete — triggering tollgate evaluation`,
+        },
+      ]);
+    }, elapsed));
+
+    timers.push(setTimeout(() => {
+      setShowComplete(true);
+    }, elapsed + 800));
 
     return () => timers.forEach(clearTimeout);
   }, [activeStory?.id, activePhase?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -312,14 +676,14 @@ export function SessionView() {
   // Auto-scroll chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [visibleMessages]);
+  }, [visibleMessages, typingAgent]);
 
   // Auto-scroll log
   useEffect(() => {
     if (rightTab === "log") {
       logEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [state.sessionLog, rightTab]);
+  }, [visibleLogs, rightTab]);
 
   /* ── Empty state ─────────────────────────────────────── */
 
@@ -334,7 +698,15 @@ export function SessionView() {
           <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
             <Cpu size={28} className="text-white/20" />
           </div>
-          <p className="text-white/40 text-sm">Select a story from the Board to start a session</p>
+          <p className="text-white/40 text-sm mb-1">No active session</p>
+          <p className="text-white/20 text-xs">Select a story from the Board to start</p>
+          <button
+            onClick={() => dispatch({ type: "SET_VIEW", view: "board" })}
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-[#FF6B2C] bg-[#FF6B2C]/10 border border-[#FF6B2C]/20 hover:bg-[#FF6B2C]/15 transition-colors"
+          >
+            Go to Board
+            <ArrowRight size={12} />
+          </button>
         </motion.div>
       </div>
     );
@@ -362,14 +734,33 @@ export function SessionView() {
   /* ── Main layout ─────────────────────────────────────── */
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      {/* Phase Complete Overlay */}
+      <AnimatePresence>
+        {showComplete && (
+          <PhaseCompleteOverlay
+            phaseName={activePhase?.name}
+            onStay={() => {
+              setShowComplete(false);
+            }}
+            onTollgate={() => {
+              setShowComplete(false);
+              if (activeStory && activePhase) {
+                dispatch({ type: "COMPLETE_PHASE", storyId: activeStory.id, phaseId: activePhase.id as "plan" | "design" | "build" | "deploy" });
+              }
+              dispatch({ type: "SET_VIEW", view: "tollgate" });
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── Top Bar ──────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         className="shrink-0 px-6 py-3 flex items-center gap-4 border-b border-white/[0.06]"
         style={{
-          background: "rgba(255,255,255,0.02)",
+          background: "var(--surface-secondary)",
           backdropFilter: "blur(16px)",
         }}
       >
@@ -386,12 +777,13 @@ export function SessionView() {
           {activePhase.roles.map((role) => {
             const Icon = roleIconMap[role] ?? Cpu;
             const color =
-              role === "Agent Engineer" ? "#4361ee" :
-              role === "Code Auditor" ? "#e63946" :
-              role === "Requirements Dev" ? "#4361ee" :
-              role === "Process Leader" ? "#7b2ff7" :
-              role === "Agent Ops" ? "#00c896" :
+              role === "Agent Engineer" ? "#FF6B2C" :
+              role === "Code Auditor" ? "#f87171" :
+              role === "Requirements Dev" ? "#FF6B2C" :
+              role === "Process Leader" ? "#8B8B8B" :
+              role === "Agent Ops" ? "#FF8F5C" :
               "#888";
+            const agentStatus = agentStatuses.find((a) => a.role === role);
             return (
               <span
                 key={role}
@@ -399,11 +791,20 @@ export function SessionView() {
                 style={{
                   background: `${color}15`,
                   color,
-                  border: `1px solid ${color}30`,
+                  border: `1px solid ${agentStatus?.status === "active" ? `${color}60` : `${color}30`}`,
+                  transition: "border-color 0.3s ease",
                 }}
               >
                 <Icon size={12} />
                 {role}
+                {agentStatus?.status === "active" && (
+                  <motion.div
+                    className="w-1.5 h-1.5 rounded-full ml-0.5"
+                    style={{ background: color }}
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
               </span>
             );
           })}
@@ -413,13 +814,30 @@ export function SessionView() {
         {blueprintPhase && (
           <div className="flex items-center gap-1.5 ml-3">
             {blueprintPhase.tools.map((t) => (
-              <McpBadge key={t} name={t} />
+              <McpBadge key={t} name={t} connected />
             ))}
           </div>
         )}
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Skip to complete (demo shortcut) */}
+        {!showComplete && (
+          <motion.button
+            onClick={() => setShowComplete(true)}
+            className="px-3 py-1 rounded-lg text-[11px] font-semibold transition-all"
+            style={{
+              background: "var(--surface-primary)",
+              border: "1px solid var(--border-primary)",
+              color: "var(--text-faint)",
+            }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Skip to Complete ⏩
+          </motion.button>
+        )}
 
         {/* Human mode */}
         <span
@@ -439,14 +857,17 @@ export function SessionView() {
           onClick={() => dispatch({ type: "SET_VIEW", view: "tollgate" })}
           className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-white/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
           style={{
-            background: "linear-gradient(135deg, #4361ee, #7b2ff7)",
-            boxShadow: "0 2px 12px rgba(67,97,238,0.3)",
+            background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
+            boxShadow: "0 2px 12px rgba(255,107,44,0.3)",
           }}
         >
           Complete Phase
           <ArrowRight size={13} />
         </button>
       </motion.div>
+
+      {/* ── Live Activity Bar ─────────────────────────────── */}
+      <LiveActivityBar agents={agentStatuses} progress={phaseProgress} />
 
       {/* ── Split Panels ─────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
@@ -456,7 +877,7 @@ export function SessionView() {
           style={{
             width: "60%",
             background: "rgba(0,0,0,0.15)",
-            borderRight: "1px solid rgba(255,255,255,0.04)",
+            borderRight: "1px solid var(--border-faint)",
           }}
         >
           {/* Messages */}
@@ -466,6 +887,17 @@ export function SessionView() {
                 <ChatMessage key={msg.id} msg={msg} index={i} />
               ))}
             </AnimatePresence>
+
+            {/* Typing indicator */}
+            <AnimatePresence>
+              {typingAgent && (
+                <TypingIndicator
+                  role={typingAgent.role}
+                  color={typingAgent.color}
+                  activity={typingAgent.activity}
+                />
+              )}
+            </AnimatePresence>
             <div ref={chatEndRef} />
           </div>
 
@@ -473,15 +905,15 @@ export function SessionView() {
           <div
             className="shrink-0 px-4 py-3 border-t border-white/[0.06]"
             style={{
-              background: "rgba(255,255,255,0.02)",
+              background: "var(--surface-secondary)",
               backdropFilter: "blur(12px)",
             }}
           >
             <div
               className="flex items-center gap-2 rounded-xl px-4 py-2.5"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--surface-primary)",
+                border: "1px solid var(--border-primary)",
               }}
             >
               <input
@@ -493,7 +925,7 @@ export function SessionView() {
               />
               <button
                 className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-white/[0.08]"
-                style={{ color: inputValue ? "#4361ee" : "rgba(255,255,255,0.2)" }}
+                style={{ color: inputValue ? "#FF6B2C" : "var(--text-ghost)" }}
               >
                 <Send size={16} />
               </button>
@@ -506,7 +938,7 @@ export function SessionView() {
           className="flex flex-col"
           style={{
             width: "40%",
-            background: "rgba(255,255,255,0.015)",
+            background: "var(--surface-secondary)",
             backdropFilter: "blur(12px)",
           }}
         >
@@ -518,15 +950,22 @@ export function SessionView() {
                 onClick={() => setRightTab(tab)}
                 className="flex-1 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors relative"
                 style={{
-                  color: rightTab === tab ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.3)",
+                  color: rightTab === tab ? "var(--text-primary)" : "var(--text-faint)",
                 }}
               >
-                {tab === "artifacts" ? "Artifacts" : "Execution Log"}
+                <span className="flex items-center justify-center gap-1.5">
+                  {tab === "artifacts" ? "Artifacts" : "Execution Log"}
+                  {tab === "log" && visibleLogs.length > 0 && (
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-white/[0.06] text-white/30 tabular-nums">
+                      {visibleLogs.length}
+                    </span>
+                  )}
+                </span>
                 {rightTab === tab && (
                   <motion.div
                     layoutId="session-tab-indicator"
                     className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full"
-                    style={{ background: "linear-gradient(90deg, #4361ee, #7b2ff7)" }}
+                    style={{ background: "linear-gradient(90deg, #FF6B2C, #FF8F5C)" }}
                   />
                 )}
               </button>
@@ -545,22 +984,31 @@ export function SessionView() {
                   transition={{ duration: 0.2 }}
                   className="p-4 space-y-3"
                 >
-                  {/* Combine artifacts from all completed and active phases */}
-                  {activeStory.phases
-                    ?.filter((p) => p.status === "active" || p.status === "passed")
-                    .flatMap((p) =>
-                      p.artifacts.map((a) => (
-                        <ArtifactCard key={`${p.id}-${a.name}`} artifact={a} />
+                  {/* Combine: phase artifacts + session-generated artifacts */}
+                  {(() => {
+                    const phaseArtifacts = activeStory.phases
+                      ?.filter((p) => p.status === "active" || p.status === "passed")
+                      .flatMap((p) => p.artifacts) ?? [];
+                    const seen = new Set(phaseArtifacts.map((a) => a.name));
+                    const combined = [
+                      ...phaseArtifacts,
+                      ...sessionArtifacts.filter((a) => !seen.has(a.name)),
+                    ];
+                    return combined.length > 0 ? (
+                      combined.map((a) => (
+                        <ArtifactCard
+                          key={a.name}
+                          artifact={a}
+                          isNew={newArtifactIds.has(a.name)}
+                        />
                       ))
-                    )}
-
-                  {(!activeStory.phases ||
-                    activeStory.phases.flatMap((p) => p.artifacts).length === 0) && (
-                    <div className="text-center py-12">
-                      <FileText size={24} className="text-white/15 mx-auto mb-2" />
-                      <p className="text-xs text-white/25">No artifacts yet</p>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-center py-12">
+                        <FileText size={24} className="text-white/15 mx-auto mb-2" />
+                        <p className="text-xs text-white/25">Artifacts will appear as agents produce them</p>
+                      </div>
+                    );
+                  })()}
                 </motion.div>
               ) : (
                 <motion.div
@@ -571,13 +1019,23 @@ export function SessionView() {
                   transition={{ duration: 0.2 }}
                   className="py-2"
                 >
-                  {state.sessionLog.map((entry) => (
-                    <LogEntry key={entry.id} entry={entry} />
+                  {visibleLogs.map((entry, i) => (
+                    <LogEntry key={entry.id} entry={entry} isNew={i >= visibleLogs.length - 2} />
                   ))}
-                  {state.sessionLog.length === 0 && (
+                  {visibleLogs.length === 0 && (
                     <div className="text-center py-12">
                       <Activity size={24} className="text-white/15 mx-auto mb-2" />
-                      <p className="text-xs text-white/25">No log entries</p>
+                      <p className="text-xs text-white/25">Execution log loading...</p>
+                      <motion.div
+                        className="w-8 h-0.5 bg-white/10 rounded mx-auto mt-3 overflow-hidden"
+                      >
+                        <motion.div
+                          className="h-full bg-[#FF6B2C] rounded"
+                          animate={{ x: ["-100%", "100%"] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                          style={{ width: "50%" }}
+                        />
+                      </motion.div>
                     </div>
                   )}
                   <div ref={logEndRef} />

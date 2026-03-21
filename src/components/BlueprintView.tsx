@@ -21,6 +21,7 @@ import {
   Database,
   Palette,
   Network,
+  ArrowLeftRight,
 } from "lucide-react";
 import type { BlueprintPhase, HumanMode } from "@/lib/store";
 import { ROLE_CATALOG } from "@/lib/sample-data";
@@ -73,16 +74,16 @@ function ToolBadge({ name }: { name: string }) {
 }
 
 const humanModeConfig: Record<HumanMode, { label: string; color: string; bg: string }> = {
-  collaborative: { label: "Collaborative", color: "#4361ee", bg: "#4361ee18" },
-  review: { label: "Review", color: "#f59e0b", bg: "#f59e0b18" },
-  delegated: { label: "Delegated", color: "#00c896", bg: "#00c89618" },
+  collaborative: { label: "Collaborative", color: "#FF6B2C", bg: "#FF6B2C18" },
+  review: { label: "Review", color: "#fbbf24", bg: "#fbbf2418" },
+  delegated: { label: "Delegated", color: "#4ade80", bg: "#4ade8018" },
 };
 
 const phaseAccents: Record<string, string> = {
-  plan: "#4361ee",
-  design: "#7b2ff7",
-  build: "#f59e0b",
-  deploy: "#00c896",
+  plan: "#FF6B2C",
+  design: "#999999",
+  build: "#FF8F5C",
+  deploy: "#666666",
 };
 
 /* ================================================================
@@ -90,7 +91,7 @@ const phaseAccents: Record<string, string> = {
    ================================================================ */
 
 function PhaseCard({ phase, index, total }: { phase: BlueprintPhase; index: number; total: number }) {
-  const accent = phaseAccents[phase.id] ?? "#4361ee";
+  const accent = phaseAccents[phase.id] ?? "#FF6B2C";
   const mode = humanModeConfig[phase.humanMode];
 
   return (
@@ -103,9 +104,9 @@ function PhaseCard({ phase, index, total }: { phase: BlueprintPhase; index: numb
       <div
         className="relative flex-1 min-w-[220px] rounded-xl overflow-hidden"
         style={{
-          background: "rgba(255,255,255,0.03)",
+          background: "var(--surface-secondary)",
           backdropFilter: "blur(16px)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          border: "1px solid var(--border-primary)",
           borderLeft: `3px solid ${accent}`,
         }}
       >
@@ -174,16 +175,16 @@ function PhaseCard({ phase, index, total }: { phase: BlueprintPhase; index: numb
    ================================================================ */
 
 const typeBadgeColors: Record<string, string> = {
-  feature: "#4361ee",
-  bug: "#e63946",
-  spike: "#f59e0b",
-  epic: "#7b2ff7",
+  feature: "#FF6B2C",
+  bug: "#f87171",
+  spike: "#fbbf24",
+  epic: "#FF8F5C",
 };
 
 const priorityBadgeColors: Record<string, string> = {
-  critical: "#e63946",
-  high: "#f59e0b",
-  medium: "#4361ee",
+  critical: "#f87171",
+  high: "#fbbf24",
+  medium: "#FF6B2C",
   low: "#888",
 };
 
@@ -305,23 +306,23 @@ export function BlueprintView() {
         <div
           className="absolute inset-0 rounded-2xl"
           style={{
-            background: "linear-gradient(135deg, rgba(67,97,238,0.4), rgba(123,47,247,0.4), rgba(0,212,255,0.3))",
+            background: "linear-gradient(135deg, rgba(255,107,44,0.4), rgba(255,143,92,0.3), rgba(200,200,200,0.2))",
           }}
         />
         {/* Inner card */}
         <div
           className="relative rounded-2xl px-6 py-5"
           style={{
-            background: "rgba(10,10,20,0.85)",
+            background: "var(--panel-bg)",
             backdropFilter: "blur(24px)",
           }}
         >
           <div className="flex items-center gap-2 mb-3">
             <div
               className="flex items-center justify-center w-8 h-8 rounded-lg"
-              style={{ background: "linear-gradient(135deg, #4361ee30, #7b2ff730)" }}
+              style={{ background: "linear-gradient(135deg, #FF6B2C30, #FF8F5C30)" }}
             >
-              <Sparkles size={18} className="text-[#7b2ff7]" />
+              <Sparkles size={18} className="text-[#FF6B2C]" />
             </div>
             <h2 className="text-base font-semibold text-white/90">Symphony Analysis</h2>
           </div>
@@ -363,13 +364,179 @@ export function BlueprintView() {
         </div>
       </motion.div>
 
+      {/* ─── 3b. Agent Configuration ─────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.28, duration: 0.5 }}
+      >
+        <h3 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3 flex items-center gap-2">
+          <Cpu size={13} />
+          Agent Configuration
+        </h3>
+
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{
+            background: "var(--surface-secondary)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid var(--border-primary)",
+          }}
+        >
+          <div className="p-5">
+            <div className="space-y-4">
+              {(() => {
+                const roleConfigs: { role: string; model: string; tools: string[]; description: string; phase: string }[] = [];
+                const modelMap: Record<string, string> = {
+                  "Requirements Dev": "Claude Opus 4.6",
+                  "Process Leader": "Claude Sonnet 4",
+                  "Data Steward": "Claude Sonnet 4",
+                  "Agent Engineer": "Claude Opus 4.6",
+                  "Code Auditor": "Claude Sonnet 4",
+                  "UX Designer": "Claude Sonnet 4",
+                  Architect: "Claude Opus 4.6",
+                  "Agent Ops": "Claude Haiku 4.5",
+                };
+                const descMap: Record<string, string> = {
+                  "Requirements Dev": "Translates business needs into structured specs with acceptance criteria",
+                  "Process Leader": "Builds SOPs, edge cases, and approval gates",
+                  "Data Steward": "Validates data schemas and quality constraints",
+                  "Agent Engineer": "Builds, tests, and validates implementations",
+                  "Code Auditor": "Security scanning and code quality review",
+                  "UX Designer": "Interface design and usability validation",
+                  Architect: "Technical architecture and system design",
+                  "Agent Ops": "Deploys, monitors, and manages production",
+                };
+                const seenRoles = new Set<string>();
+
+                blueprint.phases.forEach((phase) => {
+                  phase.roles.forEach((role) => {
+                    if (!seenRoles.has(role)) {
+                      seenRoles.add(role);
+                      roleConfigs.push({
+                        role,
+                        model: modelMap[role] ?? "Claude Sonnet 4",
+                        tools: phase.tools,
+                        description: descMap[role] ?? "AI agent role",
+                        phase: phase.name,
+                      });
+                    }
+                  });
+                });
+
+                const interactions: { from: string; to: string }[] = [];
+                blueprint.phases.forEach((phase) => {
+                  if (phase.roles.length >= 2) {
+                    for (let ri = 0; ri < phase.roles.length; ri++) {
+                      for (let rj = ri + 1; rj < phase.roles.length; rj++) {
+                        interactions.push({ from: phase.roles[ri], to: phase.roles[rj] });
+                      }
+                    }
+                  }
+                });
+
+                const modelColors: Record<string, string> = {
+                  "Claude Opus 4.6": "#FF6B2C",
+                  "Claude Sonnet 4": "#999999",
+                  "Claude Haiku 4.5": "#FF8F5C",
+                };
+
+                return (
+                  <>
+                    {roleConfigs.map((config, idx) => {
+                      const roleColor = getRoleColor(config.role);
+                      const RoleIcon = roleIconMap[config.role];
+                      const modelColor = modelColors[config.model] ?? "#888";
+
+                      return (
+                        <motion.div
+                          key={config.role}
+                          className="rounded-lg p-4"
+                          style={{
+                            background: "var(--surface-secondary)",
+                            border: `1px solid ${roleColor}20`,
+                            borderLeft: `3px solid ${roleColor}`,
+                          }}
+                          initial={{ opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.35 + idx * 0.08 }}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+                              style={{ background: `${roleColor}15`, border: `1px solid ${roleColor}30` }}
+                            >
+                              <div style={{ color: roleColor }}>{RoleIcon ? <RoleIcon size={18} className="opacity-90" /> : <Cpu size={18} />}</div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold" style={{ color: roleColor }}>{config.role}</span>
+                                <span
+                                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{ background: `${modelColor}15`, color: modelColor, border: `1px solid ${modelColor}30` }}
+                                >
+                                  {config.model}
+                                </span>
+                              </div>
+                              <p className="text-xs text-white/40 mb-2">{config.description}</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {config.tools.map((tool) => (
+                                  <span key={tool} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-white/5 text-white/40 border border-white/10">
+                                    <Wrench size={9} />
+                                    {tool}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                    {interactions.length > 0 && (
+                      <motion.div
+                        className="mt-2 pt-3"
+                        style={{ borderTop: "1px solid var(--border-secondary)" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2 block">Agent Interactions</span>
+                        <div className="space-y-2">
+                          {interactions.map((wire, wi) => {
+                            const fromColor = getRoleColor(wire.from);
+                            const toColor = getRoleColor(wire.to);
+                            return (
+                              <div key={wi} className="flex items-center gap-2 text-xs">
+                                <span className="font-medium" style={{ color: fromColor }}>{wire.from}</span>
+                                <div className="flex-1 flex items-center gap-1">
+                                  <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${fromColor}40, ${toColor}40)` }} />
+                                  <ArrowLeftRight size={12} className="text-white/20 shrink-0" />
+                                  <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${toColor}40, ${fromColor}40)` }} />
+                                </div>
+                                <span className="font-medium" style={{ color: toColor }}>{wire.to}</span>
+                                <span className="text-[10px] text-white/20 font-mono">A2A</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* ─── 4. Cost Comparison Panel ───────────────────── */}
       <motion.div
         className="rounded-xl overflow-hidden"
         style={{
-          background: "rgba(255,255,255,0.03)",
+          background: "var(--surface-secondary)",
           backdropFilter: "blur(16px)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          border: "1px solid var(--border-primary)",
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -379,16 +546,16 @@ export function BlueprintView() {
           {/* Symphony side */}
           <div className="px-6 py-5">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-[#00c896]" />
+              <div className="w-2 h-2 rounded-full bg-[#4ade80]" />
               <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">With Symphony</span>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <DollarSign size={14} className="text-[#00c896]" />
+                <DollarSign size={14} className="text-[#4ade80]" />
                 <span className="text-2xl font-bold text-white/90">${symphonyCost.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock size={14} className="text-[#00c896]" />
+                <Clock size={14} className="text-[#4ade80]" />
                 <span className="text-sm text-white/50">{blueprint.totalEstimatedMinutes} minutes</span>
               </div>
             </div>
@@ -398,7 +565,7 @@ export function BlueprintView() {
           <div className="px-6 py-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-2 h-2 rounded-full bg-white/20" />
-              <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Traditional (vendors)</span>
+              <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Traditional (Dev Team)</span>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -415,16 +582,16 @@ export function BlueprintView() {
           {/* Savings */}
           <div className="px-6 py-5 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-[#4361ee]" />
+              <div className="w-2 h-2 rounded-full bg-[#FF6B2C]" />
               <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Savings</span>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-white/60">
-                <span className="text-[#00c896] font-bold text-lg">{timeSavedPct}%</span>
+                <span className="text-[#4ade80] font-bold text-lg">{timeSavedPct}%</span>
                 <span className="ml-1">faster</span>
               </p>
               <p className="text-sm text-white/60">
-                <span className="text-[#00c896] font-bold text-lg">{costSavedPct}%</span>
+                <span className="text-[#4ade80] font-bold text-lg">{costSavedPct}%</span>
                 <span className="ml-1">cost reduction</span>
               </p>
             </div>
@@ -448,10 +615,10 @@ export function BlueprintView() {
           onClick={handleApprove}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
           style={{
-            background: "linear-gradient(135deg, #00c896, #00a87a)",
-            boxShadow: "0 0 20px rgba(0,200,150,0.25)",
+            background: "linear-gradient(135deg, #FF6B2C, #CC5623)",
+            boxShadow: "0 0 20px rgba(255,107,44,0.25)",
           }}
-          whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(0,200,150,0.4)" }}
+          whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(255,107,44,0.4)" }}
           whileTap={{ scale: 0.97 }}
         >
           <Check size={16} />
@@ -463,10 +630,10 @@ export function BlueprintView() {
         <motion.button
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 transition-all"
           style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--surface-primary)",
+            border: "1px solid var(--border-primary)",
           }}
-          whileHover={{ background: "rgba(255,255,255,0.08)" }}
+          whileHover={{ background: "var(--surface-hover)" }}
           whileTap={{ scale: 0.97 }}
         >
           <AlertTriangle size={14} />

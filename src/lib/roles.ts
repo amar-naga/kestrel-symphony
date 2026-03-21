@@ -133,11 +133,11 @@ export const ROLES: RoleCard[] = [
 ];
 
 export const VERTICALS = [
-  { id: "real_estate", label: "Real Estate", icon: "Building2", color: "#e63946" },
-  { id: "healthcare", label: "Healthcare", icon: "Heart", color: "#00c896" },
-  { id: "financial_services", label: "Financial Services", icon: "Landmark", color: "#4361ee" },
-  { id: "lending", label: "Lending", icon: "HandCoins", color: "#f59e0b" },
-  { id: "public_transportation", label: "Public Transit", icon: "Bus", color: "#06b6d4" },
+  { id: "real_estate", label: "Real Estate", icon: "Building2", color: "#FF6B2C" },
+  { id: "healthcare", label: "Healthcare", icon: "Heart", color: "#FF8F5C" },
+  { id: "financial_services", label: "Financial Services", icon: "Landmark", color: "#999999" },
+  { id: "lending", label: "Lending", icon: "HandCoins", color: "#fbbf24" },
+  { id: "public_transportation", label: "Public Transit", icon: "Bus", color: "#888888" },
 ] as const;
 
 export const ENGINES = [

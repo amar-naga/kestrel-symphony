@@ -208,11 +208,24 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case "APPROVE_BLUEPRINT":
       return {
         ...state,
-        stories: state.stories.map((s) =>
-          s.id === action.storyId && s.blueprint
-            ? { ...s, blueprint: { ...s.blueprint, approved: true } }
-            : s
-        ),
+        stories: state.stories.map((s) => {
+          if (s.id !== action.storyId || !s.blueprint) return s;
+          // Create phases from blueprint if they don't exist yet
+          const phases: PhaseState[] = s.phases ?? s.blueprint.phases.map((bp) => ({
+            id: bp.id,
+            name: bp.name,
+            status: "pending" as PhaseStatus,
+            roles: bp.roles,
+            humanMode: bp.humanMode,
+            artifacts: [],
+          }));
+          return {
+            ...s,
+            blueprint: { ...s.blueprint, approved: true },
+            phases,
+            startedAt: s.startedAt ?? new Date().toISOString(),
+          };
+        }),
       };
 
     case "START_PHASE":
@@ -232,22 +245,56 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ),
       };
 
-    case "COMPLETE_PHASE":
+    case "COMPLETE_PHASE": {
+      const tollgateTemplates: Record<string, { criteria: { name: string; description: string; score: number; passed: boolean }[] }> = {
+        plan: {
+          criteria: [
+            { name: "Requirements completeness", description: "All user stories have acceptance criteria", score: 96, passed: true },
+            { name: "Stakeholder sign-off", description: "Product owner has reviewed scope", score: 94, passed: true },
+            { name: "Security review", description: "Security implications documented", score: 92, passed: true },
+          ],
+        },
+        build: {
+          criteria: [
+            { name: "Tests passing", description: "All unit and integration tests pass", score: 100, passed: true },
+            { name: "Code coverage", description: "Coverage meets 80% threshold", score: 94, passed: true },
+            { name: "Security scan", description: "No critical or high vulnerabilities", score: 91, passed: true },
+            { name: "Code review", description: "Peer review approved", score: 96, passed: true },
+          ],
+        },
+        deploy: {
+          criteria: [
+            { name: "Staging validation", description: "All smoke tests pass in staging", score: 98, passed: true },
+            { name: "Rollback plan", description: "Rollback procedure documented and tested", score: 95, passed: true },
+            { name: "Monitoring configured", description: "Alerts and dashboards in place", score: 93, passed: true },
+          ],
+        },
+      };
       return {
         ...state,
         stories: state.stories.map((s) =>
           s.id === action.storyId && s.phases
             ? {
                 ...s,
-                phases: s.phases.map((p) =>
-                  p.id === action.phaseId
-                    ? { ...p, status: "passed" as PhaseStatus, completedAt: new Date().toISOString() }
-                    : p
-                ),
+                phases: s.phases.map((p) => {
+                  if (p.id !== action.phaseId) return p;
+                  const template = tollgateTemplates[p.id] ?? tollgateTemplates.build;
+                  const existingTollgate = p.tollgate;
+                  const tollgate = existingTollgate ?? {
+                    phaseId: p.id,
+                    overallScore: Math.round(template.criteria.reduce((sum, c) => sum + c.score, 0) / template.criteria.length),
+                    passed: true,
+                    mode: state.governanceMode as "enforced" | "advisory",
+                    criteria: template.criteria,
+                    evaluatedAt: new Date().toISOString(),
+                  };
+                  return { ...p, status: "passed" as PhaseStatus, completedAt: new Date().toISOString(), tollgate };
+                }),
               }
             : s
         ),
       };
+    }
 
     case "SET_ACTIVE_PHASE":
       return { ...state, activePhaseId: action.phaseId };

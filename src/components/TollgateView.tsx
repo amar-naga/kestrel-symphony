@@ -16,8 +16,11 @@ import {
   ArrowRight,
   RotateCcw,
   Eye,
+  X,
+  Package,
+  Zap,
 } from "lucide-react";
-import type { TollgateResult, TollgateCriterion, PhaseState, JiraStory } from "@/lib/store";
+import type { TollgateResult, TollgateCriterion, PhaseState } from "@/lib/store";
 
 /* ================================================================
    HELPERS
@@ -34,16 +37,23 @@ function formatDate(iso: string): string {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 90) return "#00c896";
-  if (score >= 75) return "#f59e0b";
-  if (score >= 50) return "#f97316";
-  return "#e63946";
+  if (score >= 90) return "#4ade80";
+  if (score >= 75) return "#fbbf24";
+  if (score >= 50) return "#FF8F5C";
+  return "#f87171";
 }
 
 function phaseLabel(id: string): string {
   const map: Record<string, string> = { plan: "Plan", design: "Design", build: "Build", deploy: "Deploy" };
   return map[id] ?? id;
 }
+
+const phaseAccents: Record<string, string> = {
+  plan: "#FF6B2C",
+  design: "#999999",
+  build: "#FF8F5C",
+  deploy: "#666666",
+};
 
 /* ================================================================
    SCORE RING (SVG)
@@ -53,56 +63,35 @@ function ScoreRing({ score, passed, size = 160 }: { score: number; passed: boole
   const radius = (size - 20) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color = passed ? "#00c896" : "#e63946";
+  const color = passed ? "#4ade80" : "#f87171";
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      {/* Glow */}
       <div
         className="absolute inset-0 rounded-full"
-        style={{
-          boxShadow: `0 0 40px ${color}30, 0 0 80px ${color}15`,
-        }}
+        style={{ boxShadow: `0 0 40px ${color}30, 0 0 80px ${color}15` }}
       />
-
       <svg width={size} height={size} className="absolute inset-0 -rotate-90">
-        {/* Track */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="rgba(255,255,255,0.06)"
-          strokeWidth={8}
-        />
-        {/* Progress */}
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size > 80 ? 8 : 4} />
         <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={8}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
+          cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color}
+          strokeWidth={size > 80 ? 8 : 4} strokeLinecap="round" strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
         />
       </svg>
-
-      {/* Center text */}
-      <div className="relative flex flex-col items-center gap-1 z-10">
+      <div className="relative flex flex-col items-center gap-0.5 z-10">
         <motion.span
-          className="text-5xl font-black tracking-tight"
-          style={{ color }}
+          className="font-black tracking-tight"
+          style={{ color, fontSize: size > 80 ? 48 : 18 }}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.4 }}
         >
           {score}
         </motion.span>
-        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: `${color}cc` }}>
+        <span className="font-bold uppercase tracking-widest" style={{ color: `${color}cc`, fontSize: size > 80 ? 10 : 8 }}>
           {passed ? "PASSED" : "BLOCKED"}
         </span>
       </div>
@@ -123,75 +112,43 @@ function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; ind
     <motion.div
       className="relative rounded-xl overflow-hidden cursor-pointer"
       style={{
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--surface-secondary)",
         backdropFilter: "blur(16px)",
-        border: failed ? "1px solid rgba(230,57,70,0.4)" : "1px solid rgba(255,255,255,0.08)",
-        boxShadow: failed ? "0 0 20px rgba(230,57,70,0.1)" : "none",
+        border: failed ? "1px solid rgba(248,113,113,0.4)" : "1px solid var(--border-primary)",
+        boxShadow: failed ? "0 0 20px rgba(248,113,113,0.1)" : "none",
       }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 + index * 0.1 }}
       onClick={() => setExpanded(!expanded)}
     >
-      {/* Pulse animation for failed criteria */}
       {failed && (
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ border: "1px solid rgba(230,57,70,0.3)" }}
+          style={{ border: "1px solid rgba(248,113,113,0.3)" }}
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
       )}
-
       <div className="p-4">
         <div className="flex items-start gap-3">
-          {/* Icon */}
           <div className="flex-shrink-0 mt-0.5">
-            {criterion.passed ? (
-              <CheckCircle size={20} className="text-emerald-400" />
-            ) : (
-              <XCircle size={20} className="text-red-400" />
-            )}
+            {criterion.passed ? <CheckCircle size={20} className="text-emerald-400" /> : <XCircle size={20} className="text-red-400" />}
           </div>
-
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold text-white/90">{criterion.name}</span>
-              <span
-                className="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  background: `${barColor}18`,
-                  color: barColor,
-                  border: `1px solid ${barColor}30`,
-                }}
-              >
+              <span className="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${barColor}18`, color: barColor, border: `1px solid ${barColor}30` }}>
                 {criterion.score}
               </span>
             </div>
             <p className="text-xs text-white/40 mt-0.5">{criterion.description}</p>
-
-            {/* Score bar */}
             <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: barColor }}
-                initial={{ width: 0 }}
-                animate={{ width: `${criterion.score}%` }}
-                transition={{ duration: 0.8, delay: 0.8 + index * 0.1, ease: "easeOut" }}
-              />
+              <motion.div className="h-full rounded-full" style={{ background: barColor }} initial={{ width: 0 }} animate={{ width: `${criterion.score}%` }} transition={{ duration: 0.8, delay: 0.8 + index * 0.1, ease: "easeOut" }} />
             </div>
-
-            {/* Failure details */}
             <AnimatePresence>
               {expanded && criterion.details && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
                   <div className="mt-3 p-3 rounded-lg bg-red-500/8 border border-red-500/15">
                     <p className="text-xs text-red-300 leading-relaxed">{criterion.details}</p>
                   </div>
@@ -209,15 +166,7 @@ function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; ind
    OVERRIDE PANEL
    ================================================================ */
 
-function OverridePanel({
-  tollgate,
-  storyId,
-  onOverride,
-}: {
-  tollgate: TollgateResult;
-  storyId: string;
-  onOverride: (by: string, justification: string) => void;
-}) {
+function OverridePanel({ tollgate, onOverride }: { tollgate: TollgateResult; onOverride: (by: string, justification: string) => void }) {
   const [showPanel, setShowPanel] = useState(false);
   const [justification, setJustification] = useState("");
   const [techLead] = useState("Sarah Chen \u2014 Tech Lead");
@@ -229,12 +178,8 @@ function OverridePanel({
       {!showPanel ? (
         <motion.button
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all"
-          style={{
-            background: "rgba(230,57,70,0.12)",
-            color: "#e63946",
-            border: "1px solid rgba(230,57,70,0.25)",
-          }}
-          whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(230,57,70,0.15)" }}
+          style={{ background: "rgba(248,113,113,0.12)", color: "#f87171", border: "1px solid rgba(248,113,113,0.25)" }}
+          whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(248,113,113,0.15)" }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setShowPanel(true)}
         >
@@ -244,11 +189,7 @@ function OverridePanel({
       ) : (
         <motion.div
           className="rounded-xl overflow-hidden"
-          style={{
-            background: "rgba(230,57,70,0.06)",
-            backdropFilter: "blur(16px)",
-            border: "1px solid rgba(230,57,70,0.25)",
-          }}
+          style={{ background: "rgba(248,113,113,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(248,113,113,0.25)" }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -256,75 +197,36 @@ function OverridePanel({
             <div className="flex items-center gap-2 mb-4">
               <Lock size={16} className="text-red-400" />
               <span className="text-sm font-bold text-red-300">Tollgate Override</span>
-              <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-red-400/60">
-                Requires Justification
-              </span>
+              <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-red-400/60">Requires Justification</span>
             </div>
-
-            {/* Tech Lead selector */}
             <div className="mb-3">
-              <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-1 block">
-                Authorizing Lead
-              </label>
-              <div
-                className="px-3 py-2 rounded-lg text-sm text-white/80"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                {techLead}
-              </div>
+              <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-1 block">Authorizing Lead</label>
+              <div className="px-3 py-2 rounded-lg text-sm text-white/80" style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)" }}>{techLead}</div>
             </div>
-
-            {/* Justification */}
             <div className="mb-4">
-              <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-1 block">
-                Justification <span className="text-red-400">*</span>
-              </label>
+              <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-1 block">Justification <span className="text-red-400">*</span></label>
               <textarea
                 className="w-full px-3 py-2 rounded-lg text-sm text-white/90 placeholder:text-white/20 resize-none focus:outline-none focus:ring-1 focus:ring-red-500/40"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)" }}
                 rows={3}
                 placeholder="Explain why this tollgate failure is being overridden..."
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
               />
             </div>
-
-            {/* Actions */}
             <div className="flex items-center gap-3">
               <motion.button
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                style={{
-                  background: justification.trim() ? "rgba(230,57,70,0.2)" : "rgba(230,57,70,0.08)",
-                  color: "#e63946",
-                  border: "1px solid rgba(230,57,70,0.3)",
-                }}
+                style={{ background: justification.trim() ? "rgba(248,113,113,0.2)" : "rgba(248,113,113,0.08)", color: "#f87171", border: "1px solid rgba(248,113,113,0.3)" }}
                 disabled={!justification.trim()}
                 whileHover={justification.trim() ? { scale: 1.02 } : {}}
                 whileTap={justification.trim() ? { scale: 0.98 } : {}}
-                onClick={() => {
-                  if (justification.trim()) {
-                    onOverride(techLead, justification.trim());
-                  }
-                }}
+                onClick={() => { if (justification.trim()) onOverride(techLead, justification.trim()); }}
               >
                 <ShieldCheck size={16} />
                 Confirm Override
               </motion.button>
-              <button
-                className="px-4 py-2 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors"
-                onClick={() => {
-                  setShowPanel(false);
-                  setJustification("");
-                }}
-              >
-                Cancel
-              </button>
+              <button className="px-4 py-2 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors" onClick={() => { setShowPanel(false); setJustification(""); }}>Cancel</button>
             </div>
           </div>
         </motion.div>
@@ -341,21 +243,13 @@ function OverrideAuditBanner({ tollgate }: { tollgate: TollgateResult }) {
   if (!tollgate.override) return null;
 
   const failedCriteria = tollgate.criteria.filter((c) => !c.passed);
-  const cveMatch = failedCriteria
-    .map((c) => c.details ?? "")
-    .join(" ")
-    .match(/CVE-\d{4}-\d+/);
+  const cveMatch = failedCriteria.map((c) => c.details ?? "").join(" ").match(/CVE-\d{4}-\d+/);
   const cveId = cveMatch ? cveMatch[0] : null;
 
   return (
     <motion.div
       className="rounded-xl overflow-hidden mb-6"
-      style={{
-        background: "rgba(230,57,70,0.08)",
-        backdropFilter: "blur(16px)",
-        border: "2px solid rgba(230,57,70,0.4)",
-        boxShadow: "0 0 30px rgba(230,57,70,0.12), inset 0 0 30px rgba(230,57,70,0.04)",
-      }}
+      style={{ background: "rgba(248,113,113,0.08)", backdropFilter: "blur(16px)", border: "2px solid rgba(248,113,113,0.4)", boxShadow: "0 0 30px rgba(248,113,113,0.12), inset 0 0 30px rgba(248,113,113,0.04)" }}
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -365,107 +259,19 @@ function OverrideAuditBanner({ tollgate }: { tollgate: TollgateResult }) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-black text-red-300 uppercase tracking-wider">Override</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">
-                Audit Trail
-              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">Audit Trail</span>
             </div>
             <p className="text-sm text-red-200/90 leading-relaxed">
               Tech Lead <strong className="text-red-100">{tollgate.override.by}</strong> overrode tollgate{" "}
               <strong className="text-red-100">{tollgate.phaseId}_verification</strong> at{" "}
               <strong className="text-red-100">{formatTime(tollgate.override.at)}</strong>.
-              {cveId && (
-                <>
-                  {" "}
-                  Security vulnerability{" "}
-                  <strong className="text-red-100">{cveId}</strong> accepted with justification:
-                </>
-              )}
-              {!cveId && <> Tollgate failure accepted with justification:</>}
+              {cveId ? (<> Security vulnerability <strong className="text-red-100">{cveId}</strong> accepted with justification:</>) : (<> Tollgate failure accepted with justification:</>)}
             </p>
-            <div
-              className="mt-2 p-3 rounded-lg text-sm text-red-200/80 italic"
-              style={{
-                background: "rgba(230,57,70,0.08)",
-                border: "1px solid rgba(230,57,70,0.15)",
-              }}
-            >
+            <div className="mt-2 p-3 rounded-lg text-sm text-red-200/80 italic" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.15)" }}>
               &ldquo;{tollgate.override.justification}&rdquo;
             </div>
-            <p className="mt-2 text-[11px] text-red-400/50 font-medium">
-              Logged to audit trail &middot; Visible in Cockpit governance dashboard &middot; Immutable record
-            </p>
+            <p className="mt-2 text-[11px] text-red-400/50 font-medium">Logged to audit trail &middot; Visible in Cockpit governance dashboard &middot; Immutable record</p>
           </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ================================================================
-   HANDOVER MANIFEST (passing tollgates)
-   ================================================================ */
-
-function HandoverManifest({ phase, nextPhase }: { phase: PhaseState; nextPhase?: PhaseState }) {
-  if (!phase.tollgate?.passed || phase.artifacts.length === 0) return null;
-
-  const typeIcons: Record<string, React.ReactNode> = {
-    spec: <FileText size={14} className="text-blue-400" />,
-    schema: <FileText size={14} className="text-purple-400" />,
-    code: <FileText size={14} className="text-amber-400" />,
-    test: <CheckCircle size={14} className="text-emerald-400" />,
-    config: <FileText size={14} className="text-cyan-400" />,
-    doc: <FileText size={14} className="text-white/40" />,
-  };
-
-  return (
-    <motion.div
-      className="mt-6 rounded-xl overflow-hidden"
-      style={{
-        background: "rgba(255,255,255,0.03)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.0 }}
-    >
-      <div className="p-5">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <ArrowRight size={16} className="text-emerald-400" />
-          <span className="text-sm font-bold text-white/80">Handover Manifest</span>
-          {nextPhase && (
-            <span className="ml-auto text-xs text-white/30 flex items-center gap-1.5">
-              {phaseLabel(phase.id)}
-              <ChevronRight size={12} />
-              {phaseLabel(nextPhase.id)}
-            </span>
-          )}
-        </div>
-
-        {/* Artifact list */}
-        <div className="space-y-2">
-          {phase.artifacts.map((artifact, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg"
-              style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.05)",
-              }}
-            >
-              {typeIcons[artifact.type] ?? <FileText size={14} className="text-white/30" />}
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-semibold text-white/70">{artifact.name}</span>
-                {artifact.preview && (
-                  <p className="text-[11px] text-white/30 truncate mt-0.5">{artifact.preview}</p>
-                )}
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-white/20 font-bold">
-                {artifact.type}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
     </motion.div>
@@ -485,12 +291,7 @@ function SecurityFinding({ criterion }: { criterion: TollgateCriterion }) {
   return (
     <motion.div
       className="rounded-xl overflow-hidden"
-      style={{
-        background: "rgba(230,57,70,0.06)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(230,57,70,0.3)",
-        boxShadow: "0 0 24px rgba(230,57,70,0.08)",
-      }}
+      style={{ background: "rgba(248,113,113,0.06)", backdropFilter: "blur(16px)", border: "1px solid rgba(248,113,113,0.3)", boxShadow: "0 0 24px rgba(248,113,113,0.08)" }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.9 }}
@@ -499,43 +300,241 @@ function SecurityFinding({ criterion }: { criterion: TollgateCriterion }) {
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck size={18} className="text-red-400" />
           <span className="text-sm font-bold text-red-300">Security Finding</span>
-          {cveId && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">
-              {cveId}
-            </span>
-          )}
+          {cveId && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">{cveId}</span>}
         </div>
-
-        {cveId && (
-          <p className="text-sm text-red-200/80 font-semibold mb-2">
-            {cveId}: SQL injection vector in dynamic search query construction
-          </p>
-        )}
-
-        <p className="text-xs text-white/50 leading-relaxed mb-3">
-          {criterion.details}
-        </p>
-
-        <div
-          className="p-3 rounded-lg"
-          style={{
-            background: "rgba(0,200,150,0.06)",
-            border: "1px solid rgba(0,200,150,0.15)",
-          }}
-        >
+        {cveId && <p className="text-sm text-red-200/80 font-semibold mb-2">{cveId}: SQL injection vector in dynamic search query construction</p>}
+        <p className="text-xs text-white/50 leading-relaxed mb-3">{criterion.details}</p>
+        <div className="p-3 rounded-lg" style={{ background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.15)" }}>
           <div className="flex items-center gap-1.5 mb-1">
             <CheckCircle size={12} className="text-emerald-400" />
-            <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
-              Remediation
-            </span>
+            <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Remediation</span>
           </div>
-          <p className="text-xs text-emerald-200/70">
-            Use parameterized queries ($1, $2...) instead of string interpolation for all dynamic search
-            query construction.
-          </p>
+          <p className="text-xs text-emerald-200/70">Use parameterized queries ($1, $2...) instead of string interpolation for all dynamic search query construction.</p>
         </div>
       </div>
     </motion.div>
+  );
+}
+
+/* ================================================================
+   HANDOVER MANIFEST SLIDE-OVER
+   ================================================================ */
+
+function HandoverManifestModal({ phase, nextPhase, onClose }: { phase: PhaseState; nextPhase?: PhaseState; onClose: () => void }) {
+  const typeIcons: Record<string, React.ReactNode> = {
+    spec: <FileText size={14} className="text-blue-400" />,
+    schema: <FileText size={14} className="text-purple-400" />,
+    code: <FileText size={14} className="text-amber-400" />,
+    test: <CheckCircle size={14} className="text-emerald-400" />,
+    config: <FileText size={14} className="text-cyan-400" />,
+    doc: <FileText size={14} className="text-white/40" />,
+  };
+
+  // Simulated decisions and risks per phase
+  const decisions: Record<string, string[]> = {
+    plan: ["Chose hierarchical RBAC over flat model", "Super Admin inherits all lower permissions", "Audit log required for all permission changes"],
+    build: ["Added tenant_id scoping after Code Auditor review", "47 unit tests covering all role x resource combinations"],
+    deploy: ["Feature flag enabled for enterprise tier only", "CloudWatch alarms configured for error rate and latency"],
+  };
+
+  const risks: Record<string, string[]> = {
+    plan: ["Tenant isolation is critical — must scope all permission checks"],
+    build: ["Monitor for performance impact on permission checks at scale"],
+    deploy: ["Rollback procedure requires manual feature flag toggle"],
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[60] flex items-center justify-end"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        className="relative w-full max-w-md h-full overflow-y-auto z-10"
+        style={{ background: "var(--panel-bg)", borderLeft: "1px solid var(--border-primary)" }}
+        initial={{ x: 400 }}
+        animate={{ x: 0 }}
+        exit={{ x: 400 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Package size={18} className="text-emerald-400" />
+              <h3 className="text-base font-bold text-white/90">Handover Manifest</h3>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/30 hover:text-white/60 transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+
+          {nextPhase && (
+            <div className="flex items-center gap-2 mb-6 text-sm text-white/50">
+              <span className="font-semibold" style={{ color: phaseAccents[phase.id] ?? "#888" }}>{phaseLabel(phase.id)}</span>
+              <ChevronRight size={14} className="text-white/20" />
+              <span className="font-semibold" style={{ color: phaseAccents[nextPhase.id] ?? "#888" }}>{phaseLabel(nextPhase.id)}</span>
+            </div>
+          )}
+
+          {/* Artifacts */}
+          <div className="mb-6">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Artifacts</h4>
+            <div className="space-y-2">
+              {phase.artifacts.map((artifact, i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: "var(--surface-secondary)", border: "1px solid var(--border-secondary)" }}>
+                  {typeIcons[artifact.type] ?? <FileText size={14} className="text-white/30" />}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-semibold text-white/70">{artifact.name}</span>
+                    {artifact.preview && <p className="text-[11px] text-white/30 truncate mt-0.5">{artifact.preview}</p>}
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-white/20 font-bold">{artifact.type}</span>
+                </div>
+              ))}
+              {phase.artifacts.length === 0 && <p className="text-xs text-white/25 italic">No artifacts yet</p>}
+            </div>
+          </div>
+
+          {/* Decisions */}
+          <div className="mb-6">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Key Decisions</h4>
+            <div className="space-y-2">
+              {(decisions[phase.id] ?? []).map((d, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-white/60">
+                  <CheckCircle size={12} className="text-emerald-400 mt-0.5 shrink-0" />
+                  <span>{d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Risks */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Risks & Watch Items</h4>
+            <div className="space-y-2">
+              {(risks[phase.id] ?? []).map((r, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-amber-300/70">
+                  <AlertTriangle size={12} className="text-amber-400 mt-0.5 shrink-0" />
+                  <span>{r}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ================================================================
+   PHASE TIMELINE ITEM (left sidebar)
+   ================================================================ */
+
+function PhaseTimelineItem({
+  phase,
+  isLast,
+  isSelected,
+  onClick,
+  onViewHandover,
+}: {
+  phase: PhaseState;
+  isLast: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+  onViewHandover?: () => void;
+}) {
+  const accent = phaseAccents[phase.id] ?? "#888";
+  const hasTollgate = !!phase.tollgate;
+  const passed = phase.tollgate?.passed || !!phase.tollgate?.override;
+  const failed = hasTollgate && !passed;
+  const isPending = phase.status === "pending";
+
+  const statusColor = isPending ? "var(--text-ghost)" : passed ? "#4ade80" : failed ? "#f87171" : accent;
+
+  return (
+    <div className="flex gap-3">
+      {/* Timeline connector */}
+      <div className="flex flex-col items-center">
+        <motion.button
+          onClick={onClick}
+          className="relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all"
+          style={{
+            background: isSelected ? `${statusColor}25` : isPending ? "var(--surface-primary)" : `${statusColor}15`,
+            border: isSelected ? `2px solid ${statusColor}` : `2px solid ${isPending ? "var(--border-primary)" : `${statusColor}50`}`,
+            boxShadow: isSelected ? `0 0 16px ${statusColor}30` : "none",
+          }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {isPending ? (
+            <Clock size={16} className="text-white/25" />
+          ) : passed ? (
+            <CheckCircle size={16} style={{ color: "#4ade80" }} />
+          ) : failed ? (
+            <XCircle size={16} style={{ color: "#f87171" }} />
+          ) : (
+            <motion.div
+              className="w-3 h-3 rounded-full"
+              style={{ background: accent }}
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          )}
+        </motion.button>
+        {!isLast && (
+          <div
+            className="w-0.5 flex-1 min-h-[40px]"
+            style={{
+              background: `linear-gradient(to bottom, ${statusColor}40, var(--border-secondary))`,
+            }}
+          />
+        )}
+      </div>
+
+      {/* Phase info */}
+      <div className="pb-6 flex-1 min-w-0">
+        <button onClick={onClick} className="text-left w-full">
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-semibold ${isSelected ? "text-white/90" : "text-white/60"}`}>
+              {phase.name}
+            </span>
+            {hasTollgate && phase.tollgate && (
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  background: passed ? "rgba(74,222,128,0.15)" : "rgba(248,113,113,0.15)",
+                  color: passed ? "#4ade80" : "#f87171",
+                  border: `1px solid ${passed ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)"}`,
+                }}
+              >
+                {phase.tollgate.overallScore}
+              </span>
+            )}
+            {isPending && (
+              <span className="text-[10px] font-medium text-white/20 uppercase tracking-wider">Pending</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-1 text-xs text-white/30">
+            {phase.roles.join(", ")}
+          </div>
+        </button>
+
+        {/* View Handover button for passed phases */}
+        {passed && phase.artifacts.length > 0 && onViewHandover && (
+          <motion.button
+            onClick={(e) => { e.stopPropagation(); onViewHandover(); }}
+            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+            style={{ background: "rgba(74,222,128,0.1)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.2)" }}
+            whileHover={{ scale: 1.02, background: "rgba(74,222,128,0.15)" }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Package size={12} />
+            View Handover Manifest
+          </motion.button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -545,51 +544,63 @@ function SecurityFinding({ criterion }: { criterion: TollgateCriterion }) {
 
 export function TollgateView() {
   const { state, dispatch } = useApp();
-  const [activeTab, setActiveTab] = useState<"s6" | "s7">("s6");
+  const [activeTab, setActiveTab] = useState<string>(state.activeStoryId ?? "s6");
   const [overrideApplied, setOverrideApplied] = useState<Record<string, { by: string; justification: string; at: string } | undefined>>({});
+  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+  const [handoverPhase, setHandoverPhase] = useState<PhaseState | null>(null);
+
+  // Sync active tab when activeStoryId changes
+  const currentStoryId = state.activeStoryId ?? "s6";
+  if (activeTab !== currentStoryId && state.activeStoryId) {
+    setActiveTab(currentStoryId);
+  }
 
   const story = state.stories.find((s) => s.id === activeTab);
-  if (!story) return null;
+  if (!story || !story.phases) return null;
 
-  // Find the phase with a tollgate
-  const phaseWithTollgate = story.phases?.find((p) => p.tollgate);
-  if (!phaseWithTollgate?.tollgate) return null;
+  const phases = story.phases;
+
+  // Determine which phase to show: prefer activePhaseId, then most recently completed phase with tollgate
+  const defaultPhaseId =
+    selectedPhaseId ??
+    state.activePhaseId ??
+    [...phases].reverse().find((p) => p.tollgate)?.id ??
+    phases[0]?.id;
+  const activePhase = phases.find((p) => p.id === defaultPhaseId);
+  if (!activePhase) return null;
+
+  const hasTollgate = !!activePhase.tollgate;
 
   // Merge local override state for demo purposes
-  const tollgate: TollgateResult = overrideApplied[activeTab]
-    ? { ...phaseWithTollgate.tollgate, override: overrideApplied[activeTab] }
-    : phaseWithTollgate.tollgate;
+  const tollgate: TollgateResult | null = activePhase.tollgate
+    ? overrideApplied[`${activeTab}-${activePhase.id}`]
+      ? { ...activePhase.tollgate, override: overrideApplied[`${activeTab}-${activePhase.id}`] }
+      : activePhase.tollgate
+    : null;
 
-  const nextPhaseIndex = story.phases ? story.phases.findIndex((p) => p.id === phaseWithTollgate.id) + 1 : -1;
-  const nextPhase = story.phases && nextPhaseIndex > 0 && nextPhaseIndex < story.phases.length
-    ? story.phases[nextPhaseIndex]
-    : undefined;
+  const nextPhaseIndex = phases.findIndex((p) => p.id === activePhase.id) + 1;
+  const nextPhase = nextPhaseIndex > 0 && nextPhaseIndex < phases.length ? phases[nextPhaseIndex] : undefined;
 
-  const failedCriteria = tollgate.criteria.filter((c) => !c.passed);
-  const securityFinding = failedCriteria.find(
-    (c) => c.details && c.details.includes("CVE")
-  );
+  const failedCriteria = tollgate?.criteria.filter((c) => !c.passed) ?? [];
+  const securityFinding = failedCriteria.find((c) => c.details && c.details.includes("CVE"));
 
   function handleOverride(by: string, justification: string) {
+    const key = `${activeTab}-${activePhase!.id}`;
     const overrideRecord = { by, justification, at: new Date().toISOString() };
-    setOverrideApplied((prev) => ({ ...prev, [activeTab]: overrideRecord }));
+    setOverrideApplied((prev) => ({ ...prev, [key]: overrideRecord }));
     dispatch({
       type: "OVERRIDE_TOLLGATE",
       storyId: story!.id,
-      phaseId: phaseWithTollgate!.id,
+      phaseId: activePhase!.id as "plan" | "design" | "build" | "deploy",
       by,
       justification,
     });
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 md:px-8 max-w-4xl mx-auto">
-      {/* ── Story tabs ──────────────────────────────────── */}
-      <motion.div
-        className="flex gap-2 mb-6"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+    <div className="min-h-screen px-4 py-8 md:px-8 max-w-6xl mx-auto">
+      {/* Story tabs */}
+      <motion.div className="flex gap-2 mb-6" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
         {(["s6", "s7"] as const).map((sid) => {
           const s = state.stories.find((st) => st.id === sid);
           if (!s) return null;
@@ -599,202 +610,239 @@ export function TollgateView() {
           return (
             <button
               key={sid}
-              onClick={() => setActiveTab(sid)}
+              onClick={() => { setActiveTab(sid); setSelectedPhaseId(null); }}
               className="relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
               style={{
-                background: isActive ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.02)",
-                border: isActive
-                  ? `1px solid ${hasFailed ? "rgba(230,57,70,0.4)" : "rgba(0,200,150,0.4)"}`
-                  : "1px solid rgba(255,255,255,0.06)",
-                color: isActive ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)",
+                background: isActive ? "var(--surface-hover)" : "var(--surface-secondary)",
+                border: isActive ? `1px solid ${hasFailed ? "rgba(248,113,113,0.4)" : "rgba(74,222,128,0.4)"}` : "1px solid var(--border-secondary)",
+                color: isActive ? "var(--text-primary)" : "var(--text-muted)",
               }}
             >
-              {hasFailed ? (
-                <XCircle size={14} className="text-red-400" />
-              ) : (
-                <CheckCircle size={14} className="text-emerald-400" />
-              )}
+              {hasFailed ? <XCircle size={14} className="text-red-400" /> : <CheckCircle size={14} className="text-emerald-400" />}
               {s.key}
             </button>
           );
         })}
       </motion.div>
 
-      {/* ── Override audit banner (top — unmissable) ──── */}
-      {tollgate.override && <OverrideAuditBanner tollgate={tollgate} />}
+      {/* Main layout: Timeline + Details */}
+      <div className="flex gap-8">
+        {/* Left: Phase Timeline */}
+        <motion.div
+          className="w-64 shrink-0"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <ShieldCheck size={16} className="text-white/50" />
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/40">Phase Timeline</h3>
+          </div>
 
-      {/* ── Header ──────────────────────────────────────── */}
-      <motion.div
-        className="mb-8"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <div className="flex items-center gap-3 mb-2">
-          <ShieldCheck size={24} className="text-white/70" />
-          <h1 className="text-2xl font-black text-white/90 tracking-tight">Tollgate Evaluation</h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 mt-2">
-          {/* Story key + phase */}
-          <span className="text-sm font-semibold text-white/50">
-            {story.key} &middot; {phaseLabel(tollgate.phaseId)} Phase
-          </span>
-
-          {/* Governance mode badge */}
-          <span
-            className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5"
-            style={{
-              background: tollgate.mode === "enforced" ? "rgba(230,57,70,0.12)" : "rgba(245,158,11,0.12)",
-              color: tollgate.mode === "enforced" ? "#e63946" : "#f59e0b",
-              border: `1px solid ${tollgate.mode === "enforced" ? "rgba(230,57,70,0.3)" : "rgba(245,158,11,0.3)"}`,
-            }}
-          >
-            {tollgate.mode === "enforced" ? <Lock size={10} /> : <Unlock size={10} />}
-            {tollgate.mode}
-          </span>
-
-          {/* Timestamp */}
-          <span className="text-xs text-white/30 flex items-center gap-1">
-            <Clock size={12} />
-            {formatDate(tollgate.evaluatedAt)} &middot; {formatTime(tollgate.evaluatedAt)}
-          </span>
-        </div>
-      </motion.div>
-
-      {/* ── Score ring (center) ─────────────────────────── */}
-      <motion.div
-        className="flex flex-col items-center gap-3 mb-8"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <ScoreRing score={tollgate.overallScore} passed={tollgate.passed || !!tollgate.override} />
-
-        {/* Status text */}
-        {!tollgate.passed && !tollgate.override && (
-          <motion.p
-            className="text-sm font-semibold text-center max-w-md"
-            style={{
-              color: tollgate.mode === "enforced" ? "#e63946" : "#f59e0b",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            {tollgate.mode === "enforced"
-              ? "Pipeline blocked \u2014 remediation required"
-              : "Warning \u2014 pipeline may continue"}
-          </motion.p>
-        )}
-
-        {tollgate.override && (
-          <motion.p
-            className="text-sm font-semibold text-amber-400 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            Override applied \u2014 pipeline unblocked
-          </motion.p>
-        )}
-
-        {tollgate.passed && !tollgate.override && (
-          <motion.p
-            className="text-sm font-semibold text-emerald-400 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            All criteria met \u2014 clear to proceed
-          </motion.p>
-        )}
-      </motion.div>
-
-      {/* ── Criteria grid ───────────────────────────────── */}
-      <div className="mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Evaluation Criteria</h2>
-        <div className="grid gap-3">
-          {/* Show failed criteria first */}
-          {[...tollgate.criteria]
-            .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
-            .map((criterion, i) => (
-              <CriterionCard key={criterion.name} criterion={criterion} index={i} />
+          <div>
+            {phases.map((phase, i) => (
+              <PhaseTimelineItem
+                key={phase.id}
+                phase={phase}
+                isLast={i === phases.length - 1}
+                isSelected={phase.id === defaultPhaseId}
+                onClick={() => setSelectedPhaseId(phase.id)}
+                onViewHandover={
+                  (phase.tollgate?.passed || !!phase.tollgate?.override) && phase.artifacts.length > 0
+                    ? () => setHandoverPhase(phase)
+                    : undefined
+                }
+              />
             ))}
+          </div>
+
+          {/* Powered by Arc branding */}
+          <motion.div
+            className="mt-6 px-3 py-2.5 rounded-lg flex items-center gap-2"
+            style={{ background: "rgba(255,107,44,0.06)", border: "1px solid rgba(255,107,44,0.15)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Zap size={14} className="text-[#FF6B2C]" />
+            <div>
+              <span className="text-[11px] font-bold text-[#FF6B2C]">Powered by Arc</span>
+              <p className="text-[10px] text-white/25">Tollgated governance engine</p>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Right: Tollgate Details */}
+        <div className="flex-1 min-w-0">
+          {/* Override audit banner */}
+          {tollgate?.override && <OverrideAuditBanner tollgate={tollgate} />}
+
+          {/* Pending state */}
+          {!hasTollgate && (
+            <motion.div
+              className="flex flex-col items-center justify-center py-20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+                style={{ background: "var(--surface-primary)", border: "2px solid var(--border-primary)" }}
+              >
+                <Clock size={32} className="text-white/20" />
+              </div>
+              <h3 className="text-lg font-semibold text-white/50 mb-1">{phaseLabel(activePhase.id)} Phase</h3>
+              <p className="text-sm text-white/25">
+                {activePhase.status === "pending"
+                  ? "Tollgate evaluation has not started yet"
+                  : "Phase is currently in progress"}
+              </p>
+              <p className="text-xs text-white/15 mt-2">Roles: {activePhase.roles.join(", ")}</p>
+            </motion.div>
+          )}
+
+          {/* Active tollgate details */}
+          {tollgate && (
+            <>
+              {/* Header */}
+              <motion.div className="mb-6" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <ShieldCheck size={24} className="text-white/70" />
+                  <h1 className="text-2xl font-black text-white/90 tracking-tight">Tollgate Evaluation</h1>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 mt-2">
+                  <span className="text-sm font-semibold text-white/50">{story.key} &middot; {phaseLabel(tollgate.phaseId)} Phase</span>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5"
+                    style={{
+                      background: tollgate.mode === "enforced" ? "rgba(248,113,113,0.12)" : "rgba(245,158,11,0.12)",
+                      color: tollgate.mode === "enforced" ? "#f87171" : "#f59e0b",
+                      border: `1px solid ${tollgate.mode === "enforced" ? "rgba(248,113,113,0.3)" : "rgba(245,158,11,0.3)"}`,
+                    }}
+                  >
+                    {tollgate.mode === "enforced" ? <Lock size={10} /> : <Unlock size={10} />}
+                    {tollgate.mode}
+                  </span>
+                  <span className="text-xs text-white/30 flex items-center gap-1">
+                    <Clock size={12} />
+                    {formatDate(tollgate.evaluatedAt)} &middot; {formatTime(tollgate.evaluatedAt)}
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Score ring */}
+              <motion.div className="flex flex-col items-center gap-3 mb-8" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
+                <ScoreRing score={tollgate.overallScore} passed={tollgate.passed || !!tollgate.override} />
+                {!tollgate.passed && !tollgate.override && (
+                  <motion.p className="text-sm font-semibold text-center max-w-md" style={{ color: tollgate.mode === "enforced" ? "#f87171" : "#f59e0b" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                    {tollgate.mode === "enforced" ? "Pipeline blocked \u2014 remediation required" : "Warning \u2014 pipeline may continue"}
+                  </motion.p>
+                )}
+                {tollgate.override && (
+                  <motion.p className="text-sm font-semibold text-amber-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                    Override applied &mdash; pipeline unblocked
+                  </motion.p>
+                )}
+                {tollgate.passed && !tollgate.override && (
+                  <motion.p className="text-sm font-semibold text-emerald-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                    All criteria met &mdash; clear to proceed
+                  </motion.p>
+                )}
+              </motion.div>
+
+              {/* Criteria */}
+              <div className="mb-6">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Evaluation Criteria</h2>
+                <div className="grid gap-3">
+                  {[...tollgate.criteria]
+                    .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
+                    .map((criterion, i) => (
+                      <CriterionCard key={criterion.name} criterion={criterion} index={i} />
+                    ))}
+                </div>
+              </div>
+
+              {/* Security finding */}
+              {securityFinding && !tollgate.override && (
+                <div className="mb-6"><SecurityFinding criterion={securityFinding} /></div>
+              )}
+
+              {/* Override section */}
+              {!tollgate.passed && <OverridePanel tollgate={tollgate} onOverride={handleOverride} />}
+
+              {/* Navigation */}
+              <motion.div
+                className="flex flex-wrap items-center gap-3 mt-8 pt-6"
+                style={{ borderTop: "1px solid var(--border-secondary)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+              >
+                {(tollgate.passed || tollgate.override) && (() => {
+                  const isLastPhase = !nextPhase;
+                  return (
+                    <motion.button
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
+                      style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}
+                      whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(74,222,128,0.15)" }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        // 1. Mark current phase as passed
+                        dispatch({ type: "COMPLETE_PHASE", storyId: story.id, phaseId: activePhase.id as "plan" | "design" | "build" | "deploy" });
+                        if (isLastPhase) {
+                          // Last phase — mark story done and go to cockpit
+                          dispatch({ type: "MARK_STORY_DONE", storyId: story.id });
+                          dispatch({ type: "SET_VIEW", view: "cockpit" });
+                        } else {
+                          // 2. Start the next phase
+                          dispatch({ type: "START_PHASE", storyId: story.id, phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
+                          // 3. Set active phase to next
+                          dispatch({ type: "SET_ACTIVE_PHASE", phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
+                          // 4. Navigate to session
+                          dispatch({ type: "SET_VIEW", view: "session" });
+                        }
+                      }}
+                    >
+                      {isLastPhase ? "Mark Story Complete" : "Continue to next phase"}
+                      <ArrowRight size={16} />
+                    </motion.button>
+                  );
+                })()}
+                {!tollgate.passed && !tollgate.override && (
+                  <motion.button
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
+                    style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(245,158,11,0.15)" }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => dispatch({ type: "SET_VIEW", view: "session" })}
+                  >
+                    <RotateCcw size={16} />
+                    Return to Session
+                  </motion.button>
+                )}
+                <button
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors"
+                  style={{ background: "var(--surface-secondary)", border: "1px solid var(--border-secondary)" }}
+                  onClick={() => dispatch({ type: "SET_VIEW", view: "cockpit" })}
+                >
+                  <Eye size={14} />
+                  View in Cockpit
+                </button>
+              </motion.div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* ── Security finding (prominent) ────────────────── */}
-      {securityFinding && !tollgate.override && (
-        <div className="mb-6">
-          <SecurityFinding criterion={securityFinding} />
-        </div>
-      )}
-
-      {/* ── Override section ────────────────────────────── */}
-      {!tollgate.passed && (
-        <OverridePanel tollgate={tollgate} storyId={story.id} onOverride={handleOverride} />
-      )}
-
-      {/* ── Handover manifest (passing) ─────────────────── */}
-      {(tollgate.passed || tollgate.override) && (
-        <HandoverManifest phase={phaseWithTollgate} nextPhase={nextPhase} />
-      )}
-
-      {/* ── Navigation ──────────────────────────────────── */}
-      <motion.div
-        className="flex flex-wrap items-center gap-3 mt-8 pt-6"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-      >
-        {(tollgate.passed || tollgate.override) && (
-          <motion.button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
-            style={{
-              background: "rgba(0,200,150,0.12)",
-              color: "#00c896",
-              border: "1px solid rgba(0,200,150,0.3)",
-            }}
-            whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(0,200,150,0.15)" }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => dispatch({ type: "SET_VIEW", view: "session" })}
-          >
-            Continue to next phase
-            <ArrowRight size={16} />
-          </motion.button>
+      {/* Handover Manifest slide-over */}
+      <AnimatePresence>
+        {handoverPhase && (
+          <HandoverManifestModal
+            phase={handoverPhase}
+            nextPhase={phases[phases.findIndex((p) => p.id === handoverPhase.id) + 1]}
+            onClose={() => setHandoverPhase(null)}
+          />
         )}
-
-        {!tollgate.passed && !tollgate.override && (
-          <motion.button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
-            style={{
-              background: "rgba(245,158,11,0.12)",
-              color: "#f59e0b",
-              border: "1px solid rgba(245,158,11,0.3)",
-            }}
-            whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(245,158,11,0.15)" }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => dispatch({ type: "SET_VIEW", view: "session" })}
-          >
-            <RotateCcw size={16} />
-            Return to Session
-          </motion.button>
-        )}
-
-        <button
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors"
-          style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-          onClick={() => dispatch({ type: "SET_VIEW", view: "cockpit" })}
-        >
-          <Eye size={14} />
-          View in Cockpit
-        </button>
-      </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
