@@ -433,7 +433,7 @@ export function ArcView() {
         }}
       >
         {/* Section header */}
-        <motion.div variants={stagger.item} className="flex items-center justify-between">
+        <motion.div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
               <span style={{ color: phaseColor }}>{activePhase.charAt(0).toUpperCase() + activePhase.slice(1)}</span>{" "}
@@ -485,7 +485,9 @@ export function ArcView() {
             {currentCriteria.map((criterion, idx) => (
               <motion.div
                 key={`${activePhase}-${idx}`}
-                variants={stagger.item}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className="flex items-center gap-4 p-3 rounded-xl transition-all"
                 style={{
                   background: criterion.enabled ? "var(--surface-primary)" : "transparent",
@@ -522,7 +524,6 @@ export function ArcView() {
 
         {/* Add criterion */}
         <motion.button
-          variants={stagger.item}
           onClick={addCriterion}
           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
           style={{
@@ -537,7 +538,7 @@ export function ArcView() {
         </motion.button>
 
         {/* Pass threshold */}
-        <motion.div variants={stagger.item} className="flex items-center gap-4 pt-2" style={{ borderTop: "1px solid var(--border-primary)" }}>
+        <motion.div className="flex items-center gap-4 pt-2" style={{ borderTop: "1px solid var(--border-primary)" }}>
           <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Pass threshold</span>
           <div className="flex items-center gap-2">
             <input
