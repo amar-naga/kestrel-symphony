@@ -240,17 +240,34 @@ export function CockpitView() {
   const [liveTokens, setLiveTokens] = useState(0);
   const [liveCost, setLiveCost] = useState(0);
 
-  const inSymphony = state.stories.filter((s) => s.status === "in_symphony");
-  const done = state.stories.filter((s) => s.status === "done");
+  const allStories = state.stories;
+  const inSymphony = allStories.filter((s) => s.status === "in_symphony");
+  const done = allStories.filter((s) => s.status === "done");
+  const remaining = allStories.filter((s) => s.status === "ready" || s.status === "backlog");
   const totalCost = costBreakdown.reduce((a, r) => a + r.cost, 0);
   const totalTokens = costBreakdown.reduce((a, r) => a + r.tokens, 0);
 
-  // Simulate live token/cost updates
+  // Compute live sprint metrics from actual story state
+  const computedSprint = {
+    ...sprint,
+    storiesTotal: allStories.length,
+    storiesCompleted: done.length,
+    storiesInSymphony: inSymphony.length,
+    storiesRemaining: remaining.length,
+  };
+
+  // Simulate live token/cost updates (bounded)
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveTokens((prev) => prev + Math.floor(Math.random() * 200 + 50));
-      setLiveCost((prev) => prev + Math.random() * 0.003);
-    }, 2000);
+      setLiveTokens((prev) => {
+        const next = prev + Math.floor(Math.random() * 200 + 50);
+        return Math.min(next, 5000000); // Cap at 5M tokens
+      });
+      setLiveCost((prev) => {
+        const next = prev + Math.random() * 0.003;
+        return Math.min(next, roi.symphonyCost); // Cap at total budget
+      });
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
@@ -265,12 +282,12 @@ export function CockpitView() {
     let idx = 0;
     const interval = setInterval(() => {
       if (idx < liveEntries.length) {
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-        setLiveAudit((prev) => [
-          { ...liveEntries[idx], time: timeStr },
-          ...prev,
-        ]);
+        setLiveAudit((prev) => {
+          if (prev.length >= 10 + auditTrail.length) return prev; // Stop injecting after 10 live entries
+          const now = new Date();
+          const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+          return [{ ...liveEntries[idx], time: timeStr }, ...prev];
+        });
         idx++;
       }
     }, 4000);
@@ -308,7 +325,7 @@ export function CockpitView() {
           <div className="flex items-center gap-1.5 glass-subtle px-3 py-1.5 rounded-full">
             <LivePulse />
             <span className="text-[11px] font-mono text-white/40">
-              {sprint.storiesInSymphony} active
+              {computedSprint.storiesInSymphony} active
             </span>
           </div>
 
@@ -351,7 +368,7 @@ export function CockpitView() {
               </span>
             </div>
             <p className="text-xs text-white/25 max-w-[180px]">
-              Symphony vs traditional dev team delivery across {sprint.storiesCompleted} completed stories
+              Symphony vs traditional dev team delivery across {computedSprint.storiesCompleted} completed stories
             </p>
           </div>
 
@@ -410,7 +427,7 @@ export function CockpitView() {
                 }}
               >
                 <Zap size={12} />
-                <AnimatedCounter target={roi.timeSavedPercent} suffix="% time saved" />
+                <AnimatedCounter target={roi.timeSavedPct} suffix="% time saved" />
               </motion.span>
               <span
                 className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-mono font-semibold"
@@ -421,7 +438,7 @@ export function CockpitView() {
                 }}
               >
                 <DollarSign size={12} />
-                <AnimatedCounter target={roi.costSavedPercent} decimals={1} suffix="% cost saved" />
+                <AnimatedCounter target={roi.costSavedPct} suffix="% cost saved" />
               </span>
             </div>
           </div>
@@ -448,14 +465,14 @@ export function CockpitView() {
               </span>
             </div>
             <div className="text-2xl font-bold text-white/90 tabular-nums mb-2">
-              <AnimatedCounter target={sprint.storiesCompleted} />
-              <span className="text-sm text-white/25 font-normal">/{sprint.storiesTotal}</span>
+              <AnimatedCounter target={computedSprint.storiesCompleted} />
+              <span className="text-sm text-white/25 font-normal">/{computedSprint.storiesTotal}</span>
             </div>
             {/* Progress bar */}
             <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${(sprint.storiesCompleted / sprint.storiesTotal) * 100}%` }}
+                animate={{ width: `${computedSprint.storiesTotal > 0 ? (computedSprint.storiesCompleted / computedSprint.storiesTotal) * 100 : 0}%` }}
                 transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="h-full rounded-full bg-[#FF6B2C]"
               />
@@ -615,9 +632,14 @@ export function CockpitView() {
                   Recently completed
                 </div>
                 {done.slice(0, 3).map((story) => (
-                  <div
+                  <motion.button
                     key={story.id}
-                    className="glass-subtle p-3 flex items-center gap-3 opacity-50"
+                    whileHover={{ x: 4, opacity: 0.8 }}
+                    onClick={() => {
+                      dispatch({ type: "SET_ACTIVE_STORY", storyId: story.id });
+                      dispatch({ type: "SET_VIEW", view: "tollgate" });
+                    }}
+                    className="w-full text-left glass-subtle p-3 flex items-center gap-3 opacity-50 cursor-pointer group"
                   >
                     <CheckCircle size={14} className="text-[#4ade80] shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -626,7 +648,11 @@ export function CockpitView() {
                         <span className="text-xs text-white/30 truncate">{story.title}</span>
                       </div>
                     </div>
-                  </div>
+                    <ArrowRight
+                      size={12}
+                      className="text-white/0 group-hover:text-white/30 transition-colors shrink-0"
+                    />
+                  </motion.button>
                 ))}
               </>
             )}
@@ -665,7 +691,7 @@ export function CockpitView() {
             <div className="flex-1">Role</div>
             <div className="w-16 text-right">Cost</div>
             <div className="w-16 text-right">Tokens</div>
-            <div className="w-14 text-right">Stories</div>
+            <div className="w-14 text-right">Model</div>
           </div>
 
           <div className="space-y-1.5">
@@ -685,7 +711,7 @@ export function CockpitView() {
                   {(row.tokens / 1000).toFixed(0)}k
                 </div>
                 <div className="w-14 text-right font-mono text-white/30 tabular-nums">
-                  {row.stories}
+                  {row.model.split(" ").pop()}
                 </div>
               </motion.div>
             ))}
@@ -749,9 +775,20 @@ export function CockpitView() {
             </h2>
           </div>
 
-          {/* Sparkline bars */}
+          {/* Sparkline bars — derived from actual tollgate scores + historical padding */}
+          {(() => {
+            const scores: number[] = [];
+            state.stories.forEach(s => {
+              s.phases?.forEach(p => {
+                if (p.tollgate?.overallScore) scores.push(p.tollgate.overallScore);
+              });
+            });
+            // Pad with historical data if we don't have enough
+            const historical = [78, 82, 80, 88, 85, 90, 87];
+            const qualityData = [...historical, ...scores].slice(-10);
+            return (
           <div className="flex items-end gap-1.5 h-[80px] mb-4">
-            {[78, 82, 80, 88, 85, 90, 87, 92, 91, 85].map((v, i) => (
+            {qualityData.map((v, i) => (
               <motion.div
                 key={i}
                 initial={{ height: 0 }}
@@ -760,7 +797,7 @@ export function CockpitView() {
                 className="flex-1 rounded-t-sm relative group cursor-pointer"
                 style={{
                   background:
-                    i === 9
+                    i === qualityData.length - 1
                       ? "linear-gradient(to top, #4ade80, #4ade8060)"
                       : "linear-gradient(to top, var(--surface-hover), var(--surface-secondary))",
                 }}
@@ -772,6 +809,8 @@ export function CockpitView() {
               </motion.div>
             ))}
           </div>
+            );
+          })()}
 
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp size={12} className="text-[#4ade80]" />

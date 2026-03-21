@@ -62,6 +62,8 @@ export interface Blueprint {
     similarStories: string[];
   };
   approved: boolean;
+  approvedBy?: string;
+  approvedAt?: string;
 }
 
 /* ── Phase Execution ──────────────────────────────────────── */
@@ -74,6 +76,8 @@ export interface PhaseState {
   humanMode: HumanMode;
   startedAt?: string;
   completedAt?: string;
+  costActual?: number;
+  durationActual?: number; // minutes
   artifacts: Artifact[];
   tollgate?: TollgateResult;
 }
@@ -141,8 +145,6 @@ export interface AppState {
   stories: JiraStory[];
   activeStoryId: string | null;
   activePhaseId: PhaseId | null;
-  sessionMessages: SessionMessage[];
-  sessionLog: SessionLogEntry[];
   activeTollgate: TollgateResult | null;
 }
 
@@ -152,8 +154,6 @@ export const defaultState: AppState = {
   stories: [],
   activeStoryId: null,
   activePhaseId: null,
-  sessionMessages: [],
-  sessionLog: [],
   activeTollgate: null,
 };
 
@@ -168,15 +168,13 @@ export type AppAction =
   | { type: "PULL_STORY"; storyId: string }
   | { type: "SET_ACTIVE_STORY"; storyId: string | null }
   | { type: "APPROVE_BLUEPRINT"; storyId: string }
+  | { type: "SET_BLUEPRINT"; storyId: string; blueprint: Blueprint }
   | { type: "START_PHASE"; storyId: string; phaseId: PhaseId }
   | { type: "COMPLETE_PHASE"; storyId: string; phaseId: PhaseId }
   | { type: "SET_ACTIVE_PHASE"; phaseId: PhaseId | null }
   | { type: "SET_TOLLGATE"; result: TollgateResult }
   | { type: "OVERRIDE_TOLLGATE"; storyId: string; phaseId: PhaseId; by: string; justification: string }
-  | { type: "SET_MESSAGES"; messages: SessionMessage[] }
-  | { type: "ADD_MESSAGE"; message: SessionMessage }
-  | { type: "SET_LOG"; entries: SessionLogEntry[] }
-  | { type: "ADD_LOG_ENTRY"; entry: SessionLogEntry }
+  | { type: "RERUN_TOLLGATE"; storyId: string; phaseId: PhaseId; newScore: number; passed: boolean }
   | { type: "MARK_STORY_DONE"; storyId: string };
 
 /* ================================================================
@@ -192,7 +190,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, governanceMode: action.mode };
 
     case "INIT_STORIES":
-      return { ...state, stories: action.stories };
+      return state.stories.length > 0 ? state : { ...state, stories: action.stories };
 
     case "PULL_STORY":
       return {
@@ -221,11 +219,24 @@ export function appReducer(state: AppState, action: AppAction): AppState {
           }));
           return {
             ...s,
-            blueprint: { ...s.blueprint, approved: true },
+            blueprint: {
+              ...s.blueprint,
+              approved: true,
+              approvedBy: "Demo User",
+              approvedAt: new Date().toISOString(),
+            },
             phases,
             startedAt: s.startedAt ?? new Date().toISOString(),
           };
         }),
+      };
+
+    case "SET_BLUEPRINT":
+      return {
+        ...state,
+        stories: state.stories.map((s) =>
+          s.id === action.storyId ? { ...s, blueprint: action.blueprint } : s
+        ),
       };
 
     case "START_PHASE":
@@ -330,17 +341,34 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ),
       };
 
-    case "SET_MESSAGES":
-      return { ...state, sessionMessages: action.messages };
-
-    case "ADD_MESSAGE":
-      return { ...state, sessionMessages: [...state.sessionMessages, action.message] };
-
-    case "SET_LOG":
-      return { ...state, sessionLog: action.entries };
-
-    case "ADD_LOG_ENTRY":
-      return { ...state, sessionLog: [...state.sessionLog, action.entry] };
+    case "RERUN_TOLLGATE":
+      return {
+        ...state,
+        stories: state.stories.map((s) =>
+          s.id === action.storyId && s.phases
+            ? {
+                ...s,
+                phases: s.phases.map((p) =>
+                  p.id === action.phaseId && p.tollgate
+                    ? {
+                        ...p,
+                        status: (action.passed ? "passed" : "failed") as PhaseStatus,
+                        tollgate: {
+                          ...p.tollgate,
+                          overallScore: action.newScore,
+                          passed: action.passed,
+                          evaluatedAt: new Date().toISOString(),
+                          criteria: action.passed
+                            ? p.tollgate.criteria.map((c) => ({ ...c, score: Math.min(c.score + 10, 100), passed: true }))
+                            : p.tollgate.criteria,
+                        },
+                      }
+                    : p
+                ),
+              }
+            : s
+        ),
+      };
 
     case "MARK_STORY_DONE":
       return {

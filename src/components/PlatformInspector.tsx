@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useApp } from "@/lib/store";
+import { useApp, type Blueprint } from "@/lib/store";
 import {
   X,
   Cpu,
@@ -214,7 +214,28 @@ function ProgressBar({ value, max, color, showLabel = true }: { value: number; m
    TAB: ENGINE & LLM
    ================================================================ */
 
-function EngineTab() {
+function EngineTab({ blueprint }: { blueprint?: Blueprint }) {
+  const displayRouting = blueprint ? (() => {
+    const seenRoles = new Set<string>();
+    const routing: typeof ENGINE_CONFIG.llmRouting = [];
+    blueprint.phases.forEach(phase => {
+      phase.roles.forEach(role => {
+        if (!seenRoles.has(role)) {
+          seenRoles.add(role);
+          const existing = ENGINE_CONFIG.llmRouting.find(r => r.role === role);
+          routing.push(existing ?? {
+            role,
+            model: "Claude Sonnet 4",
+            costPer1k: 0.003,
+            reason: "General-purpose agent tasks",
+            tokens: Math.floor(12000 + role.length * 1000),
+          });
+        }
+      });
+    });
+    return routing;
+  })() : ENGINE_CONFIG.llmRouting;
+
   return (
     <div className="space-y-5 p-5">
       {/* Engine Selection */}
@@ -279,7 +300,7 @@ function EngineTab() {
       <div>
         <div className="text-[9px] font-mono text-white/25 uppercase tracking-widest mb-3">LLM Routing Per Role</div>
         <div className="space-y-2">
-          {ENGINE_CONFIG.llmRouting.map((row, i) => {
+          {displayRouting.map((row, i) => {
             const roleColor = ROLE_COLORS[row.role] ?? "#888";
             const modelColor =
               row.model.includes("Opus") ? "#f59e0b" :
@@ -334,7 +355,7 @@ function EngineTab() {
         <div className="mt-3 flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06]">
           <span className="text-[10px] font-mono text-white/30">Total LLM cost this story</span>
           <span className="text-sm font-bold text-[#f59e0b] tabular-nums">
-            ${ENGINE_CONFIG.llmRouting.reduce((a, r) => a + (r.tokens / 1000) * r.costPer1k, 0).toFixed(2)}
+            ${displayRouting.reduce((a, r) => a + (r.tokens / 1000) * r.costPer1k, 0).toFixed(2)}
           </span>
         </div>
       </div>
@@ -346,14 +367,39 @@ function EngineTab() {
    TAB: AGENT WIRING
    ================================================================ */
 
-function WiringTab() {
+function WiringTab({ blueprint }: { blueprint?: Blueprint }) {
+  const displayWiring = blueprint ? (() => {
+    const wiring: typeof AGENT_WIRING = [];
+    blueprint.phases.forEach(phase => {
+      // A2A connections between roles in the same phase
+      for (let i = 0; i < phase.roles.length; i++) {
+        for (let j = i + 1; j < phase.roles.length; j++) {
+          wiring.push({
+            from: phase.roles[i], to: phase.roles[j],
+            protocol: "A2A", type: "peer-review", direction: "bidirectional",
+            messages: Math.floor(Math.random() * 10 + 2), active: true,
+          });
+        }
+      }
+      // MCP connections for tools
+      phase.tools.forEach(tool => {
+        wiring.push({
+          from: phase.roles[0], to: tool,
+          protocol: "MCP", type: "tool-use", direction: "outbound",
+          messages: Math.floor(Math.random() * 6 + 1), active: phase.roles.length > 0,
+        });
+      });
+    });
+    return wiring;
+  })() : AGENT_WIRING;
+
   return (
     <div className="space-y-5 p-5">
       {/* Agent Connections */}
       <div>
         <div className="text-[9px] font-mono text-white/25 uppercase tracking-widest mb-3">Agent Connections (Live)</div>
         <div className="space-y-2">
-          {AGENT_WIRING.map((wire, i) => {
+          {displayWiring.map((wire, i) => {
             const fromColor = ROLE_COLORS[wire.from] ?? "#888";
             const protocolColor =
               wire.protocol === "A2A" ? "#8B8B8B" :
@@ -799,10 +845,13 @@ const TABS: { id: InspectorTab; label: string; icon: React.ComponentType<{ size?
 
 export function PlatformInspector({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [activeTab, setActiveTab] = useState<InspectorTab>("engine");
+  const { state } = useApp();
+  const activeStory = state.stories.find(s => s.id === state.activeStoryId);
+  const blueprint = activeStory?.blueprint;
 
   const tabContent: Record<InspectorTab, React.ReactNode> = {
-    engine: <EngineTab />,
-    wiring: <WiringTab />,
+    engine: <EngineTab blueprint={blueprint} />,
+    wiring: <WiringTab blueprint={blueprint} />,
     guardrails: <GuardrailsTab />,
     context: <ContextTab />,
     knowledge: <KnowledgeTab />,
@@ -844,7 +893,9 @@ export function PlatformInspector({ open, onClose }: { open: boolean; onClose: (
               </div>
               <div className="flex-1">
                 <h2 className="text-sm font-bold text-white/90">Platform Inspector</h2>
-                <p className="text-[10px] text-white/30 font-mono">Behind the scenes — engine, wiring, guardrails</p>
+                <p className="text-[10px] font-mono" style={{ color: "var(--text-faint)" }}>
+                  {activeStory ? `${activeStory.key} — ${activeStory.title}` : "Behind the scenes — engine, wiring, guardrails"}
+                </p>
               </div>
               <button
                 onClick={onClose}

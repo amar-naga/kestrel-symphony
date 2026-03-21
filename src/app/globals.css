@@ -587,6 +587,26 @@ body {
   100% { top: 100%; opacity: 0; }
 }
 
+/* Hero headline — theme-aware */
+.hero-headline-text {
+  background: linear-gradient(to right, rgba(255,255,255,0.95), rgba(255,255,255,0.80));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-sub-text {
+  color: rgba(255, 255, 255, 0.55);
+}
+[data-theme="light"] .hero-headline-text {
+  background: linear-gradient(to right, #111111, #333333);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .hero-sub-text {
+  color: #555555 !important;
+}
+
 .scan-line {
   position: absolute;
   left: 0;

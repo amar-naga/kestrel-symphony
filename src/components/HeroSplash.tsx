@@ -91,7 +91,7 @@ export function HeroSplash() {
           variants={fadeUp}
           className="text-5xl sm:text-6xl font-bold tracking-tight leading-tight"
         >
-          <span className="bg-gradient-to-r from-white via-white/95 to-white/80 bg-clip-text text-transparent">
+          <span className="hero-headline-text">
             AI-Native SDLC
           </span>
           <br />
@@ -103,7 +103,7 @@ export function HeroSplash() {
         {/* Subheadline */}
         <motion.p
           variants={fadeUp}
-          className="mt-6 text-lg sm:text-xl text-white/50 font-medium max-w-2xl leading-relaxed"
+          className="mt-6 text-lg sm:text-xl font-medium max-w-2xl leading-relaxed hero-sub-text"
         >
           The governed layer between your backlog and your AI tools.
         </motion.p>

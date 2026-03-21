@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/lib/store";
 import {
@@ -584,6 +584,52 @@ export function TollgateView() {
   const failedCriteria = tollgate?.criteria.filter((c) => !c.passed) ?? [];
   const securityFinding = failedCriteria.find((c) => c.details && c.details.includes("CVE"));
 
+  // Re-run tollgate state
+  const [rerunning, setRerunning] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [rerunKey, setRerunKey] = useState(0);
+
+  // Reset rerunning state when switching tabs/phases
+  useEffect(() => {
+    setRerunning(false);
+  }, [activeTab, selectedPhaseId]);
+
+  function handleRerunTollgate() {
+    setRerunning(true);
+    setTimeout(() => {
+      setRerunning(false);
+      // If an override was applied, simulate the tollgate now passing
+      const key = `${activeTab}-${activePhase!.id}`;
+      if (overrideApplied[key]) {
+        // Override was applied — re-run passes with improved scores
+        dispatch({
+          type: "RERUN_TOLLGATE",
+          storyId: story!.id,
+          phaseId: activePhase!.id as "plan" | "design" | "build" | "deploy",
+          newScore: 92,
+          passed: true,
+        });
+        // Clear the local override since store now reflects it
+        setOverrideApplied((prev) => {
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        });
+      } else {
+        // No override — re-run still fails (same scores)
+        dispatch({
+          type: "RERUN_TOLLGATE",
+          storyId: story!.id,
+          phaseId: activePhase!.id as "plan" | "design" | "build" | "deploy",
+          newScore: activePhase!.tollgate?.overallScore ?? 60,
+          passed: false,
+        });
+      }
+      // Force a re-render by bumping a key
+      setRerunKey((k) => k + 1);
+    }, 2000);
+  }
+
   function handleOverride(by: string, justification: string) {
     const key = `${activeTab}-${activePhase!.id}`;
     const overrideRecord = { by, justification, at: new Date().toISOString() };
@@ -599,31 +645,36 @@ export function TollgateView() {
 
   return (
     <div className="min-h-screen px-4 py-8 md:px-8 max-w-6xl mx-auto">
-      {/* Story tabs */}
-      <motion.div className="flex gap-2 mb-6" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
-        {(["s6", "s7"] as const).map((sid) => {
-          const s = state.stories.find((st) => st.id === sid);
-          if (!s) return null;
-          const isActive = activeTab === sid;
-          const hasFailed = s.phases?.some((p) => p.tollgate && !p.tollgate.passed);
+      {/* Story tabs — dynamically derived from stories with phases */}
+      {(() => {
+        const symphonyStories = state.stories.filter(s =>
+          (s.status === "in_symphony" || s.status === "done") && s.phases && s.phases.length > 0
+        );
+        return (
+          <motion.div className="flex gap-2 mb-6 flex-wrap" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
+            {symphonyStories.map((s) => {
+              const isActive = activeTab === s.id;
+              const hasFailed = s.phases?.some((p) => p.tollgate && !p.tollgate.passed && !p.tollgate.override);
 
-          return (
-            <button
-              key={sid}
-              onClick={() => { setActiveTab(sid); setSelectedPhaseId(null); }}
-              className="relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-              style={{
-                background: isActive ? "var(--surface-hover)" : "var(--surface-secondary)",
-                border: isActive ? `1px solid ${hasFailed ? "rgba(248,113,113,0.4)" : "rgba(74,222,128,0.4)"}` : "1px solid var(--border-secondary)",
-                color: isActive ? "var(--text-primary)" : "var(--text-muted)",
-              }}
-            >
-              {hasFailed ? <XCircle size={14} className="text-red-400" /> : <CheckCircle size={14} className="text-emerald-400" />}
-              {s.key}
-            </button>
-          );
-        })}
-      </motion.div>
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => { setActiveTab(s.id); setSelectedPhaseId(null); }}
+                  className="relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                  style={{
+                    background: isActive ? "var(--surface-hover)" : "var(--surface-secondary)",
+                    border: isActive ? `1px solid ${hasFailed ? "rgba(248,113,113,0.4)" : "rgba(74,222,128,0.4)"}` : "1px solid var(--border-secondary)",
+                    color: isActive ? "var(--text-primary)" : "var(--text-muted)",
+                  }}
+                >
+                  {hasFailed ? <XCircle size={14} className="text-red-400" /> : <CheckCircle size={14} className="text-emerald-400" />}
+                  {s.key}
+                </button>
+              );
+            })}
+          </motion.div>
+        );
+      })()}
 
       {/* Main layout: Timeline + Details */}
       <div className="flex gap-8">
@@ -777,6 +828,7 @@ export function TollgateView() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
               >
+                {/* "Continue to next phase" — only when tollgate passed (naturally or via override) AND phase is not in failed state without override */}
                 {(tollgate.passed || tollgate.override) && (() => {
                   const isLastPhase = !nextPhase;
                   return (
@@ -807,6 +859,8 @@ export function TollgateView() {
                     </motion.button>
                   );
                 })()}
+
+                {/* "Return to Session" — shown when failed (no override) */}
                 {!tollgate.passed && !tollgate.override && (
                   <motion.button
                     className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
@@ -819,6 +873,35 @@ export function TollgateView() {
                     Return to Session
                   </motion.button>
                 )}
+
+                {/* "Re-run Tollgate" — shown for failed phases (with or without override) */}
+                {(activePhase.status === "failed" || (!tollgate.passed && !tollgate.override)) && (
+                  <motion.button
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: "rgba(255,107,44,0.12)", color: "#FF6B2C", border: "1px solid rgba(255,107,44,0.3)" }}
+                    whileHover={!rerunning ? { scale: 1.02, boxShadow: "0 0 20px rgba(255,107,44,0.15)" } : {}}
+                    whileTap={!rerunning ? { scale: 0.98 } : {}}
+                    disabled={rerunning}
+                    onClick={handleRerunTollgate}
+                  >
+                    {rerunning ? (
+                      <>
+                        <motion.div
+                          className="w-4 h-4 border-2 border-[#FF6B2C] border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                        />
+                        Re-evaluating...
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw size={16} />
+                        Re-run Tollgate
+                      </>
+                    )}
+                  </motion.button>
+                )}
+
                 <button
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors"
                   style={{ background: "var(--surface-secondary)", border: "1px solid var(--border-secondary)" }}

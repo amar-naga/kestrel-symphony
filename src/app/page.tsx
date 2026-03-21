@@ -3,6 +3,7 @@
 import { useReducer, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppContext, appReducer, defaultState } from "@/lib/store";
+import { SAMPLE_STORIES } from "@/lib/sample-data";
 import { Navigation } from "@/components/Navigation";
 import { FloatingOrbs } from "@/components/FloatingOrbs";
 import { HeroSplash } from "@/components/HeroSplash";
@@ -28,6 +29,11 @@ export default function Home() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const ViewComponent = viewComponents[state.currentView];
   const showNav = state.currentView !== "hero";
+
+  // Initialize stories on mount so all views have data
+  useEffect(() => {
+    dispatch({ type: "INIT_STORIES", stories: SAMPLE_STORIES });
+  }, []);
 
   // Apply theme to document body
   useEffect(() => {

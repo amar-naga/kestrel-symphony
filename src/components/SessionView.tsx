@@ -9,6 +9,8 @@ import {
   RBAC_PLAN_LOG,
   RBAC_DEPLOY_MESSAGES,
   RBAC_DEPLOY_LOG,
+  generateSessionMessages,
+  generateAgentReply,
 } from "@/lib/sample-data";
 import {
   FileText,
@@ -22,6 +24,7 @@ import {
   Clock,
   Wrench,
   ChevronRight,
+  ChevronLeft,
   Code,
   TestTube,
   FileCode,
@@ -68,6 +71,8 @@ const ACTION_COLORS: Record<string, string> = {
   "Cross-reference": "#fbbf24",
   "MCP connected": "#888888",
   "Tests passing": "#4ade80",
+  "Rate limit hit — retrying": "#f59e0b",
+  "Human input processed": "#4ade80",
 };
 
 const AGENT_ACTIVITIES: Record<string, string[]> = {
@@ -351,7 +356,7 @@ function ChatMessage({ msg, index }: { msg: SessionMessage; index: number }) {
 
 /* ── Artifact Card ───────────────────────────────────────── */
 
-function ArtifactCard({ artifact, isNew }: { artifact: Artifact; isNew?: boolean }) {
+function ArtifactCard({ artifact, isNew, onExpand }: { artifact: Artifact; isNew?: boolean; onExpand?: (artifact: Artifact) => void }) {
   const Icon = artifactIconMap[artifact.type] ?? FileText;
   const roleColor =
     artifact.fromRole === "Agent Engineer" ? "#FF6B2C" :
@@ -364,6 +369,7 @@ function ArtifactCard({ artifact, isNew }: { artifact: Artifact; isNew?: boolean
     <motion.div
       initial={{ opacity: 0, x: 8 }}
       animate={{ opacity: 1, x: 0 }}
+      onClick={() => onExpand?.(artifact)}
       className="rounded-xl px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.06] relative"
       style={{
         background: "var(--surface-secondary)",
@@ -532,6 +538,7 @@ export function SessionView() {
   const [agentStatuses, setAgentStatuses] = useState<{ role: string; color: string; status: string }[]>([]);
   const [newArtifactIds, setNewArtifactIds] = useState<Set<string>>(new Set());
   const [sessionArtifacts, setSessionArtifacts] = useState<Artifact[]>([]);
+  const [expandedArtifact, setExpandedArtifact] = useState<Artifact | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -556,14 +563,7 @@ export function SessionView() {
     setSessionArtifacts([]);
 
     const phaseId = activePhase.id;
-    const allMessages =
-      phaseId === "plan" ? RBAC_PLAN_MESSAGES :
-      phaseId === "deploy" ? RBAC_DEPLOY_MESSAGES :
-      RBAC_BUILD_MESSAGES;
-    const allLogs =
-      phaseId === "plan" ? RBAC_PLAN_LOG :
-      phaseId === "deploy" ? RBAC_DEPLOY_LOG :
-      RBAC_BUILD_LOG;
+    const { messages: allMessages, log: allLogs } = generateSessionMessages(activeStory, activePhase.id as any);
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     // Set initial agent statuses
@@ -646,6 +646,19 @@ export function SessionView() {
         }, elapsed + li * 200));
       });
 
+      // After 3rd message (i === 2), show a retry event
+      if (i === 2) {
+        timers.push(setTimeout(() => {
+          setVisibleLogs((prev) => [...prev, {
+            id: "l-retry",
+            timestamp: new Date().toISOString(),
+            action: "Rate limit hit — retrying",
+            role: msg.role,
+            details: "Claude API returned 429. Backing off 2s and retrying. Attempt 2/3 succeeded.",
+          }]);
+        }, elapsed + 200));
+      }
+
       elapsed += 600;
     });
 
@@ -684,6 +697,50 @@ export function SessionView() {
       logEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [visibleLogs, rightTab]);
+
+  /* ── Chat send handler ──────────────────────────────── */
+
+  function handleSendMessage() {
+    if (!inputValue.trim() || !activeStory || !activePhase) return;
+
+    const userMsg: SessionMessage = {
+      id: `user-${Date.now()}`,
+      role: "You",
+      roleIcon: "User",
+      roleColor: "#888888",
+      content: inputValue,
+      timestamp: new Date().toISOString(),
+    };
+    setVisibleMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+
+    // Show typing indicator
+    const primaryRole = activePhase.roles[0];
+    const roleColors: Record<string, string> = {
+      "Agent Engineer": "#FF6B2C",
+      "Code Auditor": "#f87171",
+      "Requirements Dev": "#FF6B2C",
+      "Process Leader": "#8B8B8B",
+      "Agent Ops": "#FF8F5C",
+      "Data Steward": "#666666",
+    };
+    setTypingAgent({ role: primaryRole, color: roleColors[primaryRole] ?? "#888", activity: "Thinking..." });
+
+    setTimeout(() => {
+      setTypingAgent(null);
+      const reply = generateAgentReply(activeStory, activePhase.id as any, inputValue);
+      setVisibleMessages((prev) => [...prev, reply]);
+
+      // Also add a log entry
+      setVisibleLogs((prev) => [...prev, {
+        id: `log-reply-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        action: "Human input processed",
+        role: primaryRole,
+        details: `Responded to user query about ${activeStory.component} module`,
+      }]);
+    }, 1500);
+  }
 
   /* ── Empty state ─────────────────────────────────────── */
 
@@ -754,6 +811,42 @@ export function SessionView() {
         )}
       </AnimatePresence>
 
+      {/* Artifact Preview Modal */}
+      <AnimatePresence>
+        {expandedArtifact && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+            onClick={() => setExpandedArtifact(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="rounded-xl p-6 max-w-lg w-full mx-4"
+              style={{ background: "var(--panel-bg)", border: "1px solid var(--border-primary)" }}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{expandedArtifact.name}</h3>
+                <button onClick={() => setExpandedArtifact(null)} className="text-white/40 hover:text-white/70">&#10005;</button>
+              </div>
+              <div className="text-xs font-mono p-4 rounded-lg overflow-auto max-h-64"
+                style={{ background: "var(--surface-primary)", border: "1px solid var(--border-secondary)", color: "var(--text-secondary)" }}>
+                {expandedArtifact.preview || "No preview available"}
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: "var(--text-faint)" }}>
+                <span>Type: {expandedArtifact.type}</span>
+                <span>From: {expandedArtifact.fromRole}</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Top Bar ──────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -764,6 +857,16 @@ export function SessionView() {
           backdropFilter: "blur(16px)",
         }}
       >
+        {/* Back to Board */}
+        <button
+          onClick={() => dispatch({ type: "SET_VIEW", view: "board" })}
+          className="text-xs flex items-center gap-1 mr-3 transition-colors"
+          style={{ color: "var(--text-faint)" }}
+        >
+          <ChevronLeft size={14} />
+          Board
+        </button>
+
         {/* Phase + Story key */}
         <div className="flex items-center gap-2">
           <span className="text-base font-semibold text-white/90">{activePhase.name} Phase</span>
@@ -920,10 +1023,12 @@ export function SessionView() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSendMessage(); }}
                 placeholder="Ask the team..."
                 className="flex-1 bg-transparent text-sm text-white/70 placeholder:text-white/20 outline-none"
               />
               <button
+                onClick={handleSendMessage}
                 className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-white/[0.08]"
                 style={{ color: inputValue ? "#FF6B2C" : "var(--text-ghost)" }}
               >
@@ -1000,6 +1105,7 @@ export function SessionView() {
                           key={a.name}
                           artifact={a}
                           isNew={newArtifactIds.has(a.name)}
+                          onExpand={setExpandedArtifact}
                         />
                       ))
                     ) : (

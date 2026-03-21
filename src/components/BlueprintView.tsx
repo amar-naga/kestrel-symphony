@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/lib/store";
 import {
   Brain,
@@ -22,6 +23,8 @@ import {
   Palette,
   Network,
   ArrowLeftRight,
+  Settings,
+  X,
 } from "lucide-react";
 import type { BlueprintPhase, HumanMode } from "@/lib/store";
 import { ROLE_CATALOG } from "@/lib/sample-data";
@@ -79,6 +82,12 @@ const humanModeConfig: Record<HumanMode, { label: string; color: string; bg: str
   delegated: { label: "Delegated", color: "#4ade80", bg: "#4ade8018" },
 };
 
+const humanModeDescriptions: Record<HumanMode, string> = {
+  collaborative: "Human works alongside agents in real-time",
+  review: "Agents work autonomously, human reviews output",
+  delegated: "Fully autonomous \u2014 agents handle end-to-end",
+};
+
 const phaseAccents: Record<string, string> = {
   plan: "#FF6B2C",
   design: "#999999",
@@ -119,12 +128,17 @@ function PhaseCard({ phase, index, total }: { phase: BlueprintPhase; index: numb
             {index + 1}
           </span>
           <span className="text-sm font-semibold text-white/90">{phase.name}</span>
-          <span
-            className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full"
-            style={{ background: mode.bg, color: mode.color, border: `1px solid ${mode.color}30` }}
-          >
-            {mode.label}
-          </span>
+          <div className="ml-auto text-right">
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: mode.bg, color: mode.color, border: `1px solid ${mode.color}30` }}
+            >
+              {mode.label}
+            </span>
+            <p className="text-[10px] mt-0.5" style={{ color: `${mode.color}80` }}>
+              {humanModeDescriptions[phase.humanMode]}
+            </p>
+          </div>
         </div>
 
         {/* Roles */}
@@ -189,11 +203,231 @@ const priorityBadgeColors: Record<string, string> = {
 };
 
 /* ================================================================
+   PROVISIONING STEPS (loading overlay after Approve)
+   ================================================================ */
+
+function ProvisioningSteps() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    "Provisioning agent roles...",
+    "Connecting MCP tools (GitHub, Jira, Confluence)...",
+    "Loading context from knowledge repository...",
+    "Applying guardrails (token budget, cost cap, PII filter)...",
+    "Phase 1 ready \u2014 entering session...",
+  ];
+  useEffect(() => {
+    const timers = steps.map((_, i) => setTimeout(() => setStep(i), i * 450));
+    return () => timers.forEach(clearTimeout);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="space-y-1.5">
+      {steps.map((s, i) => (
+        <motion.p key={i} className="text-xs font-mono"
+          initial={{ opacity: 0, x: -10 }}
+          animate={i <= step ? { opacity: 1, x: 0 } : {}}
+          style={{ color: i < step ? "#4ade80" : i === step ? "var(--text-secondary)" : "transparent" }}
+        >
+          {i < step ? "\u2713 " : i === step ? "\u23F3 " : ""}{s}
+        </motion.p>
+      ))}
+    </div>
+  );
+}
+
+/* ================================================================
+   ADJUST PANEL (config panel for tuning blueprint)
+   ================================================================ */
+
+function AdjustPanel({ phases, onClose }: { phases: BlueprintPhase[]; onClose: () => void }) {
+  const [saved, setSaved] = useState(false);
+  const llmOptions = ["Claude Opus 4.6", "Claude Sonnet 4", "Claude Haiku 4.5"];
+  const humanModes: HumanMode[] = ["collaborative", "review", "delegated"];
+
+  const modelMap: Record<string, string> = {
+    "Requirements Dev": "Claude Opus 4.6",
+    "Process Leader": "Claude Sonnet 4",
+    "Data Steward": "Claude Sonnet 4",
+    "Agent Engineer": "Claude Opus 4.6",
+    "Code Auditor": "Claude Sonnet 4",
+    "UX Designer": "Claude Sonnet 4",
+    Architect: "Claude Opus 4.6",
+    "Agent Ops": "Claude Haiku 4.5",
+  };
+
+  function handleSave() {
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      onClose();
+    }, 1200);
+  }
+
+  return (
+    <motion.div
+      className="rounded-xl overflow-hidden"
+      style={{
+        background: "var(--surface-secondary)",
+        border: "1px solid var(--border-primary)",
+        backdropFilter: "blur(16px)",
+      }}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Panel header */}
+      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+        <div className="flex items-center gap-2">
+          <Settings size={14} className="text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Adjust Configuration</span>
+        </div>
+        <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors">
+          <X size={16} />
+        </button>
+      </div>
+
+      {/* Phase columns grid */}
+      <div className="px-5 pb-4">
+        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${phases.length}, 1fr)` }}>
+          {phases.map((phase) => {
+            const accent = phaseAccents[phase.id] ?? "#FF6B2C";
+            return (
+              <div key={phase.id} className="space-y-3">
+                {/* Phase name */}
+                <div className="flex items-center gap-2 pb-2" style={{ borderBottom: `2px solid ${accent}40` }}>
+                  <div className="w-2 h-2 rounded-full" style={{ background: accent }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accent }}>
+                    {phase.name}
+                  </span>
+                </div>
+
+                {/* Roles toggles */}
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">Roles</label>
+                  <div className="space-y-1">
+                    {ROLE_CATALOG.map((role) => {
+                      const isActive = phase.roles.includes(role.id);
+                      return (
+                        <label key={role.id} className="flex items-center gap-2 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            defaultChecked={isActive}
+                            className="w-3 h-3 rounded accent-[#FF6B2C]"
+                          />
+                          <span className="text-[11px] text-white/50 group-hover:text-white/70 transition-colors">
+                            {role.id}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* LLM model per role */}
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">LLM Model</label>
+                  <div className="space-y-1">
+                    {phase.roles.map((role) => (
+                      <div key={role} className="flex items-center gap-2">
+                        <span className="text-[10px] text-white/40 w-20 truncate">{role}</span>
+                        <select
+                          defaultValue={modelMap[role] ?? "Claude Sonnet 4"}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/60 border border-white/10 cursor-pointer"
+                          style={{ outline: "none" }}
+                        >
+                          {llmOptions.map((opt) => (
+                            <option key={opt} value={opt} style={{ background: "#1a1a1a" }}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Human mode */}
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">Human Mode</label>
+                  <div className="space-y-1">
+                    {humanModes.map((hm) => {
+                      const cfg = humanModeConfig[hm];
+                      return (
+                        <label key={hm} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`humanMode-${phase.id}`}
+                            defaultChecked={phase.humanMode === hm}
+                            className="w-3 h-3 accent-[#FF6B2C]"
+                          />
+                          <span className="text-[11px]" style={{ color: cfg.color }}>
+                            {cfg.label}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Budget ceiling */}
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">Budget Cap ($)</label>
+                  <input
+                    type="number"
+                    defaultValue={Math.round(phase.estimatedCost * 2)}
+                    className="w-full text-[11px] px-2 py-1 rounded bg-white/5 text-white/60 border border-white/10"
+                    style={{ outline: "none" }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Save button */}
+        <div className="flex items-center gap-3 mt-4 pt-3" style={{ borderTop: "1px solid var(--border-secondary)" }}>
+          <motion.button
+            onClick={handleSave}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-all"
+            style={{
+              background: saved ? "#4ade80" : "linear-gradient(135deg, #FF6B2C, #CC5623)",
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {saved ? (
+              <>
+                <Check size={14} />
+                Saved!
+              </>
+            ) : (
+              <>
+                <Check size={14} />
+                Save Changes
+              </>
+            )}
+          </motion.button>
+          <button
+            onClick={onClose}
+            className="text-xs text-white/40 hover:text-white/60 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ================================================================
    MAIN COMPONENT
    ================================================================ */
 
 export function BlueprintView() {
   const { state, dispatch } = useApp();
+
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [provisioning, setProvisioning] = useState(false);
 
   const story = state.stories.find((s) => s.id === state.activeStoryId);
   const blueprint = story?.blueprint;
@@ -227,14 +461,17 @@ export function BlueprintView() {
 
   /* ── Handlers ────────────────────────────────────────── */
   function handleApprove() {
+    setProvisioning(true);
     dispatch({ type: "APPROVE_BLUEPRINT", storyId: story!.id });
-    // Start first phase
     const firstPhase = blueprint!.phases[0];
     if (firstPhase) {
       dispatch({ type: "START_PHASE", storyId: story!.id, phaseId: firstPhase.id });
       dispatch({ type: "SET_ACTIVE_PHASE", phaseId: firstPhase.id });
     }
-    dispatch({ type: "SET_VIEW", view: "session" });
+    setTimeout(() => {
+      dispatch({ type: "SET_VIEW", view: "session" });
+      setProvisioning(false);
+    }, 2500);
   }
 
   function handleReject() {
@@ -245,6 +482,26 @@ export function BlueprintView() {
   /* ── Render ──────────────────────────────────────────── */
   return (
     <div className="flex-1 px-6 py-8 max-w-6xl mx-auto w-full space-y-6">
+      {/* Provisioning overlay */}
+      {provisioning && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div className="text-center space-y-4" initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
+            <motion.div
+              className="w-12 h-12 mx-auto rounded-full border-2 border-t-transparent"
+              style={{ borderColor: "#FF6B2C", borderTopColor: "transparent" }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <ProvisioningSteps />
+          </motion.div>
+        </motion.div>
+      )}
+
       {/* ─── 1. Story Header ────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -363,6 +620,13 @@ export function BlueprintView() {
           ))}
         </div>
       </motion.div>
+
+      {/* ─── 3a. Adjust Config Panel ─────────────────── */}
+      <AnimatePresence>
+        {adjustOpen && (
+          <AdjustPanel phases={blueprint.phases} onClose={() => setAdjustOpen(false)} />
+        )}
+      </AnimatePresence>
 
       {/* ─── 3b. Agent Configuration ─────────────────── */}
       <motion.div
@@ -628,16 +892,17 @@ export function BlueprintView() {
 
         {/* Adjust */}
         <motion.button
+          onClick={() => setAdjustOpen(!adjustOpen)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white/60 transition-all"
           style={{
-            background: "var(--surface-primary)",
-            border: "1px solid var(--border-primary)",
+            background: adjustOpen ? "rgba(255,107,44,0.1)" : "var(--surface-primary)",
+            border: adjustOpen ? "1px solid rgba(255,107,44,0.3)" : "1px solid var(--border-primary)",
           }}
           whileHover={{ background: "var(--surface-hover)" }}
           whileTap={{ scale: 0.97 }}
         >
-          <AlertTriangle size={14} />
-          Adjust
+          <Settings size={14} />
+          {adjustOpen ? "Close Config" : "Adjust"}
         </motion.button>
 
         {/* Reject */}

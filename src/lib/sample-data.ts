@@ -2,6 +2,7 @@ import type {
   JiraStory,
   Blueprint,
   PhaseState,
+  PhaseId,
   TollgateResult,
   SessionMessage,
   SessionLogEntry,
@@ -106,6 +107,8 @@ export const SAMPLE_STORIES: JiraStory[] = [
         humanMode: "collaborative",
         startedAt: "2026-03-21T08:15:00Z",
         completedAt: "2026-03-21T08:42:00Z",
+        costActual: 2.80,
+        durationActual: 27,
         artifacts: [
           { name: "RBAC Requirements Spec", type: "spec", fromRole: "Requirements Dev", preview: "4 roles defined with 12 permission groups across 8 admin pages..." },
           { name: "Approval Gate Definition", type: "doc", fromRole: "Process Leader", preview: "Permission changes require Super Admin approval. Audit log required for all RBAC modifications..." },
@@ -157,6 +160,8 @@ export const SAMPLE_STORIES: JiraStory[] = [
       totalEstimatedMinutes: 90,
       historicalComparison: { avgDevHours: 14, avgCost: 2800, similarStories: ["NCP-1089", "NCP-1134"] },
       approved: true,
+      approvedBy: "Demo User",
+      approvedAt: "2026-03-21T08:15:00Z",
     },
   },
   {
@@ -182,6 +187,8 @@ export const SAMPLE_STORIES: JiraStory[] = [
         humanMode: "review",
         startedAt: "2026-03-21T09:00:00Z",
         completedAt: "2026-03-21T09:28:00Z",
+        costActual: 3.60,
+        durationActual: 28,
         artifacts: [
           { name: "search-index-fix.sql", type: "code", fromRole: "Agent Engineer", preview: "CREATE INDEX CONCURRENTLY idx_search_descriptions_gin ON products USING gin(to_tsvector('english', description));" },
           { name: "perf-benchmark.ts", type: "test", fromRole: "Agent Engineer", preview: "P95 latency: 890ms → 145ms after index optimization. 6.1x improvement." },
@@ -221,6 +228,123 @@ export const SAMPLE_STORIES: JiraStory[] = [
       totalEstimatedMinutes: 40,
       historicalComparison: { avgDevHours: 6, avgCost: 1200, similarStories: ["NCP-1198", "NCP-1221"] },
       approved: true,
+      approvedBy: "Demo User",
+      approvedAt: "2026-03-21T09:00:00Z",
+    },
+  },
+  {
+    id: "s8",
+    key: "NCP-1254",
+    title: "Implement automated email notification system",
+    description: "Build email notification pipeline for order confirmations, shipping updates, and delivery receipts. Include template management and delivery tracking.",
+    type: "feature",
+    priority: "medium",
+    status: "done",
+    assignee: "Sarah Chen",
+    component: "notifications",
+    epicKey: "NCP-1200",
+    storyPoints: 5,
+    labels: ["notifications", "email"],
+    startedAt: "2026-03-14T10:00:00Z",
+    completedAt: "2026-03-14T14:30:00Z",
+    phases: [
+      {
+        id: "plan",
+        name: "Plan",
+        status: "passed",
+        roles: ["Requirements Dev", "Process Leader"],
+        humanMode: "collaborative",
+        startedAt: "2026-03-14T10:00:00Z",
+        completedAt: "2026-03-14T10:35:00Z",
+        costActual: 2.40,
+        durationActual: 35,
+        artifacts: [
+          { name: "Email Notification Spec", type: "spec", fromRole: "Requirements Dev", preview: "3 notification types: order confirmation, shipping update, delivery receipt..." },
+          { name: "Template Schema", type: "doc", fromRole: "Process Leader", preview: "Mustache templates with i18n support, preview API, delivery tracking webhook..." },
+        ],
+        tollgate: {
+          phaseId: "plan",
+          overallScore: 94,
+          passed: true,
+          mode: "enforced",
+          criteria: [
+            { name: "Requirements completeness", description: "All notification types have triggers and templates defined", score: 96, passed: true },
+            { name: "Stakeholder sign-off", description: "Product owner approved notification content", score: 92, passed: true },
+            { name: "Integration review", description: "Email provider (SendGrid) integration documented", score: 94, passed: true },
+          ],
+          evaluatedAt: "2026-03-14T10:35:00Z",
+        },
+      },
+      {
+        id: "build",
+        name: "Build",
+        status: "passed",
+        roles: ["Agent Engineer", "Code Auditor"],
+        humanMode: "review",
+        startedAt: "2026-03-14T10:40:00Z",
+        completedAt: "2026-03-14T12:15:00Z",
+        costActual: 4.80,
+        durationActual: 95,
+        artifacts: [
+          { name: "notification-service.ts", type: "code", fromRole: "Agent Engineer", preview: "export class NotificationService { async sendOrderConfirmation(orderId: string) { ... } }" },
+          { name: "notification.test.ts", type: "test", fromRole: "Agent Engineer", preview: "describe('NotificationService', () => { it('sends order confirmation email', ...) })" },
+          { name: "email-templates/", type: "doc", fromRole: "Agent Engineer", preview: "3 Mustache templates: order-confirmation.html, shipping-update.html, delivery-receipt.html" },
+        ],
+        tollgate: {
+          phaseId: "build",
+          overallScore: 92,
+          passed: true,
+          mode: "enforced",
+          criteria: [
+            { name: "Tests passing", description: "All unit and integration tests pass", score: 100, passed: true },
+            { name: "Code coverage", description: "Coverage meets 80% threshold", score: 88, passed: true },
+            { name: "Security scan", description: "No vulnerabilities in email handling", score: 94, passed: true },
+            { name: "Code review", description: "Peer review approved", score: 86, passed: true },
+          ],
+          evaluatedAt: "2026-03-14T12:15:00Z",
+        },
+      },
+      {
+        id: "deploy",
+        name: "Deploy",
+        status: "passed",
+        roles: ["Agent Ops"],
+        humanMode: "delegated",
+        startedAt: "2026-03-14T12:20:00Z",
+        completedAt: "2026-03-14T12:45:00Z",
+        costActual: 0.90,
+        durationActual: 25,
+        artifacts: [
+          { name: "deploy-manifest.json", type: "doc", fromRole: "Agent Ops", preview: "Deployed to production via GitHub Actions. SendGrid webhook configured." },
+        ],
+        tollgate: {
+          phaseId: "deploy",
+          overallScore: 97,
+          passed: true,
+          mode: "enforced",
+          criteria: [
+            { name: "Staging validation", description: "All notification types tested in staging", score: 98, passed: true },
+            { name: "Rollback plan", description: "Rollback procedure documented", score: 95, passed: true },
+            { name: "Monitoring", description: "SendGrid delivery metrics dashboard configured", score: 98, passed: true },
+          ],
+          evaluatedAt: "2026-03-14T12:45:00Z",
+        },
+      },
+    ],
+    blueprint: {
+      storyId: "s8",
+      reasoning: "Standard notification feature — Plan + Build + Deploy pipeline. The notifications module has been stable with no recent tollgate failures. Using standard role composition.",
+      phases: [
+        { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
+        { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub", "SendGrid"], humanMode: "review", estimatedMinutes: 90, estimatedCost: 5.20 },
+        { id: "deploy", name: "Deploy", roles: ["Agent Ops"], tools: ["GitHub Actions", "Vercel", "CloudWatch"], humanMode: "delegated", estimatedMinutes: 20, estimatedCost: 1.00 },
+      ],
+      totalEstimatedCost: 9.00,
+      totalEstimatedMinutes: 140,
+      historicalComparison: { avgDevHours: 10, avgCost: 2000, similarStories: ["NCP-1178", "NCP-1201"] },
+      approved: true,
+      approvedBy: "Demo User",
+      approvedAt: "2026-03-14T10:00:00Z",
     },
   },
 ];
@@ -229,15 +353,31 @@ export const SAMPLE_STORIES: JiraStory[] = [
    BLUEPRINT TEMPLATES — for new stories being pulled in
    ================================================================ */
 
+/**
+ * Simple deterministic hash from a string to a number.
+ * Used to produce stable "random-looking" values from story properties.
+ */
+function stableHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    hash = ((hash << 5) - hash + ch) | 0;
+  }
+  return Math.abs(hash);
+}
+
 export function generateBlueprint(story: JiraStory): Blueprint {
   const isFeature = story.type === "feature";
   const isBug = story.type === "bug";
   const isSpike = story.type === "spike";
 
+  const hash = stableHash(story.id + story.component);
+
   if (isSpike) {
+    const archDiscussions = (hash % 3) + 1; // 1-3, deterministic
     return {
       storyId: story.id,
-      reasoning: `Spike/research ticket — Plan phase only. No build or deployment required. The ${story.component} module has had ${Math.floor(Math.random() * 3) + 1} architecture discussions in the last sprint. Recommending Requirements Dev to structure the investigation.`,
+      reasoning: `Spike/research ticket — Plan phase only. No build or deployment required. The ${story.component} module has had ${archDiscussions} architecture discussions in the last sprint. Recommending Requirements Dev to structure the investigation.`,
       phases: [
         { id: "plan", name: "Plan", roles: ["Requirements Dev"], tools: ["Jira", "Confluence", "Notion"], humanMode: "collaborative", estimatedMinutes: 45, estimatedCost: 3.20 },
       ],
@@ -265,9 +405,10 @@ export function generateBlueprint(story: JiraStory): Blueprint {
 
   // Feature — full pipeline
   const hasAuthComponent = story.component === "auth";
+  const avgDevHours = 10 + (hash % 6); // 10-15, deterministic per story
   return {
     storyId: story.id,
-    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories — adding security-focused Code Auditor role. " : "has been stable — standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${Math.floor(Math.random() * 6) + 10} dev-hours with the dev team.`,
+    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories — adding security-focused Code Auditor role. " : "has been stable — standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${avgDevHours} dev-hours with the dev team.`,
     phases: [
       { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
       { id: "build", name: "Build", roles: ["Agent Engineer", hasAuthComponent ? "Code Auditor" : "Data Steward"], tools: ["Claude Code", "GitHub", "Supabase"], humanMode: "review", estimatedMinutes: 45, estimatedCost: 4.20 },
@@ -275,7 +416,7 @@ export function generateBlueprint(story: JiraStory): Blueprint {
     ],
     totalEstimatedCost: 8.40,
     totalEstimatedMinutes: 90,
-    historicalComparison: { avgDevHours: 12, avgCost: 2400, similarStories: ["NCP-1089", "NCP-1134"] },
+    historicalComparison: { avgDevHours, avgCost: 2400, similarStories: ["NCP-1089", "NCP-1134"] },
     approved: false,
   };
 }
@@ -481,6 +622,196 @@ export const RBAC_BUILD_LOG: SessionLogEntry[] = [
 ];
 
 /* ================================================================
+   STORY-AWARE SESSION MESSAGE GENERATION
+   ================================================================ */
+
+export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { messages: SessionMessage[]; log: SessionLogEntry[] } {
+  // For s6, use the specific RBAC messages
+  if (story.id === "s6") {
+    if (phaseId === "plan") return { messages: RBAC_PLAN_MESSAGES, log: RBAC_PLAN_LOG };
+    if (phaseId === "deploy") return { messages: RBAC_DEPLOY_MESSAGES, log: RBAC_DEPLOY_LOG };
+    return { messages: RBAC_BUILD_MESSAGES, log: RBAC_BUILD_LOG };
+  }
+
+  // For other stories, generate contextual messages
+  const storyContext = `${story.title} (${story.key})`;
+  const component = story.component;
+  const hash = stableHash(story.id + phaseId);
+
+  if (phaseId === "plan") {
+    return {
+      messages: [
+        {
+          id: "gm1", role: "Requirements Dev", roleIcon: "FileText", roleColor: "#FF6B2C",
+          content: `Analyzing requirements for ${storyContext}. Pulling acceptance criteria from Jira and scanning related documentation in Confluence for the ${component} module.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`${story.key}-requirements-spec.md`],
+        },
+        {
+          id: "gm2", role: "Process Leader", roleIcon: "ClipboardCheck", roleColor: "#8B8B8B",
+          content: `Reviewing the requirements spec. Building the approval gate definition and identifying edge cases specific to the ${component} module. Checking SOC 2 compliance requirements for this change.`,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "gm3", role: "Requirements Dev", roleIcon: "FileText", roleColor: "#FF6B2C",
+          content: `Requirements spec complete. Identified ${(hash % 3) + 3} key acceptance criteria and ${(hash % 2) + 2} edge cases from Process Leader's review. Documenting in Confluence via MCP.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`${story.key}-requirements-spec.md`, `${story.key}-edge-cases.md`],
+        },
+        {
+          id: "gm4", role: "Process Leader", roleIcon: "ClipboardCheck", roleColor: "#8B8B8B",
+          content: `Approval gates defined. All requirements validated against the ${component} module's existing patterns. Ready for tollgate evaluation.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`${story.key}-approval-gates.md`],
+        },
+      ],
+      log: [
+        { id: "gl1", timestamp: new Date().toISOString(), action: "Phase started", role: "Symphony", details: `Plan phase initiated for ${story.key}` },
+        { id: "gl2", timestamp: new Date().toISOString(), action: "Role joined", role: "Requirements Dev", details: "Connected to Jira and Confluence via MCP" },
+        { id: "gl3", timestamp: new Date().toISOString(), action: "Role joined", role: "Process Leader", details: "Compliance review mode activated" },
+        { id: "gl4", timestamp: new Date().toISOString(), action: "Artifact created", role: "Requirements Dev", tool: "Confluence MCP", details: "Requirements spec published" },
+        { id: "gl5", timestamp: new Date().toISOString(), action: "Review complete", role: "Process Leader", details: "Approval gates and edge cases documented" },
+        { id: "gl6", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Plan phase complete — triggering tollgate evaluation` },
+      ],
+    };
+  }
+
+  if (phaseId === "deploy") {
+    return {
+      messages: [
+        {
+          id: "gm1", role: "Agent Ops", roleIcon: "Activity", roleColor: "#FF8F5C",
+          content: `Starting deployment pipeline for ${storyContext}. Running CI/CD workflow on GitHub Actions. Building Docker image and running integration tests.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`ci-pipeline-log.txt`],
+        },
+        {
+          id: "gm2", role: "Agent Ops", roleIcon: "Activity", roleColor: "#FF8F5C",
+          content: `CI passed. Deploying to staging environment first. Running smoke tests against the ${component} module endpoints.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`staging-deploy-url.txt`],
+        },
+        {
+          id: "gm3", role: "Agent Ops", roleIcon: "Activity", roleColor: "#FF8F5C",
+          content: `Staging validation complete. All smoke tests passed. Promoting to production. Configuring monitoring dashboards and alert rules in CloudWatch.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`smoke-test-report.json`],
+        },
+        {
+          id: "gm4", role: "Agent Ops", roleIcon: "Activity", roleColor: "#FF8F5C",
+          content: `Production deployment complete. Rollback procedure documented and tested. Monitoring configured with alerts for error rate > 1% and p95 latency > 500ms. Ready for tollgate.`,
+          timestamp: new Date().toISOString(),
+          artifacts: [`production-deploy-manifest.json`, `rollback-procedure.md`],
+        },
+      ],
+      log: [
+        { id: "gl1", timestamp: new Date().toISOString(), action: "Phase started", role: "Symphony", details: `Deploy phase initiated for ${story.key}` },
+        { id: "gl2", timestamp: new Date().toISOString(), action: "Role joined", role: "Agent Ops", details: "Connected to GitHub Actions, CloudWatch via MCP" },
+        { id: "gl3", timestamp: new Date().toISOString(), action: "CI/CD triggered", role: "Agent Ops", tool: "GitHub Actions", details: "Build + test pipeline started" },
+        { id: "gl4", timestamp: new Date().toISOString(), action: "Staging deployed", role: "Agent Ops", tool: "Vercel", details: "Staging environment updated" },
+        { id: "gl5", timestamp: new Date().toISOString(), action: "Smoke tests", role: "Agent Ops", details: "All smoke tests passed" },
+        { id: "gl6", timestamp: new Date().toISOString(), action: "Production deployed", role: "Agent Ops", tool: "Vercel", details: "Production deployment complete" },
+        { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Deploy phase complete — triggering tollgate evaluation` },
+      ],
+    };
+  }
+
+  // Build phase (default)
+  const testCount = 25 + (hash % 20); // 25-44, deterministic
+  return {
+    messages: [
+      {
+        id: "gm1", role: "Agent Engineer", roleIcon: "Cpu", roleColor: "#FF6B2C",
+        content: `Analyzing the requirements spec from Plan phase for ${storyContext}. Scanning the ${component} module codebase to understand existing patterns and dependencies.`,
+        timestamp: new Date().toISOString(),
+        artifacts: [`${story.key}-requirements-spec.md`],
+      },
+      {
+        id: "gm2", role: "Code Auditor", roleIcon: "ShieldCheck", roleColor: "#f87171",
+        content: `I'll review code as Agent Engineer builds. Checking the ${component} module's security posture and recent vulnerability history. Will flag any issues inline.`,
+        timestamp: new Date().toISOString(),
+        referencesRole: "Agent Engineer",
+      },
+      {
+        id: "gm3", role: "Agent Engineer", roleIcon: "Cpu", roleColor: "#FF6B2C",
+        content: `Implementation in progress. Following the existing patterns in the ${component} module. Connected to GitHub via MCP — pushing to feature/${story.key.toLowerCase()} branch.`,
+        timestamp: new Date().toISOString(),
+        artifacts: [`${component}-implementation.ts`],
+      },
+      {
+        id: "gm4", role: "Code Auditor", roleIcon: "ShieldCheck", roleColor: "#f87171",
+        content: `Reviewing the implementation. Checking for input validation, proper error handling, and alignment with the requirements spec. Running security scan now.`,
+        timestamp: new Date().toISOString(),
+        referencesRole: "Agent Engineer",
+      },
+      {
+        id: "gm5", role: "Agent Engineer", roleIcon: "Cpu", roleColor: "#FF6B2C",
+        content: `Addressed Code Auditor's review comments. Added comprehensive test coverage — ${testCount} unit tests covering the main scenarios. All tests passing.`,
+        timestamp: new Date().toISOString(),
+        artifacts: [`${component}-implementation.ts`, `${component}.test.ts`],
+      },
+      {
+        id: "gm6", role: "Code Auditor", roleIcon: "ShieldCheck", roleColor: "#f87171",
+        content: `Final review complete. All ${testCount} tests passing. Security scan clear — no vulnerabilities detected. Code follows ${component} module conventions. Ready for tollgate.`,
+        timestamp: new Date().toISOString(),
+      },
+    ],
+    log: [
+      { id: "gl1", timestamp: new Date().toISOString(), action: "Phase started", role: "Symphony", details: `Build phase initiated for ${story.key}` },
+      { id: "gl2", timestamp: new Date().toISOString(), action: "Role joined", role: "Agent Engineer", details: "Connected to Claude Code via MCP" },
+      { id: "gl3", timestamp: new Date().toISOString(), action: "Role joined", role: "Code Auditor", details: "Security review mode activated" },
+      { id: "gl4", timestamp: new Date().toISOString(), action: "Artifact received", role: "Agent Engineer", tool: "Confluence MCP", details: "Loaded requirements spec from Plan phase" },
+      { id: "gl5", timestamp: new Date().toISOString(), action: "Code pushed", role: "Agent Engineer", tool: "GitHub MCP", details: `feature/${story.key.toLowerCase()} branch created` },
+      { id: "gl6", timestamp: new Date().toISOString(), action: "Review complete", role: "Code Auditor", tool: "Snyk MCP", details: "Security scan clean" },
+      { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Build phase complete — triggering tollgate evaluation` },
+    ],
+  };
+}
+
+/* ================================================================
+   AGENT REPLY GENERATION — contextual chat replies
+   ================================================================ */
+
+export function generateAgentReply(story: JiraStory, phaseId: PhaseId, userMessage: string): SessionMessage {
+  const activeRoles = story.blueprint?.phases.find(p => p.id === phaseId)?.roles ?? ["Agent Engineer"];
+  const primaryRole = activeRoles[0];
+  const roleColors: Record<string, string> = {
+    "Requirements Dev": "#FF6B2C", "Process Leader": "#8B8B8B",
+    "Agent Engineer": "#FF6B2C", "Code Auditor": "#f87171", "Agent Ops": "#FF8F5C",
+  };
+  const roleIcons: Record<string, string> = {
+    "Requirements Dev": "FileText", "Process Leader": "ClipboardCheck",
+    "Agent Engineer": "Cpu", "Code Auditor": "ShieldCheck", "Agent Ops": "Activity",
+  };
+
+  const lowerMsg = userMessage.toLowerCase();
+  let content: string;
+
+  if (lowerMsg.includes("status") || lowerMsg.includes("progress") || lowerMsg.includes("how")) {
+    content = `Current progress on ${story.key}: We're in the ${phaseId} phase working on the ${story.component} module. All checks are passing and we're on track with the estimated timeline.`;
+  } else if (lowerMsg.includes("stop") || lowerMsg.includes("pause") || lowerMsg.includes("wait")) {
+    content = `Understood. Pausing current work on ${story.key}. All progress is saved. You can resume anytime by typing "continue" or clicking the phase controls.`;
+  } else if (lowerMsg.includes("why") || lowerMsg.includes("explain") || lowerMsg.includes("reason")) {
+    content = `Good question. For ${story.title}, we chose this approach because the ${story.component} module's existing patterns support it well. The historical data from similar stories (${story.blueprint?.historicalComparison?.similarStories?.join(", ") ?? "previous sprints"}) informed our strategy.`;
+  } else if (lowerMsg.includes("risk") || lowerMsg.includes("concern") || lowerMsg.includes("issue")) {
+    content = `Flagging your concern for ${story.key}. I've added it to the risk register for the current ${phaseId} phase. The tollgate evaluation will factor this in. The Code Auditor will also review this during the security pass.`;
+  } else if (lowerMsg.includes("test") || lowerMsg.includes("coverage")) {
+    content = `Test coverage for ${story.key} is currently tracking well. We have comprehensive unit tests covering the main scenarios for the ${story.component} module. Integration tests will run during the tollgate evaluation.`;
+  } else {
+    content = `Noted — factoring that into the current ${phaseId} phase for ${story.key}. I'll coordinate with ${activeRoles.length > 1 ? activeRoles[1] : "the team"} to incorporate your input. This will be reflected in the next tollgate evaluation.`;
+  }
+
+  return {
+    id: `reply-${Date.now()}`,
+    role: primaryRole,
+    roleIcon: roleIcons[primaryRole] ?? "Cpu",
+    roleColor: roleColors[primaryRole] ?? "#888",
+    content,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/* ================================================================
    ROLES CATALOG (for display)
    ================================================================ */
 
@@ -501,6 +832,7 @@ export const ROLE_CATALOG = [
 
 export const COCKPIT_METRICS = {
   sprint: {
+    id: "sprint-14",
     name: "Sprint 14",
     startDate: "2026-03-10",
     endDate: "2026-03-24",
@@ -510,12 +842,12 @@ export const COCKPIT_METRICS = {
     storiesRemaining: 3,
   },
   roi: {
-    symphonyHours: 23,
-    symphonyCost: 67.20,
+    symphonyHours: 112,
     traditionalHours: 280,
+    symphonyCost: 16800,
     traditionalCost: 42000,
-    timeSavedPercent: 92,
-    costSavedPercent: 99.8,
+    timeSavedPct: 60,
+    costSavedPct: 60,
   },
   quality: {
     avgTollgateScore: 91.4,
@@ -524,11 +856,11 @@ export const COCKPIT_METRICS = {
     overrides: 1,
   },
   costBreakdown: [
-    { role: "Agent Engineer", cost: 28.40, tokens: 142000, stories: 11 },
-    { role: "Requirements Dev", cost: 14.20, tokens: 71000, stories: 9 },
-    { role: "Code Auditor", cost: 11.80, tokens: 59000, stories: 7 },
-    { role: "Agent Ops", cost: 7.60, tokens: 38000, stories: 9 },
-    { role: "Process Leader", cost: 5.20, tokens: 26000, stories: 6 },
+    { role: "Requirements Dev", model: "Claude Opus 4.6", tokens: 890000, cost: 26.70 },
+    { role: "Process Leader", model: "Claude Sonnet 4", tokens: 420000, cost: 4.20 },
+    { role: "Agent Engineer", model: "Claude Opus 4.6", tokens: 2450000, cost: 73.50 },
+    { role: "Code Auditor", model: "Claude Sonnet 4", tokens: 680000, cost: 6.80 },
+    { role: "Agent Ops", model: "Claude Haiku 4.5", tokens: 310000, cost: 0.16 },
   ],
   auditTrail: [
     { time: "09:28", event: "Tollgate BLOCKED", story: "NCP-1253", detail: "Security scan failed — CVE-2026-3891", severity: "critical" },

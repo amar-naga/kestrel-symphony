@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/lib/store";
 import { generateBlueprint, SAMPLE_STORIES } from "@/lib/sample-data";
@@ -98,10 +98,45 @@ function MiniPipeline({ phases }: { phases: NonNullable<JiraStory["phases"]> }) 
 }
 
 /* ================================================================
+   ANALYZING STEPS (loading overlay for "Pull into Symphony")
+   ================================================================ */
+
+function AnalyzingSteps() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    "Fetching acceptance criteria...",
+    "Scanning codebase for affected modules...",
+    "Checking historical data...",
+    "Generating blueprint...",
+  ];
+  useEffect(() => {
+    const timers = steps.map((_, i) =>
+      setTimeout(() => setStep(i), i * 700)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="space-y-1 text-center">
+      {steps.map((s, i) => (
+        <motion.p
+          key={i}
+          className="text-[11px] font-mono"
+          initial={{ opacity: 0, y: 5 }}
+          animate={i <= step ? { opacity: 1, y: 0 } : {}}
+          style={{ color: i <= step ? (i === step ? "var(--text-secondary)" : "var(--text-faint)") : "transparent" }}
+        >
+          {i < step ? "\u2713 " : i === step ? "\u23F3 " : ""}{s}
+        </motion.p>
+      ))}
+    </div>
+  );
+}
+
+/* ================================================================
    STORY CARD
    ================================================================ */
 
-function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () => void; onOpen?: () => void }) {
+function StoryCard({ story, onPull, onOpen, isPulling }: { story: JiraStory; onPull?: () => void; onOpen?: () => void; isPulling?: boolean }) {
   const typeConfig = TYPE_CONFIG[story.type];
   const priorityColor = PRIORITY_COLORS[story.priority];
   const isInSymphony = story.status === "in_symphony";
@@ -115,18 +150,18 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.25 }}
-      onClick={isInSymphony ? onOpen : undefined}
+      onClick={isInSymphony ? onOpen : isDone ? onOpen : undefined}
       style={{
         background: "var(--surface-primary)",
         border: "1px solid var(--border-primary)",
         borderRadius: 16,
         padding: 16,
-        cursor: isInSymphony ? "pointer" : "default",
+        cursor: isInSymphony || isDone ? "pointer" : "default",
         position: "relative",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
       }}
-      whileHover={isInSymphony ? { borderColor: "rgba(255,107,44,0.4)", y: -2 } : {}}
+      whileHover={isInSymphony || isDone ? { borderColor: "rgba(255,107,44,0.4)", y: -2 } : {}}
     >
       {/* Header: key + priority */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -238,6 +273,24 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
           <ArrowRight size={14} />
         </motion.button>
       )}
+
+      {/* Analyzing overlay when pulling */}
+      {isPulling && (
+        <motion.div
+          className="absolute inset-0 rounded-xl z-20 flex flex-col items-center justify-center gap-3"
+          style={{ background: "var(--panel-bg)", border: "1px solid var(--border-primary)" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent"
+            style={{ borderColor: "#FF6B2C", borderTopColor: "transparent" }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <AnalyzingSteps />
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -248,6 +301,7 @@ function StoryCard({ story, onPull, onOpen }: { story: JiraStory; onPull?: () =>
 
 export function BoardView() {
   const { state, dispatch } = useApp();
+  const [pullingStoryId, setPullingStoryId] = useState<string | null>(null);
 
   /* Initialize stories on mount with pre-attached blueprints */
   useEffect(() => {
@@ -265,17 +319,25 @@ export function BoardView() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Pull a story into Symphony */
+  /* Pull a story into Symphony (with loading animation) */
   const handlePull = (story: JiraStory) => {
-    dispatch({ type: "PULL_STORY", storyId: story.id });
-    dispatch({ type: "SET_ACTIVE_STORY", storyId: story.id });
-    dispatch({ type: "SET_VIEW", view: "blueprint" });
+    setPullingStoryId(story.id);
+    setTimeout(() => {
+      dispatch({ type: "PULL_STORY", storyId: story.id });
+      dispatch({ type: "SET_ACTIVE_STORY", storyId: story.id });
+      dispatch({ type: "SET_VIEW", view: "blueprint" });
+      setPullingStoryId(null);
+    }, 3000);
   };
 
   /* Open an in-symphony story */
   const handleOpen = (story: JiraStory) => {
     dispatch({ type: "SET_ACTIVE_STORY", storyId: story.id });
-    dispatch({ type: "SET_VIEW", view: "session" });
+    if (story.status === "done") {
+      dispatch({ type: "SET_VIEW", view: "cockpit" });
+    } else {
+      dispatch({ type: "SET_VIEW", view: "session" });
+    }
   };
 
   /* Count stories per column */
@@ -407,6 +469,7 @@ export function BoardView() {
                       story={story}
                       onPull={() => handlePull(story)}
                       onOpen={() => handleOpen(story)}
+                      isPulling={pullingStoryId === story.id}
                     />
                   ))}
                 </AnimatePresence>
