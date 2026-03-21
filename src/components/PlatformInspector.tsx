@@ -316,7 +316,14 @@ function EngineTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
             const modelColor =
               row.model.includes("Opus") ? "#f59e0b" :
               row.model.includes("Sonnet") ? "#FF6B2C" :
-              "#FF8F5C";
+              row.model.includes("Haiku") ? "#FF8F5C" :
+              row.model.includes("GPT") ? "#10b981" :
+              row.model.includes("o3") || row.model.includes("o4") ? "#10b981" :
+              row.model.includes("Gemini") ? "#3b82f6" :
+              row.model.includes("Llama") ? "#8b5cf6" :
+              row.model.includes("Mistral") ? "#ec4899" :
+              row.model.includes("DeepSeek") ? "#06b6d4" :
+              "#888";
 
             return (
               <motion.div
@@ -344,9 +351,18 @@ function EngineTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
                       style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
                       defaultValue={row.model}
                     >
-                      <option>Claude Opus 4.6</option>
-                      <option>Claude Sonnet 4</option>
-                      <option>Claude Haiku 4.5</option>
+                      <option value="Claude Opus 4.6">Claude Opus 4.6</option>
+                      <option value="Claude Sonnet 4">Claude Sonnet 4</option>
+                      <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
+                      <option value="GPT-4o">GPT-4o</option>
+                      <option value="GPT-4o mini">GPT-4o mini</option>
+                      <option value="o3">o3</option>
+                      <option value="o4-mini">o4-mini</option>
+                      <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
+                      <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                      <option value="Llama 4 405B">Llama 4 405B</option>
+                      <option value="Mistral Large">Mistral Large</option>
+                      <option value="DeepSeek R1">DeepSeek R1</option>
                     </select>
                   ) : (
                     <span
@@ -416,21 +432,34 @@ function WiringTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
     return wiring;
   })() : AGENT_WIRING;
 
+  const [localWiring, setLocalWiring] = useState(displayWiring);
+  const handleRemoveWire = (index: number) => {
+    setLocalWiring(prev => prev.filter((_, i) => i !== index));
+  };
+  const handleAddWire = () => {
+    setLocalWiring(prev => [...prev, {
+      from: "Agent Engineer", to: "Custom Agent", protocol: "A2A",
+      type: "peer-review", direction: "bidirectional", messages: 0, active: false
+    }]);
+  };
+
+  const selectStyle: React.CSSProperties = {
+    background: "var(--surface-primary)",
+    border: "1px solid var(--border-primary)",
+    color: "var(--text-secondary)",
+    fontSize: 11,
+    padding: "4px 8px",
+    borderRadius: 6,
+    width: "100%",
+  };
+
   return (
     <div className="space-y-5 p-5">
-      {editMode && (
-        <button
-          className="flex items-center gap-1.5 w-full px-3 py-2 rounded-lg text-xs font-semibold mb-3"
-          style={{ background: "rgba(255,107,44,0.08)", border: "1px solid rgba(255,107,44,0.2)", color: "#FF6B2C" }}
-        >
-          Advanced wiring configuration available in Arc →
-        </button>
-      )}
       {/* Agent Connections */}
       <div>
         <div className="text-[9px] font-mono text-white/25 uppercase tracking-widest mb-3">Agent Connections (Live)</div>
         <div className="space-y-2">
-          {displayWiring.map((wire, i) => {
+          {localWiring.map((wire, i) => {
             const fromColor = ROLE_COLORS[wire.from] ?? "#888";
             const protocolColor =
               wire.protocol === "A2A" ? "#8B8B8B" :
@@ -439,7 +468,7 @@ function WiringTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
 
             return (
               <motion.div
-                key={`${wire.from}-${wire.to}`}
+                key={`${wire.from}-${wire.to}-${i}`}
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06 }}
@@ -492,6 +521,17 @@ function WiringTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
                       transition={{ duration: 1.5, repeat: Infinity }}
                     />
                   )}
+
+                  {/* Delete button in edit mode */}
+                  {editMode && (
+                    <button
+                      onClick={() => handleRemoveWire(i)}
+                      className="ml-2 p-1 rounded hover:bg-red-500/20 transition-colors"
+                      style={{ color: "#f87171" }}
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
                 </div>
 
                 {/* Type label */}
@@ -502,6 +542,55 @@ function WiringTab({ blueprint, editMode = false }: { blueprint?: Blueprint; edi
             );
           })}
         </div>
+
+        {/* Add Connection section in edit mode */}
+        {editMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg p-4 mt-3"
+            style={{ background: "rgba(255,107,44,0.04)", border: "1px dashed rgba(255,107,44,0.2)" }}
+          >
+            <div className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "#FF6B2C" }}>
+              Add Connection
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <select style={selectStyle}>
+                <option>Agent Engineer</option>
+                <option>Code Auditor</option>
+                <option>Requirements Dev</option>
+                <option>Process Leader</option>
+                <option>Agent Ops</option>
+                <option>Data Steward</option>
+                <option>Claude Cowork</option>
+                <option>Custom Agent...</option>
+              </select>
+              <select style={selectStyle}>
+                <option value="A2A">A2A (Agent-to-Agent)</option>
+                <option value="MCP">MCP (Tool Server)</option>
+                <option value="Cowork">Cowork Plugin</option>
+              </select>
+              <select style={selectStyle}>
+                <option>GitHub</option>
+                <option>Jira</option>
+                <option>Confluence</option>
+                <option>Snyk</option>
+                <option>Supabase</option>
+                <option>CloudWatch</option>
+                <option>Slack</option>
+                <option>Linear</option>
+                <option>Custom MCP...</option>
+              </select>
+            </div>
+            <button
+              className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold"
+              style={{ background: "rgba(255,107,44,0.12)", border: "1px solid rgba(255,107,44,0.25)", color: "#FF6B2C" }}
+              onClick={handleAddWire}
+            >
+              + Add Connection
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {/* MCP Connection Status */}

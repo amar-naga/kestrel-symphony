@@ -66,7 +66,7 @@ export function HeroSplash() {
         animate="show"
         className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center"
       >
-        {/* Logo with float animation */}
+        {/* Logo with float animation + orbiting dots */}
         <motion.div variants={fadeUp} className="mb-10">
           <motion.div
             animate={{ y: [0, -8, 0] }}
@@ -75,8 +75,58 @@ export function HeroSplash() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
+            className="relative"
           >
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#FF6B2C] via-[#FF8F5C] to-[#CC5623] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
+            {/* Orbiting dots */}
+            {[
+              { size: 120, duration: 8, dotSize: 6, color: "#FF6B2C", opacity: 0.9, delay: 0 },
+              { size: 120, duration: 8, dotSize: 4, color: "#FF8F5C", opacity: 0.6, delay: 2.5 },
+              { size: 150, duration: 12, dotSize: 5, color: "#FF6B2C", opacity: 0.7, delay: 1 },
+              { size: 150, duration: 12, dotSize: 3, color: "#CC5623", opacity: 0.5, delay: 4 },
+              { size: 100, duration: 6, dotSize: 4, color: "#FF8F5C", opacity: 0.8, delay: 0.5 },
+              { size: 100, duration: 6, dotSize: 3, color: "#FF6B2C", opacity: 0.4, delay: 3 },
+            ].map((orbit, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: orbit.dotSize,
+                  height: orbit.dotSize,
+                  background: orbit.color,
+                  opacity: orbit.opacity,
+                  boxShadow: `0 0 ${orbit.dotSize * 2}px ${orbit.color}`,
+                  top: "50%",
+                  left: "50%",
+                  marginTop: -orbit.dotSize / 2,
+                  marginLeft: -orbit.dotSize / 2,
+                }}
+                animate={{
+                  x: [
+                    Math.cos(0) * orbit.size / 2,
+                    Math.cos(Math.PI / 2) * orbit.size / 2,
+                    Math.cos(Math.PI) * orbit.size / 2,
+                    Math.cos(3 * Math.PI / 2) * orbit.size / 2,
+                    Math.cos(2 * Math.PI) * orbit.size / 2,
+                  ],
+                  y: [
+                    Math.sin(0) * orbit.size / 2,
+                    Math.sin(Math.PI / 2) * orbit.size / 2,
+                    Math.sin(Math.PI) * orbit.size / 2,
+                    Math.sin(3 * Math.PI / 2) * orbit.size / 2,
+                    Math.sin(2 * Math.PI) * orbit.size / 2,
+                  ],
+                }}
+                transition={{
+                  duration: orbit.duration,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: orbit.delay,
+                }}
+              />
+            ))}
+
+            {/* Logo */}
+            <div className="relative z-10 w-20 h-20 rounded-3xl bg-gradient-to-br from-[#FF6B2C] via-[#FF8F5C] to-[#CC5623] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
               <img
                 src="/kestrel-logo.png"
                 alt="Kestrel Symphony"

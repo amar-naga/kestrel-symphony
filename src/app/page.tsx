@@ -28,7 +28,7 @@ const viewComponents = {
 export default function Home() {
   const [state, dispatch] = useReducer(appReducer, defaultState);
   const [inspectorOpen, setInspectorOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const ViewComponent = viewComponents[state.currentView];
   const showNav = state.currentView !== "hero";
 

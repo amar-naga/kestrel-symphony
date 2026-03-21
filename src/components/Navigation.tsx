@@ -19,7 +19,6 @@ const NAV_ITEMS: { view: View; label: string; icon: typeof Kanban }[] = [
   { view: "blueprint", label: "Blueprint", icon: FileSearch },
   { view: "session", label: "Session", icon: MessageSquare },
   { view: "tollgate", label: "Tollgate", icon: ShieldCheck },
-  { view: "arc", label: "Arc", icon: GitBranch },
   { view: "cockpit", label: "Cockpit", icon: BarChart3 },
 ];
 
@@ -56,7 +55,7 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
       </button>
 
       {/* Nav Items */}
-      <div className="flex items-center gap-1">
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
         {NAV_ITEMS.map(({ view, label, icon: Icon }) => {
           const active = state.currentView === view;
           const isLight = theme === "light";
@@ -64,21 +63,36 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
             <button
               key={view}
               onClick={() => dispatch({ type: "SET_VIEW", view })}
-              className="relative flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 text-center"
               style={{
+                position: "relative",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "6px 14px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 500,
                 color: active
                   ? isLight ? "#111111" : "rgba(255,255,255,0.95)"
-                  : isLight ? "#777777" : "rgba(255,255,255,0.65)",
-                lineHeight: 1,
+                  : isLight ? "#666666" : "rgba(255,255,255,0.65)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                lineHeight: "1",
+                verticalAlign: "middle",
               }}
             >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="relative z-10 leading-none">{label}</span>
+              <Icon style={{ width: 14, height: 14, flexShrink: 0 }} />
+              <span style={{ position: "relative", zIndex: 10 }}>{label}</span>
               {active && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute inset-0 rounded-lg"
                   style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: 8,
                     background: isLight ? "#f0f0f0" : "rgba(255,255,255,0.1)",
                     border: isLight ? "1px solid #d4d4d4" : "1px solid rgba(255,255,255,0.1)",
                   }}
@@ -105,6 +119,26 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
             {state.stories.find((s) => s.id === state.activeStoryId)?.key}
           </span>
         )}
+
+        {/* Arc config */}
+        <motion.button
+          onClick={() => dispatch({ type: "SET_VIEW", view: "arc" })}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+          style={{
+            background: state.currentView === "arc"
+              ? "linear-gradient(135deg, rgba(255,107,44,0.2), rgba(255,143,92,0.2))"
+              : theme === "light" ? "#f5f5f5" : "rgba(255,255,255,0.05)",
+            border: state.currentView === "arc"
+              ? "1px solid rgba(255,107,44,0.35)"
+              : theme === "light" ? "1px solid #d4d4d4" : "1px solid rgba(255,255,255,0.08)",
+            color: state.currentView === "arc" ? "#FF6B2C" : theme === "light" ? "#666666" : "rgba(255,255,255,0.55)",
+          }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <GitBranch size={12} />
+          Arc
+        </motion.button>
 
         {/* Theme toggle */}
         {onToggleTheme && (

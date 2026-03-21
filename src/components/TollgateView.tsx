@@ -19,6 +19,7 @@ import {
   X,
   Package,
   Zap,
+  GitBranch,
 } from "lucide-react";
 import type { TollgateResult, TollgateCriterion, PhaseState } from "@/lib/store";
 
@@ -59,43 +60,66 @@ const phaseAccents: Record<string, string> = {
    SCORE RING (SVG)
    ================================================================ */
 
-function ScoreRing({ score, passed, size = 160 }: { score: number; passed: boolean; size?: number }) {
+function ScoreRing({ score, passed, size = 140 }: { score: number; passed: boolean; size?: number }) {
   const radius = (size - 20) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
   const color = passed ? "#4ade80" : "#f87171";
+  const gradientId = passed ? "scoreGradientPass" : "scoreGradientFail";
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      <div
+    <motion.div
+      className="relative flex items-center justify-center"
+      style={{
+        width: size,
+        height: size,
+        filter: `drop-shadow(0 0 ${passed ? '12px rgba(74,222,128,0.3)' : '12px rgba(248,113,113,0.3)'})`,
+      }}
+      initial={{ scale: 0.85, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <motion.div
         className="absolute inset-0 rounded-full"
         style={{ boxShadow: `0 0 40px ${color}30, 0 0 80px ${color}15` }}
+        animate={{ scale: [1, 1.04, 1], opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
       />
       <svg width={size} height={size} className="absolute inset-0 -rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size > 80 ? 8 : 4} />
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={passed ? "#4ade80" : "#f87171"} />
+            <stop offset="50%" stopColor={passed ? "#22d3ee" : "#fb923c"} />
+            <stop offset="100%" stopColor={passed ? "#4ade80" : "#f87171"} />
+          </linearGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size > 80 ? 10 : 4} />
         <motion.circle
-          cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color}
-          strokeWidth={size > 80 ? 8 : 4} strokeLinecap="round" strokeDasharray={circumference}
+          cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={`url(#${gradientId})`}
+          strokeWidth={size > 80 ? 10 : 4} strokeLinecap="round" strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
         />
       </svg>
-      <div className="relative flex flex-col items-center gap-0.5 z-10">
+      <div className="relative flex flex-col items-center z-10">
         <motion.span
-          className="font-black tracking-tight"
-          style={{ color, fontSize: size > 80 ? 48 : 18 }}
+          className="font-black tracking-tight leading-none"
+          style={{ color, fontSize: size > 100 ? 32 : 24 }}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.4 }}
         >
           {score}
         </motion.span>
-        <span className="font-bold uppercase tracking-widest" style={{ color: `${color}cc`, fontSize: size > 80 ? 10 : 8 }}>
-          {passed ? "PASSED" : "BLOCKED"}
+        <span
+          className="font-bold uppercase tracking-widest mt-1"
+          style={{ color, fontSize: 10, letterSpacing: "0.1em" }}
+        >
+          {passed ? "PASSED" : "FAILED"}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -105,58 +129,65 @@ function ScoreRing({ score, passed, size = 160 }: { score: number; passed: boole
 
 function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; index: number }) {
   const [expanded, setExpanded] = useState(!criterion.passed);
-  const barColor = scoreColor(criterion.score);
+  const barColor = criterion.passed ? "#4ade80" : "#f87171";
   const failed = !criterion.passed;
 
   return (
     <motion.div
-      className="relative rounded-xl overflow-hidden cursor-pointer"
+      className="rounded-xl overflow-hidden cursor-pointer"
       style={{
         background: "var(--surface-secondary)",
         backdropFilter: "blur(16px)",
-        border: failed ? "1px solid rgba(248,113,113,0.4)" : "1px solid var(--border-primary)",
-        boxShadow: failed ? "0 0 20px rgba(248,113,113,0.1)" : "none",
+        border: "1px solid var(--border-secondary)",
+        borderLeft: `3px solid ${barColor}`,
       }}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.6 + index * 0.1 }}
       onClick={() => setExpanded(!expanded)}
     >
-      {failed && (
-        <motion.div
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ border: "1px solid rgba(248,113,113,0.3)" }}
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-      )}
       <div className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
-            {criterion.passed ? <CheckCircle size={20} className="text-emerald-400" /> : <XCircle size={20} className="text-red-400" />}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            {criterion.passed ? (
+              <CheckCircle size={16} style={{ color: "#4ade80" }} />
+            ) : (
+              <XCircle size={16} style={{ color: "#f87171" }} />
+            )}
+            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+              {criterion.name}
+            </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-semibold text-white/90">{criterion.name}</span>
-              <span className="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${barColor}18`, color: barColor, border: `1px solid ${barColor}30` }}>
-                {criterion.score}
-              </span>
-            </div>
-            <p className="text-xs text-white/40 mt-0.5">{criterion.description}</p>
-            <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
-              <motion.div className="h-full rounded-full" style={{ background: barColor }} initial={{ width: 0 }} animate={{ width: `${criterion.score}%` }} transition={{ duration: 0.8, delay: 0.8 + index * 0.1, ease: "easeOut" }} />
-            </div>
-            <AnimatePresence>
-              {expanded && criterion.details && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
-                  <div className="mt-3 p-3 rounded-lg bg-red-500/8 border border-red-500/15">
-                    <p className="text-xs text-red-300 leading-relaxed">{criterion.details}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <span
+            className="text-lg font-bold tabular-nums"
+            style={{ color: barColor }}
+          >
+            {criterion.score}%
+          </span>
         </div>
+        <p className="text-xs mb-3 ml-6" style={{ color: "var(--text-faint)" }}>
+          {criterion.description}
+        </p>
+        {/* Score bar */}
+        <div className="ml-6 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-primary)" }}>
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: barColor }}
+            initial={{ width: 0 }}
+            animate={{ width: `${criterion.score}%` }}
+            transition={{ duration: 0.8, delay: 0.2 + index * 0.1, ease: "easeOut" }}
+          />
+        </div>
+        {/* Failure details */}
+        <AnimatePresence>
+          {expanded && criterion.details && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
+              <div className="mt-3 ml-6 p-3 rounded-lg text-xs" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.15)", color: "#f87171" }}>
+                {criterion.details}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -709,17 +740,15 @@ export function TollgateView() {
 
           {/* Powered by Arc branding */}
           <motion.div
-            className="mt-6 px-3 py-2.5 rounded-lg flex items-center gap-2"
-            style={{ background: "rgba(255,107,44,0.06)", border: "1px solid rgba(255,107,44,0.15)" }}
+            className="mt-4 flex items-center gap-2 px-3 py-2 rounded-lg"
+            style={{ background: "rgba(255,107,44,0.06)", border: "1px solid rgba(255,107,44,0.12)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <Zap size={14} className="text-[#FF6B2C]" />
-            <div>
-              <span className="text-[11px] font-bold text-[#FF6B2C]">Powered by Arc</span>
-              <p className="text-[10px] text-white/25">Tollgated governance engine</p>
-            </div>
+            <GitBranch size={14} style={{ color: "#FF6B2C" }} />
+            <span className="text-[11px] font-semibold" style={{ color: "#FF6B2C" }}>Powered by Arc</span>
+            <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>&middot; Governance Engine</span>
           </motion.div>
         </motion.div>
 
@@ -756,11 +785,14 @@ export function TollgateView() {
             <>
               {/* Header */}
               <motion.div className="mb-6" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <div className="flex items-center gap-3 mb-2">
-                  <ShieldCheck size={24} className="text-white/70" />
-                  <h1 className="text-2xl font-black text-white/90 tracking-tight">Tollgate Evaluation</h1>
+                <div className="flex items-center gap-3 mb-1">
+                  <ShieldCheck size={20} style={{ color: "#FF6B2C" }} />
+                  <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Tollgate Evaluation</h2>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 mt-2">
+                <p className="text-sm mb-4" style={{ color: "var(--text-faint)" }}>
+                  Quality gates powered by Arc &mdash; enforcing governance at every phase transition
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-semibold text-white/50">{story.key} &middot; {phaseLabel(tollgate.phaseId)} Phase</span>
                   <span
                     className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5"
@@ -780,35 +812,66 @@ export function TollgateView() {
                 </div>
               </motion.div>
 
-              {/* Score ring */}
-              <motion.div className="flex flex-col items-center gap-3 mb-8" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
-                <ScoreRing score={tollgate.overallScore} passed={tollgate.passed || !!tollgate.override} />
-                {!tollgate.passed && !tollgate.override && (
-                  <motion.p className="text-sm font-semibold text-center max-w-md" style={{ color: tollgate.mode === "enforced" ? "#f87171" : "#f59e0b" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                    {tollgate.mode === "enforced" ? "Pipeline blocked \u2014 remediation required" : "Warning \u2014 pipeline may continue"}
-                  </motion.p>
-                )}
-                {tollgate.override && (
-                  <motion.p className="text-sm font-semibold text-amber-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                    Override applied &mdash; pipeline unblocked
-                  </motion.p>
-                )}
-                {tollgate.passed && !tollgate.override && (
-                  <motion.p className="text-sm font-semibold text-emerald-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                    All criteria met &mdash; clear to proceed
-                  </motion.p>
-                )}
-              </motion.div>
+              {/* Glass card with score ring + summary + criteria */}
+              <div className="glass-card p-6 mb-6">
+                {/* Score ring centered */}
+                <motion.div className="flex flex-col items-center gap-3 mb-6" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
+                  <ScoreRing score={tollgate.overallScore} passed={tollgate.passed || !!tollgate.override} />
+                  {!tollgate.passed && !tollgate.override && (
+                    <motion.p className="text-sm font-semibold text-center max-w-md" style={{ color: tollgate.mode === "enforced" ? "#f87171" : "#f59e0b" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                      {tollgate.mode === "enforced" ? "Pipeline blocked \u2014 remediation required" : "Warning \u2014 pipeline may continue"}
+                    </motion.p>
+                  )}
+                  {tollgate.override && (
+                    <motion.p className="text-sm font-semibold text-amber-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                      Override applied &mdash; pipeline unblocked
+                    </motion.p>
+                  )}
+                  {tollgate.passed && !tollgate.override && (
+                    <motion.p className="text-sm font-semibold text-emerald-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                      All criteria met &mdash; clear to proceed
+                    </motion.p>
+                  )}
+                </motion.div>
 
-              {/* Criteria */}
-              <div className="mb-6">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Evaluation Criteria</h2>
-                <div className="grid gap-3">
-                  {[...tollgate.criteria]
-                    .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
-                    .map((criterion, i) => (
-                      <CriterionCard key={criterion.name} criterion={criterion} index={i} />
-                    ))}
+                {/* Tollgate Summary */}
+                <div className="grid grid-cols-3 gap-4 mb-6 px-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--text-primary)" }}>
+                      {tollgate.criteria.filter(c => c.passed).length}/{tollgate.criteria.length}
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
+                      Criteria Passed
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold tabular-nums" style={{ color: (tollgate.passed || !!tollgate.override) ? "#4ade80" : "#f87171" }}>
+                      {tollgate.overallScore}%
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
+                      Overall Score
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+                      {tollgate.mode === "enforced" ? "Enforced" : "Advisory"}
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
+                      Governance Mode
+                    </div>
+                  </div>
+                </div>
+
+                {/* Criteria list */}
+                <div>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Evaluation Criteria</h2>
+                  <div className="space-y-3">
+                    {[...tollgate.criteria]
+                      .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
+                      .map((criterion, i) => (
+                        <CriterionCard key={criterion.name} criterion={criterion} index={i} />
+                      ))}
+                  </div>
                 </div>
               </div>
 
