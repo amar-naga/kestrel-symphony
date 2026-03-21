@@ -128,67 +128,81 @@ function ScoreRing({ score, passed, size = 140 }: { score: number; passed: boole
    ================================================================ */
 
 function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; index: number }) {
-  const [expanded, setExpanded] = useState(!criterion.passed);
-  const barColor = criterion.passed ? "#4ade80" : "#f87171";
-  const failed = !criterion.passed;
+  const passed = criterion.passed;
+  const accentColor = passed ? "#22c55e" : "#ef4444";
 
   return (
     <motion.div
-      className="rounded-xl overflow-hidden cursor-pointer"
+      className="rounded-2xl overflow-hidden flex flex-col"
       style={{
         background: "var(--surface-secondary)",
-        backdropFilter: "blur(16px)",
         border: "1px solid var(--border-secondary)",
-        borderLeft: `3px solid ${barColor}`,
       }}
-      initial={{ opacity: 0, x: -12 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.6 + index * 0.1 }}
-      onClick={() => setExpanded(!expanded)}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 + index * 0.08 }}
+      whileHover={{ borderColor: "var(--border-primary)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
     >
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            {criterion.passed ? (
-              <CheckCircle size={16} style={{ color: "#4ade80" }} />
-            ) : (
-              <XCircle size={16} style={{ color: "#f87171" }} />
-            )}
-            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-              {criterion.name}
-            </span>
-          </div>
-          <span
-            className="text-lg font-bold tabular-nums"
-            style={{ color: barColor }}
-          >
-            {criterion.score}%
-          </span>
+      <div className="p-5 flex flex-col items-center text-center flex-1">
+        {/* Score — big number */}
+        <div
+          className="text-3xl font-bold tabular-nums mb-1"
+          style={{ color: accentColor }}
+        >
+          {criterion.score}
         </div>
-        <p className="text-xs mb-3 ml-6" style={{ color: "var(--text-faint)" }}>
+        <div className="text-[10px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--text-ghost)" }}>
+          score
+        </div>
+
+        {/* Thin progress ring */}
+        <div className="relative w-12 h-12 mb-4">
+          <svg width={48} height={48} viewBox="0 0 48 48">
+            <circle cx={24} cy={24} r={20} fill="none" stroke="var(--border-secondary)" strokeWidth={3} />
+            <circle
+              cx={24} cy={24} r={20}
+              fill="none"
+              stroke={accentColor}
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeDasharray={`${(criterion.score / 100) * 125.66} 125.66`}
+              transform="rotate(-90 24 24)"
+              style={{ transition: "stroke-dasharray 0.8s ease-out" }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            {passed ? (
+              <CheckCircle size={16} style={{ color: accentColor }} />
+            ) : (
+              <XCircle size={16} style={{ color: accentColor }} />
+            )}
+          </div>
+        </div>
+
+        {/* Name */}
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+          {criterion.name}
+        </h3>
+
+        {/* Description */}
+        <p className="text-[11px] leading-relaxed" style={{ color: "var(--text-faint)" }}>
           {criterion.description}
         </p>
-        {/* Score bar */}
-        <div className="ml-6 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-primary)" }}>
-          <motion.div
-            className="h-full rounded-full"
-            style={{ background: barColor }}
-            initial={{ width: 0 }}
-            animate={{ width: `${criterion.score}%` }}
-            transition={{ duration: 0.8, delay: 0.2 + index * 0.1, ease: "easeOut" }}
-          />
-        </div>
-        {/* Failure details */}
-        <AnimatePresence>
-          {expanded && criterion.details && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
-              <div className="mt-3 ml-6 p-3 rounded-lg text-xs" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.15)", color: "#f87171" }}>
-                {criterion.details}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Failure details footer */}
+      {criterion.details && (
+        <div
+          className="px-4 py-3 text-[11px] leading-relaxed"
+          style={{
+            borderTop: "1px solid var(--border-secondary)",
+            color: "#ef4444",
+            background: "rgba(239,68,68,0.04)",
+          }}
+        >
+          {criterion.details}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -880,35 +894,21 @@ export function TollgateView() {
                   </div>
                 </div>
 
-                {/* Criteria list */}
-                <div>
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-3">Evaluation Criteria</h2>
-                  <div className="space-y-3">
-                    {[...tollgate.criteria]
-                      .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
-                      .map((criterion, i) => (
-                        <CriterionCard key={criterion.name} criterion={criterion} index={i} />
-                      ))}
-                  </div>
-                </div>
-              </div>
+                {/* Action buttons — above criteria */}
+                <motion.div
+                  className="flex flex-wrap items-center gap-3 mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
 
-              {/* Security finding */}
-              {securityFinding && !tollgate.override && (
-                <div className="mb-6"><SecurityFinding criterion={securityFinding} /></div>
-              )}
+                {/* Security finding */}
+                {securityFinding && !tollgate.override && (
+                  <div className="w-full mb-3"><SecurityFinding criterion={securityFinding} /></div>
+                )}
 
-              {/* Override section */}
-              {!tollgate.passed && <OverridePanel tollgate={tollgate} onOverride={handleOverride} />}
-
-              {/* Navigation */}
-              <motion.div
-                className="flex flex-wrap items-center gap-3 mt-8 pt-6"
-                style={{ borderTop: "1px solid var(--border-secondary)" }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-              >
+                {/* Override section */}
+                {!tollgate.passed && <div className="w-full mb-3"><OverridePanel tollgate={tollgate} onOverride={handleOverride} /></div>}
                 {/* "Continue to next phase" — only when tollgate passed (naturally or via override) AND phase is not in failed state without override */}
                 {(tollgate.passed || tollgate.override) && (() => {
                   const isLastPhase = !nextPhase;
@@ -992,6 +992,19 @@ export function TollgateView() {
                   View in Cockpit
                 </button>
               </motion.div>
+
+                {/* Criteria list — vertical cards in a row */}
+                <div>
+                  <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--text-faint)" }}>Evaluation Criteria</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {[...tollgate.criteria]
+                      .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
+                      .map((criterion, i) => (
+                        <CriterionCard key={criterion.name} criterion={criterion} index={i} />
+                      ))}
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>
