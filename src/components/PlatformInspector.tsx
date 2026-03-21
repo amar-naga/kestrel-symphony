@@ -214,7 +214,7 @@ function ProgressBar({ value, max, color, showLabel = true }: { value: number; m
    TAB: ENGINE & LLM
    ================================================================ */
 
-function EngineTab({ blueprint }: { blueprint?: Blueprint }) {
+function EngineTab({ blueprint, editMode = false }: { blueprint?: Blueprint; editMode?: boolean }) {
   const displayRouting = blueprint ? (() => {
     const seenRoles = new Set<string>();
     const routing: typeof ENGINE_CONFIG.llmRouting = [];
@@ -263,6 +263,17 @@ function EngineTab({ blueprint }: { blueprint?: Blueprint }) {
                 </span>
               </div>
             </div>
+            {editMode && (
+              <select
+                className="ml-auto text-[11px] font-mono rounded-lg px-2 py-1"
+                style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
+                defaultValue="crewai"
+              >
+                <option value="crewai">CrewAI Flows v0.4.2</option>
+                <option value="langgraph">LangGraph v0.3.1</option>
+                <option value="autogen">AutoGen v0.5.0</option>
+              </select>
+            )}
           </div>
           <p className="text-xs text-white/40 leading-relaxed pl-11">{ENGINE_CONFIG.reason}</p>
         </div>
@@ -327,12 +338,24 @@ function EngineTab({ blueprint }: { blueprint?: Blueprint }) {
                     {row.role}
                   </span>
                   <ArrowRight size={10} className="text-white/15" />
-                  <span
-                    className="text-xs font-bold"
-                    style={{ color: modelColor }}
-                  >
-                    {row.model}
-                  </span>
+                  {editMode ? (
+                    <select
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
+                      defaultValue={row.model}
+                    >
+                      <option>Claude Opus 4.6</option>
+                      <option>Claude Sonnet 4</option>
+                      <option>Claude Haiku 4.5</option>
+                    </select>
+                  ) : (
+                    <span
+                      className="text-xs font-bold"
+                      style={{ color: modelColor }}
+                    >
+                      {row.model}
+                    </span>
+                  )}
                   <span className="ml-auto text-[10px] font-mono text-white/20">
                     ${row.costPer1k}/1K tokens
                   </span>
@@ -367,7 +390,7 @@ function EngineTab({ blueprint }: { blueprint?: Blueprint }) {
    TAB: AGENT WIRING
    ================================================================ */
 
-function WiringTab({ blueprint }: { blueprint?: Blueprint }) {
+function WiringTab({ blueprint, editMode = false }: { blueprint?: Blueprint; editMode?: boolean }) {
   const displayWiring = blueprint ? (() => {
     const wiring: typeof AGENT_WIRING = [];
     blueprint.phases.forEach(phase => {
@@ -395,6 +418,14 @@ function WiringTab({ blueprint }: { blueprint?: Blueprint }) {
 
   return (
     <div className="space-y-5 p-5">
+      {editMode && (
+        <button
+          className="flex items-center gap-1.5 w-full px-3 py-2 rounded-lg text-xs font-semibold mb-3"
+          style={{ background: "rgba(255,107,44,0.08)", border: "1px solid rgba(255,107,44,0.2)", color: "#FF6B2C" }}
+        >
+          Advanced wiring configuration available in Arc →
+        </button>
+      )}
       {/* Agent Connections */}
       <div>
         <div className="text-[9px] font-mono text-white/25 uppercase tracking-widest mb-3">Agent Connections (Live)</div>
@@ -514,9 +545,10 @@ function WiringTab({ blueprint }: { blueprint?: Blueprint }) {
    TAB: GUARDRAILS
    ================================================================ */
 
-function GuardrailsTab() {
+function GuardrailsTab({ editMode = false }: { editMode?: boolean }) {
   const [liveTokens, setLiveTokens] = useState(GUARDRAILS.tokenBudget.used);
   const [liveCost, setLiveCost] = useState(GUARDRAILS.costCap.used);
+  const [disabledRules, setDisabledRules] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -539,15 +571,27 @@ function GuardrailsTab() {
                 <Gauge size={12} className="text-[#FF6B2C]" />
                 Token Budget
               </span>
-              <motion.span
-                className="text-xs font-mono tabular-nums"
-                key={liveTokens}
-                initial={{ color: "#FF6B2C" }}
-                animate={{ color: "rgba(255,255,255,0.4)" }}
-                transition={{ duration: 1 }}
-              >
-                {liveTokens.toLocaleString()} / {GUARDRAILS.tokenBudget.limit.toLocaleString()}
-              </motion.span>
+              {editMode ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-mono tabular-nums text-white/40">{liveTokens.toLocaleString()} /</span>
+                  <input
+                    type="number"
+                    className="text-xs font-mono w-24 rounded px-2 py-1"
+                    style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
+                    defaultValue={GUARDRAILS.tokenBudget.limit}
+                  />
+                </div>
+              ) : (
+                <motion.span
+                  className="text-xs font-mono tabular-nums"
+                  key={liveTokens}
+                  initial={{ color: "#FF6B2C" }}
+                  animate={{ color: "rgba(255,255,255,0.4)" }}
+                  transition={{ duration: 1 }}
+                >
+                  {liveTokens.toLocaleString()} / {GUARDRAILS.tokenBudget.limit.toLocaleString()}
+                </motion.span>
+              )}
             </div>
             <ProgressBar value={liveTokens} max={GUARDRAILS.tokenBudget.limit} color="#FF6B2C" />
           </div>
@@ -559,15 +603,28 @@ function GuardrailsTab() {
                 <Gauge size={12} className="text-[#f59e0b]" />
                 Cost Cap
               </span>
-              <motion.span
-                className="text-xs font-mono tabular-nums"
-                key={Math.floor(liveCost * 100)}
-                initial={{ color: "#f59e0b" }}
-                animate={{ color: "rgba(255,255,255,0.4)" }}
-                transition={{ duration: 1 }}
-              >
-                ${liveCost.toFixed(2)} / ${GUARDRAILS.costCap.limit.toFixed(2)}
-              </motion.span>
+              {editMode ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-mono tabular-nums text-white/40">${liveCost.toFixed(2)} /</span>
+                  <input
+                    type="number"
+                    className="text-xs font-mono w-24 rounded px-2 py-1"
+                    style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
+                    defaultValue={GUARDRAILS.costCap.limit}
+                    step={0.5}
+                  />
+                </div>
+              ) : (
+                <motion.span
+                  className="text-xs font-mono tabular-nums"
+                  key={Math.floor(liveCost * 100)}
+                  initial={{ color: "#f59e0b" }}
+                  animate={{ color: "rgba(255,255,255,0.4)" }}
+                  transition={{ duration: 1 }}
+                >
+                  ${liveCost.toFixed(2)} / ${GUARDRAILS.costCap.limit.toFixed(2)}
+                </motion.span>
+              )}
             </div>
             <ProgressBar value={liveCost} max={GUARDRAILS.costCap.limit} color="#f59e0b" />
           </div>
@@ -579,9 +636,24 @@ function GuardrailsTab() {
                 <ShieldCheck size={12} className="text-[#FF8F5C]" />
                 Quality Floor
               </span>
-              <span className="text-xs font-mono text-[#FF8F5C] tabular-nums">
-                {GUARDRAILS.qualityFloor.current}% (min: {GUARDRAILS.qualityFloor.minimum}%)
-              </span>
+              {editMode ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-mono text-[#FF8F5C] tabular-nums">{GUARDRAILS.qualityFloor.current}% (min:</span>
+                  <input
+                    type="number"
+                    className="text-xs font-mono w-16 rounded px-2 py-1"
+                    style={{ background: "var(--surface-primary)", border: "1px solid var(--border-primary)", color: "var(--text-secondary)" }}
+                    defaultValue={GUARDRAILS.qualityFloor.minimum}
+                    min={0}
+                    max={100}
+                  />
+                  <span className="text-xs font-mono text-[#FF8F5C] tabular-nums">%)</span>
+                </div>
+              ) : (
+                <span className="text-xs font-mono text-[#FF8F5C] tabular-nums">
+                  {GUARDRAILS.qualityFloor.current}% (min: {GUARDRAILS.qualityFloor.minimum}%)
+                </span>
+              )}
             </div>
             <ProgressBar value={GUARDRAILS.qualityFloor.current} max={100} color="#FF8F5C" />
             <div className="mt-1 text-[9px] font-mono text-emerald-400/50 uppercase tracking-wider flex items-center gap-1">
@@ -632,6 +704,25 @@ function GuardrailsTab() {
                 >
                   {rule.status}
                 </span>
+                {editMode && (
+                  <button
+                    className="w-8 h-4 rounded-full relative transition-colors shrink-0"
+                    style={{ background: !disabledRules.has(rule.name) ? "#4ade80" : "var(--surface-hover, rgba(255,255,255,0.1))" }}
+                    onClick={() => {
+                      setDisabledRules(prev => {
+                        const next = new Set(prev);
+                        if (next.has(rule.name)) next.delete(rule.name);
+                        else next.add(rule.name);
+                        return next;
+                      });
+                    }}
+                  >
+                    <div
+                      className="absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform"
+                      style={{ left: !disabledRules.has(rule.name) ? 16 : 2 }}
+                    />
+                  </button>
+                )}
               </motion.div>
             );
           })}
@@ -845,14 +936,15 @@ const TABS: { id: InspectorTab; label: string; icon: React.ComponentType<{ size?
 
 export function PlatformInspector({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [activeTab, setActiveTab] = useState<InspectorTab>("engine");
+  const [editMode, setEditMode] = useState(false);
   const { state } = useApp();
   const activeStory = state.stories.find(s => s.id === state.activeStoryId);
   const blueprint = activeStory?.blueprint;
 
   const tabContent: Record<InspectorTab, React.ReactNode> = {
-    engine: <EngineTab blueprint={blueprint} />,
-    wiring: <WiringTab blueprint={blueprint} />,
-    guardrails: <GuardrailsTab />,
+    engine: <EngineTab blueprint={blueprint} editMode={editMode} />,
+    wiring: <WiringTab blueprint={blueprint} editMode={editMode} />,
+    guardrails: <GuardrailsTab editMode={editMode} />,
     context: <ContextTab />,
     knowledge: <KnowledgeTab />,
   };
@@ -897,6 +989,18 @@ export function PlatformInspector({ open, onClose }: { open: boolean; onClose: (
                   {activeStory ? `${activeStory.key} — ${activeStory.title}` : "Behind the scenes — engine, wiring, guardrails"}
                 </p>
               </div>
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                style={{
+                  background: editMode ? "rgba(255,107,44,0.15)" : "var(--surface-primary)",
+                  border: editMode ? "1px solid rgba(255,107,44,0.3)" : "1px solid var(--border-primary)",
+                  color: editMode ? "#FF6B2C" : "var(--text-faint)",
+                }}
+              >
+                <Wrench size={12} />
+                {editMode ? "Editing" : "Configure"}
+              </button>
               <button
                 onClick={onClose}
                 className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors"

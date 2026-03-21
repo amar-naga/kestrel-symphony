@@ -7,6 +7,7 @@ import {
   FileSearch,
   MessageSquare,
   ShieldCheck,
+  GitBranch,
   BarChart3,
   Settings,
   Sun,
@@ -18,6 +19,7 @@ const NAV_ITEMS: { view: View; label: string; icon: typeof Kanban }[] = [
   { view: "blueprint", label: "Blueprint", icon: FileSearch },
   { view: "session", label: "Session", icon: MessageSquare },
   { view: "tollgate", label: "Tollgate", icon: ShieldCheck },
+  { view: "arc", label: "Arc", icon: GitBranch },
   { view: "cockpit", label: "Cockpit", icon: BarChart3 },
 ];
 
@@ -62,15 +64,16 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
             <button
               key={view}
               onClick={() => dispatch({ type: "SET_VIEW", view })}
-              className="relative flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-300"
+              className="relative flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 text-center"
               style={{
                 color: active
                   ? isLight ? "#111111" : "rgba(255,255,255,0.95)"
                   : isLight ? "#777777" : "rgba(255,255,255,0.65)",
+                lineHeight: 1,
               }}
             >
-              <Icon className="w-3.5 h-3.5" />
-              <span className="relative z-10">{label}</span>
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              <span className="relative z-10 leading-none">{label}</span>
               {active && (
                 <motion.div
                   layoutId="nav-indicator"

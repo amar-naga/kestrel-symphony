@@ -12,6 +12,7 @@ import { BlueprintView } from "@/components/BlueprintView";
 import { SessionView } from "@/components/SessionView";
 import { TollgateView } from "@/components/TollgateView";
 import { CockpitView } from "@/components/CockpitView";
+import { ArcView } from "@/components/ArcView";
 import { PlatformInspector } from "@/components/PlatformInspector";
 
 const viewComponents = {
@@ -20,6 +21,7 @@ const viewComponents = {
   blueprint: BlueprintView,
   session: SessionView,
   tollgate: TollgateView,
+  arc: ArcView,
   cockpit: CockpitView,
 };
 

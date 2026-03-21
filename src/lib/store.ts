@@ -6,7 +6,7 @@ import { createContext, useContext } from "react";
    TYPES
    ================================================================ */
 
-export type View = "hero" | "board" | "blueprint" | "session" | "tollgate" | "cockpit";
+export type View = "hero" | "board" | "blueprint" | "session" | "tollgate" | "arc" | "cockpit";
 export type GovernanceMode = "advisory" | "enforced";
 
 export type StoryType = "feature" | "bug" | "spike" | "epic";

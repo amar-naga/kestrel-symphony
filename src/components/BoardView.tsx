@@ -353,22 +353,6 @@ export function BoardView() {
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 14,
-              fontWeight: 700,
-              color: "#fff",
-            }}
-          >
-            N
-          </div>
           <h1
             style={{
               fontSize: 22,
@@ -381,7 +365,7 @@ export function BoardView() {
             NextGen Customer Portal
           </h1>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 44 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span className="text-white/40"><Clock size={13} /></span>
           <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
             Sprint 14 &middot; Mar 10&ndash;24, 2026
