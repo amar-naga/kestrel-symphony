@@ -129,7 +129,7 @@ function ScoreRing({ score, passed, size = 140 }: { score: number; passed: boole
 
 function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; index: number }) {
   const passed = criterion.passed;
-  const accentColor = passed ? "#22c55e" : "#ef4444";
+  const ringColor = passed ? "#22c55e" : "#ef4444";
 
   return (
     <motion.div
@@ -144,10 +144,10 @@ function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; ind
       whileHover={{ borderColor: "var(--border-primary)", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
     >
       <div className="p-5 flex flex-col items-center text-center flex-1">
-        {/* Score — big number */}
+        {/* Score — big number in black/grey */}
         <div
           className="text-3xl font-bold tabular-nums mb-1"
-          style={{ color: accentColor }}
+          style={{ color: "var(--text-primary)" }}
         >
           {criterion.score}
         </div>
@@ -155,14 +155,14 @@ function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; ind
           score
         </div>
 
-        {/* Thin progress ring */}
+        {/* Thin progress ring — only ring uses color */}
         <div className="relative w-12 h-12 mb-4">
           <svg width={48} height={48} viewBox="0 0 48 48">
             <circle cx={24} cy={24} r={20} fill="none" stroke="var(--border-secondary)" strokeWidth={3} />
             <circle
               cx={24} cy={24} r={20}
               fill="none"
-              stroke={accentColor}
+              stroke={ringColor}
               strokeWidth={3}
               strokeLinecap="round"
               strokeDasharray={`${(criterion.score / 100) * 125.66} 125.66`}
@@ -172,9 +172,9 @@ function CriterionCard({ criterion, index }: { criterion: TollgateCriterion; ind
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             {passed ? (
-              <CheckCircle size={16} style={{ color: accentColor }} />
+              <CheckCircle size={16} style={{ color: ringColor }} />
             ) : (
-              <XCircle size={16} style={{ color: accentColor }} />
+              <XCircle size={16} style={{ color: ringColor }} />
             )}
           </div>
         </div>
@@ -823,6 +823,47 @@ export function TollgateView() {
                     <Clock size={12} />
                     {formatDate(tollgate.evaluatedAt)} &middot; {formatTime(tollgate.evaluatedAt)}
                   </span>
+
+                  {/* Action buttons — inline with header */}
+                  <div className="ml-auto flex items-center gap-2">
+                    {(tollgate.passed || tollgate.override) && (() => {
+                      const isLastPhase = !nextPhase;
+                      return (
+                        <motion.button
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold"
+                          style={{ background: "linear-gradient(135deg, #FF6B2C, #CC5623)", color: "#fff" }}
+                          whileHover={{ scale: 1.03, boxShadow: "0 4px 16px rgba(255,107,44,0.3)" }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => {
+                            dispatch({ type: "COMPLETE_PHASE", storyId: story.id, phaseId: activePhase.id as "plan" | "design" | "build" | "deploy" });
+                            if (isLastPhase) {
+                              dispatch({ type: "MARK_STORY_DONE", storyId: story.id });
+                              dispatch({ type: "SET_VIEW", view: "cockpit" });
+                            } else {
+                              dispatch({ type: "START_PHASE", storyId: story.id, phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
+                              dispatch({ type: "SET_ACTIVE_PHASE", phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
+                              dispatch({ type: "SET_VIEW", view: "session" });
+                            }
+                          }}
+                        >
+                          {isLastPhase ? "Mark Story Complete" : "Continue to next phase"}
+                          <ArrowRight size={14} />
+                        </motion.button>
+                      );
+                    })()}
+                    {!tollgate.passed && !tollgate.override && (
+                      <motion.button
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold"
+                        style={{ background: "var(--surface-primary)", color: "var(--text-secondary)", border: "1px solid var(--border-primary)" }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => dispatch({ type: "SET_VIEW", view: "session" })}
+                      >
+                        <RotateCcw size={14} />
+                        Return to Session
+                      </motion.button>
+                    )}
+                  </div>
                 </div>
               </motion.div>
 
@@ -894,109 +935,18 @@ export function TollgateView() {
                   </div>
                 </div>
 
-                {/* Action buttons — above criteria */}
-                <motion.div
-                  className="flex flex-wrap items-center gap-3 mb-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-
                 {/* Security finding */}
                 {securityFinding && !tollgate.override && (
-                  <div className="w-full mb-3"><SecurityFinding criterion={securityFinding} /></div>
+                  <div className="mb-4"><SecurityFinding criterion={securityFinding} /></div>
                 )}
 
                 {/* Override section */}
-                {!tollgate.passed && <div className="w-full mb-3"><OverridePanel tollgate={tollgate} onOverride={handleOverride} /></div>}
-                {/* "Continue to next phase" — only when tollgate passed (naturally or via override) AND phase is not in failed state without override */}
-                {(tollgate.passed || tollgate.override) && (() => {
-                  const isLastPhase = !nextPhase;
-                  return (
-                    <motion.button
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
-                      style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}
-                      whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(74,222,128,0.15)" }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        // 1. Mark current phase as passed
-                        dispatch({ type: "COMPLETE_PHASE", storyId: story.id, phaseId: activePhase.id as "plan" | "design" | "build" | "deploy" });
-                        if (isLastPhase) {
-                          // Last phase — mark story done and go to cockpit
-                          dispatch({ type: "MARK_STORY_DONE", storyId: story.id });
-                          dispatch({ type: "SET_VIEW", view: "cockpit" });
-                        } else {
-                          // 2. Start the next phase
-                          dispatch({ type: "START_PHASE", storyId: story.id, phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
-                          // 3. Set active phase to next
-                          dispatch({ type: "SET_ACTIVE_PHASE", phaseId: nextPhase!.id as "plan" | "design" | "build" | "deploy" });
-                          // 4. Navigate to session
-                          dispatch({ type: "SET_VIEW", view: "session" });
-                        }
-                      }}
-                    >
-                      {isLastPhase ? "Mark Story Complete" : "Continue to next phase"}
-                      <ArrowRight size={16} />
-                    </motion.button>
-                  );
-                })()}
+                {!tollgate.passed && <div className="mb-4"><OverridePanel tollgate={tollgate} onOverride={handleOverride} /></div>}
 
-                {/* "Return to Session" — shown when failed (no override) */}
-                {!tollgate.passed && !tollgate.override && (
-                  <motion.button
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold"
-                    style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(245,158,11,0.15)" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => dispatch({ type: "SET_VIEW", view: "session" })}
-                  >
-                    <RotateCcw size={16} />
-                    Return to Session
-                  </motion.button>
-                )}
-
-                {/* "Re-run Tollgate" — shown for failed phases (with or without override) */}
-                {(activePhase.status === "failed" || (!tollgate.passed && !tollgate.override)) && (
-                  <motion.button
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: "rgba(255,107,44,0.12)", color: "#FF6B2C", border: "1px solid rgba(255,107,44,0.3)" }}
-                    whileHover={!rerunning ? { scale: 1.02, boxShadow: "0 0 20px rgba(255,107,44,0.15)" } : {}}
-                    whileTap={!rerunning ? { scale: 0.98 } : {}}
-                    disabled={rerunning}
-                    onClick={handleRerunTollgate}
-                  >
-                    {rerunning ? (
-                      <>
-                        <motion.div
-                          className="w-4 h-4 border-2 border-[#FF6B2C] border-t-transparent rounded-full"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                        />
-                        Re-evaluating...
-                      </>
-                    ) : (
-                      <>
-                        <RotateCcw size={16} />
-                        Re-run Tollgate
-                      </>
-                    )}
-                  </motion.button>
-                )}
-
-                <button
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors"
-                  style={{ background: "var(--surface-secondary)", border: "1px solid var(--border-secondary)" }}
-                  onClick={() => dispatch({ type: "SET_VIEW", view: "cockpit" })}
-                >
-                  <Eye size={14} />
-                  View in Cockpit
-                </button>
-              </motion.div>
-
-                {/* Criteria list — vertical cards in a row */}
+                {/* Criteria list — vertical cards centered */}
                 <div>
-                  <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--text-faint)" }}>Evaluation Criteria</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-center" style={{ color: "var(--text-faint)" }}>Evaluation Criteria</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
                     {[...tollgate.criteria]
                       .sort((a, b) => (a.passed === b.passed ? 0 : a.passed ? 1 : -1))
                       .map((criterion, i) => (
