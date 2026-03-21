@@ -1,155 +1,209 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTeam } from "@/lib/store";
-import { ArrowRight, Layers, GitBranch, Rocket, Gauge } from "lucide-react";
+import { useApp } from "@/lib/store";
+import { ArrowRight, Shield, Cpu, Users } from "lucide-react";
+
+const stagger = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
+};
+
+const VALUE_PROPS = [
+  {
+    icon: Users,
+    title: "10x Team Productivity",
+    description:
+      "Not just individual. Orchestrate your entire engineering team with AI agents.",
+  },
+  {
+    icon: Shield,
+    title: "Governed by Default",
+    description:
+      "Tollgated phases. Audit trails. Enforced quality gates between every transition.",
+  },
+  {
+    icon: Cpu,
+    title: "Engine Agnostic",
+    description:
+      "CrewAI, LangGraph, AutoGen. Pick your runtime. Symphony orchestrates.",
+  },
+];
+
+const TECH_BADGES = ["Claude", "CrewAI", "Supabase", "MCP", "A2A", "Langfuse"];
 
 export function HeroSplash() {
-  const { dispatch } = useTeam();
+  const { dispatch } = useApp();
 
   return (
-    <div className="min-h-[85vh] flex flex-col items-center justify-center relative pt-24">
-      {/* Central glow */}
+    <div className="min-h-screen flex flex-col items-center justify-center relative py-24 px-6">
+      {/* Background ambient glow */}
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full"
+        className="absolute w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(123, 47, 247, 0.2) 0%, transparent 70%)",
-          filter: "blur(80px)",
+          background:
+            "radial-gradient(circle, rgba(123, 47, 247, 0.15) 0%, rgba(56, 152, 236, 0.08) 40%, transparent 70%)",
+          filter: "blur(100px)",
         }}
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.5, 0.8, 0.5],
+          scale: [1, 1.15, 1],
+          opacity: [0.4, 0.65, 0.4],
         }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Logo mark */}
       <motion.div
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative mb-8"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center"
       >
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
-          <img
-            src="/kestrel-logo.png"
-            alt="Kestrel"
-            className="w-full h-full object-contain brightness-0 invert"
-          />
-        </div>
-        {/* Orbiting dots */}
-        <motion.div
-          className="absolute -inset-4"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="absolute top-0 left-1/2 w-2 h-2 rounded-full bg-[var(--accent-purple)] -translate-x-1/2 -translate-y-1" />
-        </motion.div>
-        <motion.div
-          className="absolute -inset-6"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="absolute top-0 left-1/2 w-1.5 h-1.5 rounded-full bg-[var(--accent-cyan)] -translate-x-1/2 -translate-y-0.5" />
-        </motion.div>
-      </motion.div>
-
-      {/* Title */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
-        className="text-center space-y-4 relative z-10"
-      >
-        <h1 className="text-6xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-white via-white/95 to-white/70 bg-clip-text text-transparent">
-            Kestrel{" "}
-          </span>
-          <span className="bg-gradient-to-r from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] bg-clip-text text-transparent">
-            Symphony
-          </span>
-        </h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="text-xl text-white/50 font-medium tracking-wide"
-        >
-          Define it. <span className="bg-gradient-to-r from-[var(--accent-purple)] to-[var(--accent-cyan)] bg-clip-text text-transparent font-semibold">Arc builds it.</span>
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="text-sm text-white/30 max-w-lg mx-auto leading-relaxed"
-        >
-          Compose AI agent teams. Wire them through tollgated workflows.
-          Deploy on any engine.
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="text-xs text-white/20 font-mono"
-        >
-          Engine-agnostic · MCP + A2A protocols · Arc governance
-        </motion.p>
-      </motion.div>
-
-      {/* CTA */}
-      <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => dispatch({ type: "SET_VIEW", view: "catalog" })}
-        className="mt-10 relative group cursor-pointer"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-purple)] to-[var(--accent-cyan)] rounded-2xl blur-xl opacity-40 group-hover:opacity-70 transition-opacity" />
-        <div className="relative glass-card px-8 py-4 flex items-center gap-3 text-white">
-          <span className="font-semibold">Open Role Catalog</span>
-          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </div>
-      </motion.button>
-
-      {/* Feature pills */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-        className="mt-16 flex items-center gap-4"
-      >
-        {[
-          { icon: Layers, label: "Role Catalog", desc: "4 core roles" },
-          { icon: GitBranch, label: "Arc Composer", desc: "Tollgated flows" },
-          { icon: Rocket, label: "Multi-Engine", desc: "CrewAI · LangGraph · AutoGen" },
-          { icon: Gauge, label: "Live Cockpit", desc: "Token spend & quality" },
-        ].map((feat, i) => (
+        {/* Logo with float animation */}
+        <motion.div variants={fadeUp} className="mb-10">
           <motion.div
-            key={feat.label}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8 + i * 0.1 }}
-            className="glass-subtle px-4 py-3 flex items-center gap-3 group hover:bg-white/[0.04] transition-colors"
+            animate={{ y: [0, -8, 0] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
-            <feat.icon size={16} className="text-white/30 group-hover:text-white/60 transition-colors" />
-            <div>
-              <div className="text-xs font-medium text-white/60">{feat.label}</div>
-              <div className="text-[10px] text-white/25">{feat.desc}</div>
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] flex items-center justify-center shadow-2xl overflow-hidden p-1.5">
+              <img
+                src="/kestrel-logo.png"
+                alt="Kestrel Symphony"
+                className="w-full h-full object-contain brightness-0 invert"
+              />
             </div>
           </motion.div>
-        ))}
-      </motion.div>
+        </motion.div>
 
-      {/* Bottom brand */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.2 }}
-        className="mt-16 text-[11px] text-white/15 font-mono tracking-widest"
-      >
-        LUMICORP AI · BUILDERS NOT CONSULTANTS
+        {/* Main headline */}
+        <motion.h1
+          variants={fadeUp}
+          className="text-5xl sm:text-6xl font-bold tracking-tight leading-tight"
+        >
+          <span className="bg-gradient-to-r from-white via-white/95 to-white/80 bg-clip-text text-transparent">
+            AI-Native SDLC
+          </span>
+          <br />
+          <span className="bg-gradient-to-r from-[var(--accent-purple)] via-[var(--accent-blue)] to-[var(--accent-cyan)] bg-clip-text text-transparent">
+            Orchestration
+          </span>
+        </motion.h1>
+
+        {/* Subheadline */}
+        <motion.p
+          variants={fadeUp}
+          className="mt-6 text-lg sm:text-xl text-white/50 font-medium max-w-2xl leading-relaxed"
+        >
+          The governed layer between your backlog and your AI tools.
+        </motion.p>
+
+        {/* Tagline */}
+        <motion.p
+          variants={fadeUp}
+          className="mt-4 text-sm sm:text-base text-white/30 italic max-w-xl leading-relaxed"
+        >
+          Today you buy AI productivity per developer. With Symphony, you buy AI
+          productivity per team.
+        </motion.p>
+
+        {/* Value prop cards */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full"
+        >
+          {VALUE_PROPS.map((prop) => (
+            <div
+              key={prop.title}
+              className="glass-card p-6 text-left space-y-3 hover:bg-white/[0.04] transition-colors"
+            >
+              <prop.icon
+                size={20}
+                className="text-white/40"
+                strokeWidth={1.5}
+              />
+              <h3 className="text-sm font-semibold text-white/80 tracking-wide">
+                {prop.title}
+              </h3>
+              <p className="text-xs text-white/35 leading-relaxed">
+                {prop.description}
+              </p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Tech stack badges */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-10 flex flex-wrap items-center justify-center gap-2"
+        >
+          {TECH_BADGES.map((badge) => (
+            <span
+              key={badge}
+              className="glass-subtle px-3 py-1.5 text-[11px] font-mono text-white/30 tracking-wide"
+            >
+              {badge}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* Enter Demo button with glow pulse */}
+        <motion.div variants={fadeUp} className="mt-12">
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => dispatch({ type: "SET_VIEW", view: "board" })}
+            className="relative group cursor-pointer"
+          >
+            {/* Glow pulse behind button */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-[var(--accent-purple)] to-[var(--accent-cyan)] rounded-2xl blur-xl"
+              animate={{
+                opacity: [0.3, 0.55, 0.3],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <div className="relative glass-card px-8 py-4 flex items-center gap-3 text-white shimmer-effect">
+              <span className="font-semibold tracking-wide">Enter Demo</span>
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-1 transition-transform"
+              />
+            </div>
+          </motion.button>
+        </motion.div>
+
+        {/* Bottom brand */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-16 flex flex-col items-center gap-2"
+        >
+          <span className="text-[11px] text-white/20 tracking-wide">
+            by{" "}
+            <span className="text-white/30 font-medium">Lumicorp AI</span>
+            {" "}
+            <span className="text-white/15">·</span>
+            {" "}
+            <span className="text-white/20 font-mono">lumicorp.ai</span>
+          </span>
+          <span className="text-[9px] font-mono tracking-[0.25em] text-white/10 uppercase px-3 py-1 border border-white/[0.06] rounded">
+            Confidential
+          </span>
+        </motion.div>
       </motion.div>
     </div>
   );

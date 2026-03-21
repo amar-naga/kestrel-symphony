@@ -1,481 +1,650 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ROLES } from "@/lib/roles";
-import { useTeam } from "@/lib/store";
-import { RoleIcon } from "./RoleIcon";
+import { useApp } from "@/lib/store";
+import { COCKPIT_METRICS } from "@/lib/sample-data";
 import {
-  CheckCircle2,
-  Clock,
-  Activity,
-  Shield,
-  Zap,
-  TrendingUp,
-  CircleDollarSign,
   BarChart3,
-  Gauge,
+  DollarSign,
+  ShieldCheck,
+  TrendingUp,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
+  Users,
+  Zap,
+  Activity,
+  Eye,
 } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
 
-const stageAccents: Record<number, string> = {
-  1: "#4361ee",
-  2: "#7b2ff7",
-  3: "#00d4ff",
-  4: "#00c896",
-  5: "#f59e0b",
+/* ================================================================
+   HELPERS
+   ================================================================ */
+
+const { sprint, roi, quality, costBreakdown, auditTrail } = COCKPIT_METRICS;
+
+const stagger = {
+  container: {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.07, delayChildren: 0.1 },
+    },
+  },
+  item: {
+    hidden: { opacity: 0, y: 24 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+  },
 };
 
-// Animated counter hook
-function useAnimatedCounter(target: number, duration = 1500) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    const start = performance.now();
-    const initial = value;
-    function update(now: number) {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.floor(initial + (target - initial) * eased));
-      if (progress < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-  }, [target]);
-  return value;
+function formatCurrency(n: number) {
+  return n >= 1000
+    ? `$${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`
+    : `$${n.toFixed(2)}`;
 }
 
-// Mini sparkline
-function Sparkline({ data, color, width = 80, height = 24 }: { data: number[]; color: string; width?: number; height?: number }) {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const points = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(" ");
-  const areaPoints = `0,${height} ${points} ${width},${height}`;
+/* ── Mini Bar Chart (ROI comparison) ─────────────────────────── */
+
+function RoiBarChart() {
+  const maxH = 80;
+  const symH = (roi.symphonyHours / roi.traditionalHours) * maxH;
+  const tradH = maxH;
 
   return (
-    <svg width={width} height={height} className="spark-pulse">
-      <defs>
-        <linearGradient id={`grad-${color.replace("#","")}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={areaPoints} fill={`url(#grad-${color.replace("#","")})`} />
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Endpoint dot */}
-      {data.length > 0 && (
-        <circle
-          cx={width}
-          cy={height - ((data[data.length - 1] - min) / range) * height}
-          r="2.5"
-          fill={color}
-          className="animate-pulse"
+    <div className="flex items-end gap-3 h-[90px]">
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-[9px] font-mono text-white/30">Symphony</span>
+        <motion.div
+          initial={{ height: 0 }}
+          animate={{ height: symH }}
+          transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-8 rounded-t-md"
+          style={{ background: "linear-gradient(to top, #00c896, #00c89680)" }}
         />
-      )}
-    </svg>
+        <span className="text-[10px] font-mono text-[#00c896]">{roi.symphonyHours}h</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-[9px] font-mono text-white/30">Traditional</span>
+        <motion.div
+          initial={{ height: 0 }}
+          animate={{ height: tradH }}
+          transition={{ delay: 0.7, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-8 rounded-t-md"
+          style={{ background: "linear-gradient(to top, #e6394640, #e6394615)" }}
+        />
+        <span className="text-[10px] font-mono text-white/30">{roi.traditionalHours}h</span>
+      </div>
+    </div>
   );
 }
 
-// Simulated live data
-function useSimulatedMetrics() {
-  const [metrics, setMetrics] = useState({
-    totalTokens: 124_580,
-    totalCost: 12.47,
-    avgQuality: 94.2,
-    activeWorkflows: 3,
-    tollgatesPassed: 7,
-    tollgatesFailed: 1,
-    tokenHistory: [80, 95, 88, 105, 110, 98, 115, 120, 125],
-    qualityHistory: [91, 93, 92, 94, 95, 93, 94, 96, 94],
-    costHistory: [5, 6.2, 7.1, 8, 9.2, 10, 10.8, 11.5, 12.5],
-  });
+/* ── Phase Progress Dots ─────────────────────────────────────── */
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics((prev) => {
-        const newTokens = prev.totalTokens + Math.floor(Math.random() * 300 + 50);
-        const newCost = +(prev.totalCost + Math.random() * 0.03).toFixed(2);
-        const newQuality = +(92.5 + Math.random() * 5).toFixed(1);
-        return {
-          ...prev,
-          totalTokens: newTokens,
-          totalCost: newCost,
-          avgQuality: newQuality,
-          tokenHistory: [...prev.tokenHistory.slice(-11), newTokens / 1000],
-          qualityHistory: [...prev.qualityHistory.slice(-11), newQuality],
-          costHistory: [...prev.costHistory.slice(-11), newCost],
-        };
-      });
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
-  return metrics;
+function PhaseDots({ phases }: { phases?: import("@/lib/store").PhaseState[] }) {
+  if (!phases) return null;
+  return (
+    <div className="flex gap-1.5">
+      {phases.map((p) => (
+        <div
+          key={p.id}
+          title={`${p.name}: ${p.status}`}
+          className={`w-2 h-2 rounded-full ${
+            p.status === "passed"
+              ? "bg-[#00c896]"
+              : p.status === "active"
+                ? "bg-[#4361ee] animate-pulse"
+                : p.status === "failed"
+                  ? "bg-[#e63946]"
+                  : "bg-white/10"
+          }`}
+        />
+      ))}
+    </div>
+  );
 }
 
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  suffix,
-  accent,
-  delay,
-  sparkData,
-}: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  value: number;
-  suffix?: string;
-  accent: string;
-  delay: number;
-  sparkData: number[];
-}) {
-  const animated = useAnimatedCounter(value);
+/* ── Severity helpers ────────────────────────────────────────── */
+
+function severityColor(s: string) {
+  if (s === "critical") return "#e63946";
+  if (s === "success") return "#00c896";
+  return "rgba(255,255,255,0.5)";
+}
+
+function severityBg(s: string) {
+  if (s === "critical") return "rgba(230,57,70,0.12)";
+  if (s === "success") return "rgba(0,200,150,0.10)";
+  return "rgba(255,255,255,0.04)";
+}
+
+/* ================================================================
+   MAIN COMPONENT
+   ================================================================ */
+
+export function CockpitView() {
+  const { state, dispatch } = useApp();
+
+  const inSymphony = state.stories.filter((s) => s.status === "in_symphony");
+  const done = state.stories.filter((s) => s.status === "done");
+  const totalCost = costBreakdown.reduce((a, r) => a + r.cost, 0);
+  const totalTokens = costBreakdown.reduce((a, r) => a + r.tokens, 0);
+
+  function goToStory(storyId: string) {
+    dispatch({ type: "SET_ACTIVE_STORY", storyId });
+    dispatch({ type: "SET_VIEW", view: "session" });
+  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="glass-card p-5 relative overflow-hidden"
+      variants={stagger.container}
+      initial="hidden"
+      animate="show"
+      className="space-y-6 max-w-6xl mx-auto"
     >
-      {/* Background glow */}
-      <div
-        className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full blur-3xl opacity-20"
-        style={{ background: accent }}
-      />
-
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: `${accent}15` }}
-            >
-              <Icon size={15} className="opacity-80" />
-            </div>
-            <span className="text-[10px] text-white/35 uppercase tracking-wider font-mono">
-              {label}
+      {/* ── Header ────────────────────────────────────────────── */}
+      <motion.div variants={stagger.item} className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Eye size={14} className="text-[var(--accent-cyan)]" />
+            <span className="text-[10px] font-mono text-white/25 uppercase tracking-[0.3em]">
+              Executive Cockpit
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold text-white/90">Cockpit</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono text-white/25">
+            {sprint.name} &middot; {sprint.startDate} &rarr; {sprint.endDate}
+          </span>
+          <div className="flex items-center gap-1.5 glass-subtle px-3 py-1.5 rounded-full">
+            <div className="w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse" />
+            <span className="text-[11px] font-mono text-white/40">
+              {sprint.storiesInSymphony} active
             </span>
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <div className="text-2xl font-bold text-white/90 tabular-nums">
-            {suffix === "$" ? "$" : ""}
-            {animated.toLocaleString()}
-            {suffix === "%" ? "%" : ""}
+      </motion.div>
+
+      {/* ══════════════════════════════════════════════════════════
+         1. ROI HERO CARD
+         ══════════════════════════════════════════════════════════ */}
+      <motion.div
+        variants={stagger.item}
+        whileHover={{ scale: 1.005 }}
+        className="glass-card relative overflow-hidden p-8"
+        style={{
+          boxShadow: "0 0 60px rgba(0,200,150,0.08), inset 0 1px 0 rgba(0,200,150,0.08)",
+        }}
+      >
+        {/* green ambient glow */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full blur-[100px] bg-[#00c896] opacity-[0.06] pointer-events-none" />
+        <div className="absolute -bottom-16 -right-16 w-56 h-56 rounded-full blur-[80px] bg-[#00c896] opacity-[0.04] pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          {/* Left label */}
+          <div className="shrink-0">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp size={16} className="text-[#00c896]" />
+              <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                {sprint.name} ROI
+              </span>
+            </div>
+            <p className="text-xs text-white/25 max-w-[180px]">
+              Symphony vs traditional vendor delivery across {sprint.storiesCompleted} completed stories
+            </p>
           </div>
-          <Sparkline data={sparkData} color={accent} />
+
+          {/* Center numbers */}
+          <div className="flex-1 text-center">
+            <div className="flex items-center justify-center gap-8 mb-3">
+              {/* Symphony side */}
+              <div>
+                <div className="text-[10px] font-mono text-[#00c896]/60 uppercase tracking-wider mb-1">
+                  Symphony
+                </div>
+                <div className="text-2xl md:text-3xl font-bold text-white/90 tabular-nums">
+                  {roi.symphonyHours} hours
+                </div>
+                <div className="text-lg font-mono text-[#00c896] tabular-nums">
+                  ${roi.symphonyCost.toFixed(2)}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="flex flex-col items-center gap-1 text-white/15">
+                <span className="text-[9px] font-mono">vs</span>
+                <div className="w-px h-8 bg-white/10" />
+              </div>
+
+              {/* Traditional side */}
+              <div>
+                <div className="text-[10px] font-mono text-white/25 uppercase tracking-wider mb-1">
+                  Traditional
+                </div>
+                <div className="text-2xl md:text-3xl font-bold text-white/30 tabular-nums line-through decoration-white/10">
+                  {roi.traditionalHours} hours
+                </div>
+                <div className="text-lg font-mono text-white/20 tabular-nums line-through decoration-white/10">
+                  ${roi.traditionalCost.toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* Savings badges */}
+            <div className="flex items-center justify-center gap-3">
+              <motion.span
+                animate={{
+                  boxShadow: [
+                    "0 0 0px rgba(0,200,150,0)",
+                    "0 0 12px rgba(0,200,150,0.3)",
+                    "0 0 0px rgba(0,200,150,0)",
+                  ],
+                }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-mono font-semibold"
+                style={{
+                  color: "#00c896",
+                  background: "rgba(0,200,150,0.08)",
+                  border: "1px solid rgba(0,200,150,0.15)",
+                }}
+              >
+                <Zap size={12} />
+                {roi.timeSavedPercent}% time saved
+              </motion.span>
+              <span
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-mono font-semibold"
+                style={{
+                  color: "#00c896",
+                  background: "rgba(0,200,150,0.08)",
+                  border: "1px solid rgba(0,200,150,0.15)",
+                }}
+              >
+                <DollarSign size={12} />
+                {roi.costSavedPercent}% cost saved
+              </span>
+            </div>
+          </div>
+
+          {/* Right bar chart */}
+          <div className="shrink-0 hidden md:block">
+            <RoiBarChart />
+          </div>
         </div>
+      </motion.div>
+
+      {/* ══════════════════════════════════════════════════════════
+         2. METRICS ROW (4 cards)
+         ══════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Stories Completed */}
+        <motion.div variants={stagger.item} className="glass-card p-5 relative overflow-hidden">
+          <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full blur-3xl bg-[#4361ee] opacity-10" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle size={14} className="text-[#4361ee]" />
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">
+                Stories
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white/90 tabular-nums mb-2">
+              {sprint.storiesCompleted}
+              <span className="text-sm text-white/25 font-normal">/{sprint.storiesTotal}</span>
+            </div>
+            {/* Progress bar */}
+            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(sprint.storiesCompleted / sprint.storiesTotal) * 100}%` }}
+                transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full rounded-full bg-[#4361ee]"
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Avg Tollgate Score */}
+        <motion.div variants={stagger.item} className="glass-card p-5 relative overflow-hidden">
+          <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full blur-3xl bg-[#00c896] opacity-10" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck size={14} className="text-[#00c896]" />
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">
+                Tollgate Avg
+              </span>
+            </div>
+            <motion.div
+              className="text-2xl font-bold tabular-nums"
+              style={{ color: "#00c896" }}
+              animate={{
+                textShadow: [
+                  "0 0 0px rgba(0,200,150,0)",
+                  "0 0 16px rgba(0,200,150,0.3)",
+                  "0 0 0px rgba(0,200,150,0)",
+                ],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              {quality.avgTollgateScore}%
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Security Issues Caught */}
+        <motion.div variants={stagger.item} className="glass-card p-5 relative overflow-hidden">
+          <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full blur-3xl bg-[#e63946] opacity-10" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck size={14} className="text-[#e63946]" />
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">
+                Security Caught
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white/90 tabular-nums">
+              {quality.securityIssuesCaught}
+            </div>
+            <div className="text-[10px] text-white/20 font-mono mt-1">by Code Auditor</div>
+          </div>
+        </motion.div>
+
+        {/* Overrides */}
+        <motion.div variants={stagger.item} className="glass-card p-5 relative overflow-hidden">
+          <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full blur-3xl bg-[#f59e0b] opacity-10" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle size={14} className="text-[#f59e0b]" />
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">
+                Overrides
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-2xl font-bold text-[#f59e0b] tabular-nums">
+                {quality.overrides}
+              </div>
+              <motion.div
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2 h-2 rounded-full bg-[#f59e0b]"
+              />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════
+         3 + 4. STORIES GRID + COST BREAKDOWN (2-column)
+         ══════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ── Active Stories ─────────────────────────────────── */}
+        <motion.div variants={stagger.item} className="glass-card p-6 relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-5">
+            <Activity size={14} className="text-[var(--accent-cyan)]" />
+            <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
+              Active Stories
+            </h2>
+            <div className="ml-auto text-[10px] font-mono text-white/20">
+              {inSymphony.length} in progress
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {inSymphony.map((story) => {
+              const currentPhase = story.phases?.find((p) => p.status === "active") ||
+                story.phases?.find((p) => p.status === "failed");
+              return (
+                <motion.button
+                  key={story.id}
+                  whileHover={{ x: 4, backgroundColor: "rgba(255,255,255,0.03)" }}
+                  onClick={() => goToStory(story.id)}
+                  className="w-full text-left glass-subtle p-4 flex items-center gap-3 transition-colors cursor-pointer group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-mono text-[#4361ee]">{story.key}</span>
+                      {story.priority === "critical" && (
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#e63946]/10 text-[#e63946] border border-[#e63946]/20">
+                          critical
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-white/70 truncate">{story.title}</div>
+                    <div className="flex items-center gap-3 mt-2">
+                      {currentPhase && (
+                        <span
+                          className="text-[10px] font-mono px-2 py-0.5 rounded-full"
+                          style={{
+                            color: currentPhase.status === "failed" ? "#e63946" : "#4361ee",
+                            background:
+                              currentPhase.status === "failed"
+                                ? "rgba(230,57,70,0.10)"
+                                : "rgba(67,97,238,0.10)",
+                            border: `1px solid ${currentPhase.status === "failed" ? "rgba(230,57,70,0.20)" : "rgba(67,97,238,0.20)"}`,
+                          }}
+                        >
+                          {currentPhase.name}
+                          {currentPhase.status === "failed" ? " (blocked)" : ""}
+                        </span>
+                      )}
+                      <PhaseDots phases={story.phases} />
+                    </div>
+                  </div>
+                  <ArrowRight
+                    size={14}
+                    className="text-white/10 group-hover:text-white/30 transition-colors shrink-0"
+                  />
+                </motion.button>
+              );
+            })}
+
+            {/* Recently completed */}
+            {done.length > 0 && (
+              <>
+                <div className="text-[10px] font-mono text-white/15 uppercase tracking-wider pt-2">
+                  Recently completed
+                </div>
+                {done.slice(0, 3).map((story) => (
+                  <div
+                    key={story.id}
+                    className="glass-subtle p-3 flex items-center gap-3 opacity-50"
+                  >
+                    <CheckCircle size={14} className="text-[#00c896] shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-white/20">{story.key}</span>
+                        <span className="text-xs text-white/30 truncate">{story.title}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {inSymphony.length === 0 && done.length === 0 && (
+              <div className="text-center py-8 text-white/15 text-sm font-mono">
+                No stories in Symphony yet
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ── Cost Breakdown ─────────────────────────────────── */}
+        <motion.div variants={stagger.item} className="glass-card p-6 relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-5">
+            <DollarSign size={14} className="text-[#f59e0b]" />
+            <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
+              Cost Breakdown
+            </h2>
+            <div className="ml-auto text-[10px] font-mono text-[#f59e0b]">
+              ${totalCost.toFixed(2)} total
+            </div>
+          </div>
+
+          {/* Table header */}
+          <div className="flex items-center gap-2 px-3 mb-2 text-[9px] font-mono text-white/20 uppercase tracking-wider">
+            <div className="flex-1">Role</div>
+            <div className="w-16 text-right">Cost</div>
+            <div className="w-16 text-right">Tokens</div>
+            <div className="w-14 text-right">Stories</div>
+          </div>
+
+          <div className="space-y-1.5">
+            {costBreakdown.map((row, i) => (
+              <motion.div
+                key={row.role}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + i * 0.06 }}
+                className="flex items-center gap-2 glass-subtle px-3 py-2.5 text-xs"
+              >
+                <div className="flex-1 font-mono text-white/60">{row.role}</div>
+                <div className="w-16 text-right font-mono text-[#f59e0b] font-semibold tabular-nums">
+                  ${row.cost.toFixed(2)}
+                </div>
+                <div className="w-16 text-right font-mono text-white/30 tabular-nums">
+                  {(row.tokens / 1000).toFixed(0)}k
+                </div>
+                <div className="w-14 text-right font-mono text-white/30 tabular-nums">
+                  {row.stories}
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Total row */}
+            <div className="flex items-center gap-2 px-3 py-2.5 text-xs border-t border-white/5 mt-2">
+              <div className="flex-1 font-mono text-white/40 font-semibold">Total</div>
+              <div className="w-16 text-right font-mono text-[#f59e0b] font-bold tabular-nums">
+                ${totalCost.toFixed(2)}
+              </div>
+              <div className="w-16 text-right font-mono text-white/40 tabular-nums">
+                {(totalTokens / 1000).toFixed(0)}k
+              </div>
+              <div className="w-14" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════
+         5. AUDIT TRAIL + 6. QUALITY TRENDS (full width)
+         ══════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* ── Audit Trail (2/3 width) ────────────────────────── */}
+        <motion.div
+          variants={stagger.item}
+          className="md:col-span-2 glass-card p-6 relative overflow-hidden"
+        >
+          <div className="flex items-center gap-2 mb-5">
+            <BarChart3 size={14} className="text-[var(--accent-purple)]" />
+            <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
+              Audit Trail
+            </h2>
+            <div className="ml-auto flex items-center gap-1.5 text-[10px] text-white/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] animate-pulse" />
+              live
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            {auditTrail.map((entry, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + i * 0.07 }}
+                className={`flex items-start gap-3 font-mono text-xs ${
+                  entry.severity === "critical" ? "relative" : ""
+                }`}
+              >
+                {/* Pulse overlay for critical */}
+                {entry.severity === "critical" && (
+                  <motion.div
+                    className="absolute inset-0 rounded-lg pointer-events-none"
+                    animate={{
+                      boxShadow: [
+                        "inset 0 0 0px rgba(230,57,70,0)",
+                        "inset 0 0 20px rgba(230,57,70,0.08)",
+                        "inset 0 0 0px rgba(230,57,70,0)",
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+
+                {/* Time */}
+                <span className="text-white/15 tabular-nums shrink-0 w-10">{entry.time}</span>
+
+                {/* Event badge */}
+                <span
+                  className="shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold"
+                  style={{
+                    color: severityColor(entry.severity),
+                    background: severityBg(entry.severity),
+                    border: `1px solid ${severityColor(entry.severity)}20`,
+                  }}
+                >
+                  {entry.severity === "critical" && <AlertTriangle size={9} className="inline mr-1 -mt-0.5" />}
+                  {entry.event}
+                </span>
+
+                {/* Story key */}
+                <span className="text-[#4361ee]/60 shrink-0">{entry.story}</span>
+
+                {/* Detail */}
+                <span
+                  className="truncate"
+                  style={{ color: severityColor(entry.severity) }}
+                >
+                  {entry.detail}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ── Quality Trends (1/3 width) ─────────────────────── */}
+        <motion.div variants={stagger.item} className="glass-card p-6 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] bg-[#00c896] opacity-[0.05] pointer-events-none" />
+
+          <div className="flex items-center gap-2 mb-5">
+            <TrendingUp size={14} className="text-[#00c896]" />
+            <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
+              Quality Trends
+            </h2>
+          </div>
+
+          {/* Sparkline bars */}
+          <div className="flex items-end gap-1.5 h-[80px] mb-4">
+            {[78, 82, 80, 88, 85, 90, 87, 92, 91, 85].map((v, i) => (
+              <motion.div
+                key={i}
+                initial={{ height: 0 }}
+                animate={{ height: `${v}%` }}
+                transition={{ delay: 0.7 + i * 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 rounded-t-sm"
+                style={{
+                  background:
+                    i === 9
+                      ? "linear-gradient(to top, #00c896, #00c89660)"
+                      : "linear-gradient(to top, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp size={12} className="text-[#00c896]" />
+            <span className="text-sm font-mono text-[#00c896]">Trending up</span>
+          </div>
+          <div className="text-xs text-white/30 font-mono">
+            {quality.tollgatePassRate}% pass rate this sprint
+          </div>
+          <div className="text-[10px] text-white/15 font-mono mt-1">
+            Avg score: {quality.avgTollgateScore}% across all gates
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
 }
 
-function getRoleStatus(stageOrder: number) {
-  if (stageOrder <= 2) return { status: "complete", label: "Complete", color: "#00c896" };
-  if (stageOrder === 3) return { status: "running", label: "Running", color: "#00d4ff" };
-  return { status: "pending", label: "Queued", color: "#ffffff30" };
-}
-
-export function CockpitView() {
-  const { state } = useTeam();
-  const metrics = useSimulatedMetrics();
-  const selectedRoles = ROLES.filter((r) =>
-    state.selectedRoles.includes(r.role_id)
-  ).sort((a, b) => a.stage_order - b.stage_order);
-
-  const logs = useMemo(() => [
-    { time: "12:04:23", msg: "Data Steward completed quality audit — score 96.3%", type: "success" },
-    { time: "12:03:58", msg: "Tollgate S2→S3 passed (enforced mode)", type: "tollgate" },
-    { time: "12:02:11", msg: "Agent Engineer started build phase", type: "info" },
-    { time: "12:01:45", msg: "Schema validation: 0 breaking changes detected", type: "success" },
-    { time: "12:00:30", msg: "Requirements spec approved — 14 entities identified", type: "success" },
-    { time: "11:59:12", msg: "Tollgate S1→S2 passed (enforced mode)", type: "tollgate" },
-    { time: "11:58:00", msg: "Requirements Dev completed stakeholder analysis", type: "info" },
-    { time: "11:56:22", msg: "MCP connection established: supabase-governance", type: "info" },
-    { time: "11:55:01", msg: "A2A agent handoff initialized for 4 roles", type: "info" },
-  ], []);
-
-  return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Gauge size={14} className="text-[var(--accent-cyan)]" />
-            <span className="text-[10px] font-mono text-white/25 uppercase tracking-[0.3em]">
-              Live Monitoring
-            </span>
-          </div>
-          <h1 className="text-3xl font-bold text-white/90">Cockpit</h1>
-        </div>
-        <motion.div
-          animate={{ boxShadow: ["0 0 0px rgba(0,200,150,0)", "0 0 15px rgba(0,200,150,0.3)", "0 0 0px rgba(0,200,150,0)"] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex items-center gap-2 glass-subtle px-4 py-2.5"
-        >
-          <div className="w-2 h-2 rounded-full bg-[var(--accent-green)] pulse-dot" />
-          <span className="text-sm text-white/50 font-mono">
-            {metrics.activeWorkflows} Active
-          </span>
-        </motion.div>
-      </motion.div>
-
-      {/* Metrics Grid — Quality gauge prominent */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Quality Gauge — spans 1 col but visually dominant */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
-          whileHover={{ y: -4, scale: 1.02 }}
-          className="glass-card p-6 relative overflow-hidden flex flex-col items-center justify-center"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-green)]/5 to-transparent" />
-          <div className="relative z-10 text-center">
-            <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-2">
-              Quality Score
-            </div>
-            <motion.div
-              className="text-5xl font-bold tabular-nums"
-              style={{ color: "var(--accent-green)" }}
-              animate={{ textShadow: ["0 0 0px rgba(0,200,150,0)", "0 0 20px rgba(0,200,150,0.4)", "0 0 0px rgba(0,200,150,0)"] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              {metrics.avgQuality.toFixed(1)}%
-            </motion.div>
-            <Sparkline data={metrics.qualityHistory} color="#00c896" width={100} height={20} />
-            <div className="text-[10px] text-white/20 mt-1">
-              Trending up · all tollgates passing
-            </div>
-          </div>
-        </motion.div>
-
-        <MetricCard
-          icon={Zap}
-          label="Total Tokens"
-          value={metrics.totalTokens}
-          accent="#7b2ff7"
-          delay={0.15}
-          sparkData={metrics.tokenHistory}
-        />
-        <MetricCard
-          icon={CircleDollarSign}
-          label="Token Spend"
-          value={Math.floor(metrics.totalCost * 100) / 100}
-          suffix="$"
-          accent="#f59e0b"
-          delay={0.2}
-          sparkData={metrics.costHistory}
-        />
-        <MetricCard
-          icon={Shield}
-          label="Tollgates Passed"
-          value={metrics.tollgatesPassed}
-          accent="#4361ee"
-          delay={0.25}
-          sparkData={[5, 5, 6, 6, 7, 7, 7, 7, 7]}
-        />
-      </div>
-
-      {/* Pipeline Status */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="glass-card p-6 relative overflow-hidden"
-      >
-        <div className="scan-line" style={{ animationDuration: "6s" }} />
-
-        <div className="flex items-center gap-2 mb-5">
-          <BarChart3 size={14} className="text-[var(--accent-purple)]" />
-          <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
-            Pipeline Status
-          </h2>
-        </div>
-
-        {/* Column headers */}
-        <div className="flex items-center gap-4 px-4 mb-2">
-          <div className="w-8" />
-          <div className="w-10" />
-          <div className="flex-1 text-[9px] font-mono text-white/20 uppercase tracking-wider">Role</div>
-          <div className="w-16 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Tokens</div>
-          <div className="w-14 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Quality</div>
-          <div className="w-16 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">Cost</div>
-          <div className="w-20 text-right text-[9px] font-mono text-white/20 uppercase tracking-wider">LLM</div>
-        </div>
-
-        <div className="space-y-3">
-          {selectedRoles.map((role, i) => {
-            const accent = stageAccents[role.stage_order] || "#7b2ff7";
-            const status = getRoleStatus(role.stage_order);
-            const tokenSpend = Math.floor(20000 + Math.random() * 40000);
-            const quality = Math.floor(88 + Math.random() * 12);
-            const llmModels: Record<number, string> = { 1: "Opus", 2: "Sonnet", 3: "Sonnet", 4: "Opus", 5: "Haiku" };
-            const llm = llmModels[role.stage_order] || "Sonnet";
-
-            return (
-              <motion.div
-                key={role.role_id}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: 0.4 + i * 0.1,
-                  duration: 0.5,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                whileHover={{ x: 4, backgroundColor: "rgba(255,255,255,0.02)" }}
-                className="glass-subtle p-4 flex items-center gap-4 transition-colors"
-              >
-                {/* Status */}
-                <div className="w-8 flex justify-center">
-                  {status.status === "complete" && (
-                    <CheckCircle2 size={18} style={{ color: status.color }} />
-                  )}
-                  {status.status === "running" && (
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <Activity size={18} style={{ color: status.color }} />
-                    </motion.div>
-                  )}
-                  {status.status === "pending" && (
-                    <Clock size={18} className="text-white/15" />
-                  )}
-                </div>
-
-                {/* Icon */}
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: `${accent}12` }}
-                >
-                  <RoleIcon name={role.icon} size={18} />
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-white/80 text-sm">
-                      {role.display_name}
-                    </span>
-                    <motion.span
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-full"
-                      style={{
-                        color: status.color,
-                        background: `${status.color}12`,
-                        border: `1px solid ${status.color}25`,
-                      }}
-                      animate={
-                        status.status === "running"
-                          ? { borderColor: [`${status.color}25`, `${status.color}60`, `${status.color}25`] }
-                          : {}
-                      }
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      {status.label}
-                    </motion.span>
-                  </div>
-                  <div className="text-[10px] text-white/20 font-mono mt-0.5">
-                    S{role.stage_order} · {role.stage_name}
-                  </div>
-                </div>
-
-                {/* Per-role metrics */}
-                <div className="flex items-center gap-0 text-xs text-white/30">
-                  <div className="text-right w-16">
-                    <div className="text-white/50 font-mono tabular-nums">
-                      {tokenSpend.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="text-right w-14">
-                    <div className="text-white/50 font-mono tabular-nums">{quality}%</div>
-                  </div>
-                  <div className="text-right w-16">
-                    <div className="text-[var(--accent-amber)] font-mono tabular-nums font-semibold">
-                      ${(tokenSpend * 0.00015).toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="text-right w-20">
-                    <div className="text-white/30 font-mono tabular-nums text-[10px]">
-                      {llm}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Activity Log */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="glass-card p-6 relative overflow-hidden"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <Activity size={14} className="text-[var(--accent-cyan)]" />
-          <h2 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
-            Activity Stream
-          </h2>
-          <div className="ml-auto flex items-center gap-1.5 text-[10px] text-white/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] pulse-dot" />
-            live
-          </div>
-        </div>
-        <div className="space-y-2 font-mono text-xs">
-          {logs.map((log, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 + i * 0.05 }}
-              className="flex items-start gap-3"
-            >
-              <span className="text-white/15 shrink-0 tabular-nums">{log.time}</span>
-              <div
-                className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                  log.type === "success"
-                    ? "bg-[var(--accent-green)]"
-                    : log.type === "tollgate"
-                      ? "bg-[var(--accent-purple)]"
-                      : "bg-[var(--accent-cyan)]"
-                }`}
-              />
-              <span
-                className={
-                  log.type === "success"
-                    ? "text-green-400/50"
-                    : log.type === "tollgate"
-                      ? "text-purple-400/50"
-                      : "text-cyan-400/40"
-                }
-              >
-                {log.msg}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
+export default CockpitView;
