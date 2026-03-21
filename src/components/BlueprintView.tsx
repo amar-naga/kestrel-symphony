@@ -209,27 +209,60 @@ const priorityBadgeColors: Record<string, string> = {
 function ProvisioningSteps() {
   const [step, setStep] = useState(0);
   const steps = [
-    "Provisioning agent roles...",
-    "Connecting MCP tools (GitHub, Jira, Confluence)...",
-    "Loading context from knowledge repository...",
-    "Applying guardrails (token budget, cost cap, PII filter)...",
-    "Phase 1 ready \u2014 entering session...",
+    "Initializing Symphony runtime...",
+    "Provisioning agent roles (Requirements Dev, Process Leader)...",
+    "Connecting MCP: GitHub → OAuth token verified ✓",
+    "Connecting MCP: Jira → API key verified ✓",
+    "Connecting MCP: Confluence → OAuth token verified ✓",
+    "Loading knowledge repository (147 stories, 23 patterns)...",
+    "Applying guardrails: token budget 50K, cost cap $15.00...",
+    "Applying guardrails: PII filter, dependency audit...",
+    "Setting governance mode: Enforced...",
+    "Running pre-flight checks...",
+    "All systems ready — entering Plan phase...",
   ];
+  const progress = Math.min(((step + 1) / steps.length) * 100, 100);
+
   useEffect(() => {
-    const timers = steps.map((_, i) => setTimeout(() => setStep(i), i * 450));
+    const timers = steps.map((_, i) => setTimeout(() => setStep(i), i * 850));
     return () => timers.forEach(clearTimeout);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <div className="space-y-1.5">
-      {steps.map((s, i) => (
-        <motion.p key={i} className="text-xs font-mono"
-          initial={{ opacity: 0, x: -10 }}
-          animate={i <= step ? { opacity: 1, x: 0 } : {}}
-          style={{ color: i < step ? "#4ade80" : i === step ? "var(--text-secondary)" : "transparent" }}
-        >
-          {i < step ? "\u2713 " : i === step ? "\u23F3 " : ""}{s}
-        </motion.p>
-      ))}
+    <div className="w-80">
+      {/* Progress bar */}
+      <div className="h-1 rounded-full overflow-hidden mb-4" style={{ background: "rgba(255,255,255,0.1)" }}>
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: "linear-gradient(90deg, #FF6B2C, #FF8F5C)" }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      </div>
+      <div className="space-y-1">
+        {steps.map((s, i) => (
+          <motion.p key={i} className="text-[11px] font-mono"
+            initial={{ opacity: 0, x: -10 }}
+            animate={i <= step ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.3 }}
+            style={{
+              color: i < step ? "#4ade80" : i === step ? "rgba(255,255,255,0.8)" : "transparent",
+              height: i > step + 2 ? 0 : "auto",
+              overflow: "hidden",
+            }}
+          >
+            {i < step ? "✓ " : i === step ? "⏳ " : ""}{s}
+          </motion.p>
+        ))}
+      </div>
+      <motion.p
+        className="text-[10px] font-mono mt-3 text-center"
+        style={{ color: "rgba(255,255,255,0.3)" }}
+        animate={{ opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        {Math.round(progress)}% complete
+      </motion.p>
     </div>
   );
 }
@@ -471,7 +504,7 @@ export function BlueprintView() {
     setTimeout(() => {
       dispatch({ type: "SET_VIEW", view: "session" });
       setProvisioning(false);
-    }, 2500);
+    }, 10000);
   }
 
   function handleReject() {
@@ -483,25 +516,6 @@ export function BlueprintView() {
   return (
     <div className="flex-1 px-6 py-8 max-w-6xl mx-auto w-full space-y-6">
       {/* Provisioning overlay */}
-      {provisioning && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <motion.div className="text-center space-y-4" initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
-            <motion.div
-              className="w-12 h-12 mx-auto rounded-full border-2 border-t-transparent"
-              style={{ borderColor: "#FF6B2C", borderTopColor: "transparent" }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            />
-            <ProvisioningSteps />
-          </motion.div>
-        </motion.div>
-      )}
-
       {/* ─── 1. Story Header ────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -818,6 +832,7 @@ export function BlueprintView() {
                 <DollarSign size={14} className="text-[#4ade80]" />
                 <span className="text-2xl font-bold text-white/90">${symphonyCost.toFixed(2)}</span>
               </div>
+              <p className="text-[10px]" style={{ color: "var(--text-ghost)" }}>AI agent compute only</p>
               <div className="flex items-center gap-2">
                 <Clock size={14} className="text-[#4ade80]" />
                 <span className="text-sm text-white/50">{blueprint.totalEstimatedMinutes} minutes</span>
@@ -836,6 +851,7 @@ export function BlueprintView() {
                 <DollarSign size={14} className="text-white/30" />
                 <span className="text-2xl font-bold text-white/40">${traditionalCost.toLocaleString()}</span>
               </div>
+              <p className="text-[10px]" style={{ color: "var(--text-ghost)" }}>Fully-loaded team cost</p>
               <div className="flex items-center gap-2">
                 <Clock size={14} className="text-white/30" />
                 <span className="text-sm text-white/30">{traditionalHours} hours avg</span>
@@ -859,6 +875,9 @@ export function BlueprintView() {
                 <span className="ml-1">cost reduction</span>
               </p>
             </div>
+            <p className="text-[10px] mt-2" style={{ color: "var(--text-ghost)" }}>
+              Platform + oversight costs not included in per-story estimate
+            </p>
             {/* Similar stories */}
             <div className="mt-3 text-[11px] text-white/25">
               Similar: {blueprint.historicalComparison.similarStories.join(", ")}
@@ -913,6 +932,56 @@ export function BlueprintView() {
           Reject
         </button>
       </motion.div>
+
+      {/* Provisioning overlay — rendered outside main content div for proper fixed positioning */}
+      <AnimatePresence>
+        {provisioning && (
+          <motion.div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(12px)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              {/* Spinner */}
+              <motion.div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  border: "3px solid rgba(255,107,44,0.2)",
+                  borderTopColor: "#FF6B2C",
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              {/* Title */}
+              <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 16, fontWeight: 600 }}>
+                Provisioning Agent Team
+              </p>
+              {/* Steps */}
+              <ProvisioningSteps />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/lib/store";
-import { generateBlueprint, SAMPLE_STORIES } from "@/lib/sample-data";
+import { generateBlueprint } from "@/lib/sample-data";
 import {
   Bug,
   Lightbulb,
@@ -302,22 +302,6 @@ function StoryCard({ story, onPull, onOpen, isPulling }: { story: JiraStory; onP
 export function BoardView() {
   const { state, dispatch } = useApp();
   const [pullingStoryId, setPullingStoryId] = useState<string | null>(null);
-
-  /* Initialize stories on mount with pre-attached blueprints */
-  useEffect(() => {
-    if (state.stories.length === 0) {
-      const storiesWithBlueprints = SAMPLE_STORIES.map((story) => {
-        // Stories that already have blueprints (in_symphony) keep them
-        if (story.blueprint) return story;
-        // Pre-generate blueprints for ready stories
-        if (story.status === "ready") {
-          return { ...story, blueprint: generateBlueprint(story) };
-        }
-        return story;
-      });
-      dispatch({ type: "INIT_STORIES", stories: storiesWithBlueprints });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Pull a story into Symphony (with loading animation) */
   const handlePull = (story: JiraStory) => {

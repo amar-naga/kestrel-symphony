@@ -675,7 +675,7 @@ function GuardrailsTab({ editMode = false }: { editMode?: boolean }) {
                   className="text-xs font-mono tabular-nums"
                   key={liveTokens}
                   initial={{ color: "#FF6B2C" }}
-                  animate={{ color: "rgba(255,255,255,0.4)" }}
+                  animate={{ color: "#888888" }}
                   transition={{ duration: 1 }}
                 >
                   {liveTokens.toLocaleString()} / {GUARDRAILS.tokenBudget.limit.toLocaleString()}
@@ -708,7 +708,7 @@ function GuardrailsTab({ editMode = false }: { editMode?: boolean }) {
                   className="text-xs font-mono tabular-nums"
                   key={Math.floor(liveCost * 100)}
                   initial={{ color: "#f59e0b" }}
-                  animate={{ color: "rgba(255,255,255,0.4)" }}
+                  animate={{ color: "#888888" }}
                   transition={{ duration: 1 }}
                 >
                   ${liveCost.toFixed(2)} / ${GUARDRAILS.costCap.limit.toFixed(2)}

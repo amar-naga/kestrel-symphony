@@ -93,7 +93,7 @@ function ScoreRing({ score, passed, size = 140 }: { score: number; passed: boole
             <stop offset="100%" stopColor={passed ? "#4ade80" : "#f87171"} />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size > 80 ? 10 : 4} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--border-secondary)" strokeWidth={size > 80 ? 10 : 4} />
         <motion.circle
           cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={`url(#${gradientId})`}
           strokeWidth={size > 80 ? 10 : 4} strokeLinecap="round" strokeDasharray={circumference}

@@ -50,7 +50,7 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
           className="text-[10px] font-mono"
           style={{ color: theme === "light" ? "#999999" : "rgba(255,255,255,0.50)" }}
         >
-          by Lumicorp AI
+          by Lumi AI
         </span>
       </button>
 
