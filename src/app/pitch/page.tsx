@@ -7,23 +7,13 @@ import {
   Layers,
   Zap,
   CheckCircle2,
-  XCircle,
   FileText,
-  Users,
   Cpu,
   Eye,
   Plug,
-  Settings,
   Activity,
   ChevronRight,
   TrendingUp,
-  RefreshCw,
-  Brain,
-  BarChart3,
-  Clock,
-  Check,
-  X,
-  Minus,
 } from "lucide-react";
 
 // ─── Animation Presets ───────────────────────────────────────────────────────
@@ -125,20 +115,57 @@ export default function PitchPage() {
             alt="Lumi AI"
             style={{ height: 24, objectFit: "contain" }}
           />
-          <a
-            href="/"
-            style={{
-              fontSize: 13,
-              color: ORANGE,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontWeight: 500,
-            }}
-          >
-            View Live Demo <ArrowRight size={14} />
-          </a>
+          <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <a
+              href="#architecture"
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.6)",
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              Architecture
+            </a>
+            <a
+              href="/compare"
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.6)",
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              Compare
+            </a>
+            <a
+              href="/"
+              style={{
+                fontSize: 13,
+                color: ORANGE,
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontWeight: 500,
+              }}
+            >
+              Live Demo <ArrowRight size={14} />
+            </a>
+            <a
+              href="https://lumicorp.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.6)",
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              Talk to Us
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -387,106 +414,28 @@ export default function PitchPage() {
         </div>
       </section>
 
-      {/* ── 2. THE GAP ────────────────────────────────────────────────────── */}
-      <section style={{ ...sectionPadding, background: "#fff" }}>
-        <div style={container}>
-          <motion.p {...fadeUp} style={sectionLabel}>
-            The Gap
-          </motion.p>
-          <motion.h2
-            {...fadeUpDelay(0.1)}
-            style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 56 }}
-          >
-            Individual AI is solved. Team AI is not.
-          </motion.h2>
-
-          <div
+      {/* ── Cross-link to Compare ── */}
+      <section style={{ padding: "48px 24px", background: "#fff" }}>
+        <div style={{ ...container, textAlign: "center" as const }}>
+          <motion.a
+            {...fadeUp}
+            href="/compare"
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 24,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "14px 28px",
+              background: "#fafafa",
+              color: "#1a1a1e",
+              borderRadius: 10,
+              textDecoration: "none",
+              fontSize: 15,
+              fontWeight: 600,
+              border: "1px solid #e5e5e5",
             }}
           >
-            {[
-              {
-                heading: "Individual AI",
-                status: "solved",
-                color: "#22c55e",
-                icon: <CheckCircle2 size={24} />,
-                lines: [
-                  "Every dev has Copilot, Cursor, or Claude Code.",
-                  "Individual productivity is solved.",
-                ],
-              },
-              {
-                heading: "Team AI",
-                status: "missing",
-                color: "#ef4444",
-                icon: <XCircle size={24} />,
-                lines: [
-                  "No cross-phase governance.",
-                  "No cost visibility.",
-                  "No audit trail for AI-generated code.",
-                ],
-              },
-              {
-                heading: "The Gap",
-                status: "critical",
-                color: ORANGE,
-                icon: <Eye size={24} />,
-                lines: [
-                  "Context doesn't flow.",
-                  "Quality isn't verified between handoffs.",
-                  "Nobody knows what AI code is in production.",
-                ],
-              },
-            ].map((col, i) => (
-              <motion.div
-                key={i}
-                {...stagger}
-                transition={{ ...stagger.transition, delay: i * 0.12 }}
-                style={{
-                  padding: 36,
-                  border: "1px solid #e8e8ec",
-                  borderRadius: 12,
-                  background: "#fff",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 20,
-                  }}
-                >
-                  <div style={{ color: col.color }}>{col.icon}</div>
-                  <div
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color: "#1a1a1e",
-                    }}
-                  >
-                    {col.heading}
-                  </div>
-                </div>
-                {col.lines.map((line, li) => (
-                  <p
-                    key={li}
-                    style={{
-                      fontSize: 15,
-                      color: "#6b6b76",
-                      lineHeight: 1.65,
-                      marginBottom: li < col.lines.length - 1 ? 8 : 0,
-                    }}
-                  >
-                    {line}
-                  </p>
-                ))}
-              </motion.div>
-            ))}
-          </div>
+            Why can&apos;t existing tools do this? <ArrowRight size={16} style={{ color: "#FF6B2C" }} />
+          </motion.a>
         </div>
       </section>
 
@@ -871,333 +820,6 @@ export default function PitchPage() {
         </div>
       </section>
 
-      {/* ── 5. ENGINE-AGNOSTIC ──────────────────────────────────────────── */}
-      <section style={{ ...sectionPadding, background: "#fff" }}>
-        <div style={container}>
-          <motion.p {...fadeUp} style={sectionLabel}>
-            No Vendor Lock-In
-          </motion.p>
-          <motion.h2
-            {...fadeUpDelay(0.1)}
-            style={{ ...sectionTitle, color: "#1a1a1e" }}
-          >
-            No vendor lock-in at any level
-          </motion.h2>
-          <motion.p
-            {...fadeUpDelay(0.15)}
-            style={{ ...sectionDesc, color: "#6b6b76", marginBottom: 56 }}
-          >
-            Symphony uses open protocols so every layer is swappable. Your choice
-            of engine, LLM, and tools. Always.
-          </motion.p>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 48,
-              alignItems: "start",
-            }}
-          >
-            {/* Protocol Stack */}
-            <motion.div {...fadeUpDelay(0.15)}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {[
-                  {
-                    label: "MCP",
-                    desc: "Connects agents to tools",
-                    items: "GitHub, Jira, Confluence, Snyk...",
-                    icon: <Plug size={18} />,
-                    protocol: "Model Context Protocol",
-                  },
-                  {
-                    label: "A2A",
-                    desc: "Agent-to-agent collaboration",
-                    items: "Requirements Dev, Code Auditor...",
-                    icon: <Users size={18} />,
-                    protocol: "Agent-to-Agent Protocol",
-                  },
-                  {
-                    label: "Engine",
-                    desc: "Your orchestration framework",
-                    items: "CrewAI / LangGraph / AutoGen / Claude SDK",
-                    icon: <Settings size={18} />,
-                    protocol: null,
-                  },
-                  {
-                    label: "LLM",
-                    desc: "Per-role optimization",
-                    items: "Expensive model for architecture, fast model for code, open-source for internal",
-                    icon: <Cpu size={18} />,
-                    protocol: null,
-                  },
-                ].map((row, i) => (
-                  <div key={i}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        padding: "16px 20px",
-                        background: "#f5f5f7",
-                        borderRadius: 10,
-                        border: "1px solid #e8e8ec",
-                      }}
-                    >
-                      <div style={{ color: ORANGE }}>{row.icon}</div>
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color: "#1a1a1e",
-                            }}
-                          >
-                            {row.label}
-                          </span>
-                          <span style={{ fontSize: 12, color: "#999" }}>
-                            {row.desc}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
-                          {row.items}
-                        </div>
-                      </div>
-                    </div>
-                    {row.protocol && (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          fontSize: 11,
-                          color: ORANGE,
-                          fontWeight: 600,
-                          padding: "6px 0",
-                          letterSpacing: "0.05em",
-                        }}
-                      >
-                        {row.protocol}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Comparison Table — 3-column */}
-            <motion.div {...fadeUpDelay(0.25)}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: 14,
-                }}
-              >
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #e8e8ec" }}>
-                    <th
-                      style={{
-                        textAlign: "left",
-                        padding: "12px 12px",
-                        fontWeight: 600,
-                        color: "#1a1a1e",
-                      }}
-                    >
-                      Capability
-                    </th>
-                    <th
-                      style={{
-                        textAlign: "center",
-                        padding: "12px 12px",
-                        fontWeight: 600,
-                        color: ORANGE,
-                      }}
-                    >
-                      Symphony
-                    </th>
-                    <th
-                      style={{
-                        textAlign: "center",
-                        padding: "12px 12px",
-                        fontWeight: 600,
-                        color: "#999",
-                      }}
-                    >
-                      DIY Frameworks
-                    </th>
-                    <th
-                      style={{
-                        textAlign: "center",
-                        padding: "12px 12px",
-                        fontWeight: 600,
-                        color: "#999",
-                      }}
-                    >
-                      Locked Platforms
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["Engine choice", true, false, false],
-                    ["Cross-phase governance", true, false, false],
-                    ["LLM per-role routing", true, false, false],
-                    ["MCP tool integration", true, true, false],
-                    ["Cost tracking per story", true, false, true],
-                    ["Audit trail", true, false, true],
-                    ["Institutional memory", true, false, false],
-                  ].map(([cap, sym, diy, locked], i) => (
-                    <tr
-                      key={i}
-                      style={{ borderBottom: "1px solid #f0f0f2" }}
-                    >
-                      <td
-                        style={{
-                          padding: "11px 12px",
-                          color: "#1a1a1e",
-                          fontWeight: 500,
-                          fontSize: 13,
-                        }}
-                      >
-                        {cap as string}
-                      </td>
-                      {[sym, diy, locked].map((val, vi) => (
-                        <td
-                          key={vi}
-                          style={{
-                            padding: "11px 12px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {val ? (
-                            <Check
-                              size={16}
-                              style={{
-                                color: vi === 0 ? ORANGE : "#999",
-                              }}
-                            />
-                          ) : (
-                            <Minus size={16} style={{ color: "#ddd" }} />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. THREE COMPOUNDING ADVANTAGES ────────────────────────────────── */}
-      <section
-        style={{
-          ...sectionPadding,
-          background: DARK,
-          color: "#fff",
-        }}
-      >
-        <div style={container}>
-          <motion.p {...fadeUp} style={sectionLabel}>
-            The Moat
-          </motion.p>
-          <motion.h2
-            {...fadeUpDelay(0.1)}
-            style={{ ...sectionTitle, color: "#fff", marginBottom: 56 }}
-          >
-            Three compounding advantages
-          </motion.h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: 24,
-            }}
-          >
-            {[
-              {
-                num: "01",
-                title: "Feedback Loop",
-                icon: <RefreshCw size={24} />,
-                body: "Production incidents and performance data flow back into planning. The team never repeats the same mistakes.",
-              },
-              {
-                num: "02",
-                title: "Knowledge Layer",
-                icon: <Brain size={24} />,
-                body: "Across hundreds of stories, Symphony detects patterns no individual tool can see. Which modules are fragile. Which changes cause incidents. Where AI estimates miss. This institutional memory is the long-term moat.",
-              },
-              {
-                num: "03",
-                title: "ROI Engine",
-                icon: <BarChart3 size={24} />,
-                body: "Every story shows before-and-after economics. Not projections \u2014 measured data from actual execution. Time saved. Cost reduced. Quality improved.",
-              },
-            ].map((card, i) => (
-              <motion.div
-                key={i}
-                {...stagger}
-                transition={{ ...stagger.transition, delay: i * 0.12 }}
-                style={{
-                  padding: 40,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 14,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 14,
-                    marginBottom: 20,
-                  }}
-                >
-                  <div style={{ color: ORANGE }}>{card.icon}</div>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.1em",
-                      color: "rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {card.num}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    marginBottom: 14,
-                    color: "#fff",
-                  }}
-                >
-                  {card.title}
-                </div>
-                <p
-                  style={{
-                    fontSize: 15,
-                    color: "rgba(255,255,255,0.55)",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {card.body}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── 7. MARKET ─────────────────────────────────────────────────────── */}
       <section style={{ ...sectionPadding, background: "#fff" }}>
         <div style={container}>
@@ -1550,6 +1172,24 @@ export default function PitchPage() {
               paddingTop: 40,
             }}
           >
+            <a
+              href="/compare"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 20px",
+                color: "rgba(255,255,255,0.5)",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 500,
+                border: "1px solid rgba(255,255,255,0.1)",
+                marginBottom: 32,
+              }}
+            >
+              See how we compare <ArrowRight size={14} style={{ color: ORANGE }} />
+            </a>
             <img
               src="/lumi-logo-white.png"
               alt="Lumi AI"
