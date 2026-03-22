@@ -1538,40 +1538,11 @@ export default function PitchPage() {
               paddingTop: 40,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 10,
-                marginBottom: 10,
-              }}
-            >
-              <img
-                src="/lumi-logo-white.png"
-                alt="Lumi AI"
-                style={{ height: 20, objectFit: "contain", opacity: 0.6 }}
-              />
-            </div>
-            <p
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.5)",
-                letterSpacing: "0.06em",
-                marginBottom: 6,
-              }}
-            >
-              Lumi AI &middot;{" "}
-              <a
-                href="https://lumicorp.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
-              >
-                lumicorp.ai
-              </a>
-            </p>
+            <img
+              src="/lumi-logo-white.png"
+              alt="Lumi AI"
+              style={{ height: 20, objectFit: "contain", opacity: 0.5, marginBottom: 12 }}
+            />
             <p
               style={{
                 fontSize: 13,
