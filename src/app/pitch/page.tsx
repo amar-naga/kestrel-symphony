@@ -206,11 +206,12 @@ export default function PitchPage() {
           <motion.p
             {...fadeUpDelay(0.1)}
             style={{
-              fontSize: "clamp(18px, 2.5vw, 24px)",
-              color: "rgba(255,255,255,0.7)",
-              fontWeight: 400,
-              marginBottom: 40,
-              letterSpacing: "0.02em",
+              fontSize: 13,
+              color: "rgba(255,255,255,0.35)",
+              fontWeight: 600,
+              marginBottom: 56,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase" as const,
             }}
           >
             AI-Native SDLC Orchestration Platform
@@ -219,40 +220,56 @@ export default function PitchPage() {
           <motion.div
             {...fadeUpDelay(0.2)}
             style={{
-              maxWidth: 640,
-              margin: "0 auto 24px",
+              maxWidth: 700,
+              margin: "0 auto",
               textAlign: "center",
             }}
           >
             <p
               style={{
-                fontSize: 17,
-                color: "rgba(255,255,255,0.55)",
-                lineHeight: 1.75,
-                marginBottom: 16,
+                fontSize: "clamp(20px, 2.5vw, 26px)",
+                color: "rgba(255,255,255,0.85)",
+                lineHeight: 1.6,
+                fontWeight: 400,
+                marginBottom: 32,
               }}
             >
-              Every developer has an AI assistant. Individual productivity is solved.
+              Every developer has an AI assistant.
+              <br />
+              Individual productivity is solved.
             </p>
             <p
               style={{
-                fontSize: 17,
-                color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.75,
-                marginBottom: 16,
+                fontSize: "clamp(20px, 2.5vw, 26px)",
+                color: "rgba(255,255,255,0.45)",
+                lineHeight: 1.6,
+                fontWeight: 400,
+                marginBottom: 40,
               }}
             >
-              But team-level delivery? Still ungoverned. Still disconnected. Still invisible.
+              But team-level delivery?
+              <br />
+              Still ungoverned. Still disconnected. Still invisible.
             </p>
+            <div
+              style={{
+                width: 48,
+                height: 1,
+                background: `linear-gradient(90deg, transparent, ${ORANGE}, transparent)`,
+                margin: "0 auto 40px",
+              }}
+            />
             <p
               style={{
-                fontSize: 18,
-                color: "rgba(255,255,255,0.75)",
-                lineHeight: 1.75,
-                fontWeight: 500,
+                fontSize: "clamp(18px, 2vw, 22px)",
+                color: "#fff",
+                lineHeight: 1.6,
+                fontWeight: 600,
               }}
             >
-              Symphony is the orchestration layer between your backlog and your AI tools.
+              Symphony is the orchestration layer
+              <br />
+              between your backlog and your AI tools.
             </p>
           </motion.div>
 
@@ -1395,28 +1412,29 @@ export default function PitchPage() {
           textAlign: "center",
         }}
       >
-        <div style={{ ...container, maxWidth: 800 }}>
+        <div style={{ ...container, maxWidth: 860 }}>
           <motion.div {...fadeUp}>
             <p
               style={{
-                fontSize: "clamp(22px, 3.5vw, 34px)",
-                fontWeight: 700,
-                lineHeight: 1.45,
-                color: "#fff",
-                marginBottom: 12,
+                fontSize: "clamp(20px, 3vw, 30px)",
+                fontWeight: 400,
+                lineHeight: 1.55,
+                color: "rgba(255,255,255,0.6)",
+                marginBottom: 40,
               }}
             >
               Today, organizations buy AI productivity per developer.
             </p>
             <p
               style={{
-                fontSize: "clamp(22px, 3.5vw, 34px)",
+                fontSize: "clamp(24px, 4vw, 40px)",
                 fontWeight: 700,
-                lineHeight: 1.45,
-                marginBottom: 12,
+                lineHeight: 1.35,
+                color: "#fff",
+                marginBottom: 16,
               }}
             >
-              <span style={{ color: "#fff" }}>With Symphony, they buy AI productivity </span>
+              With Symphony, they buy AI productivity{" "}
               <span
                 style={{
                   background: `linear-gradient(135deg, ${ORANGE}, #ff9a5c)`,
@@ -1426,27 +1444,37 @@ export default function PitchPage() {
               >
                 per team
               </span>
-              <span style={{ color: "#fff" }}> &mdash;</span>
             </p>
             <p
               style={{
-                fontSize: "clamp(18px, 2.5vw, 24px)",
-                color: "rgba(255,255,255,0.6)",
-                lineHeight: 1.6,
-                marginBottom: 48,
+                fontSize: "clamp(20px, 3vw, 30px)",
+                fontWeight: 400,
+                lineHeight: 1.55,
+                color: "rgba(255,255,255,0.5)",
+                marginBottom: 56,
               }}
             >
               governed, auditable, engine-agnostic, and compounding.
             </p>
           </motion.div>
 
-          <motion.p
-            {...fadeUpDelay(0.2)}
+          <motion.div
+            {...fadeUpDelay(0.15)}
             style={{
-              fontSize: 20,
+              width: 48,
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${ORANGE}, transparent)`,
+              margin: "0 auto 56px",
+            }}
+          />
+
+          <motion.p
+            {...fadeUpDelay(0.25)}
+            style={{
+              fontSize: "clamp(18px, 2.5vw, 24px)",
               fontWeight: 600,
               color: ORANGE,
-              marginBottom: 64,
+              marginBottom: 72,
             }}
           >
             The IT team becomes the builder, not the buyer.
