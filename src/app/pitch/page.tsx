@@ -120,16 +120,23 @@ export default function PitchPage() {
             padding: "0 24px",
           }}
         >
-          <span
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "#fff",
-              letterSpacing: "0.04em",
-            }}
-          >
-            LUMI AI
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img
+              src="/lumi-logo-white.png"
+              alt="Lumi AI"
+              style={{ height: 22, objectFit: "contain" }}
+            />
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#fff",
+                letterSpacing: "0.04em",
+              }}
+            >
+              LUMI AI
+            </span>
+          </div>
           <a
             href="/"
             style={{
@@ -188,8 +195,31 @@ export default function PitchPage() {
         </div>
 
         <div style={{ ...container, position: "relative", textAlign: "center" }}>
+          {/* Kestrel logo */}
+          <motion.div {...fadeUp} style={{ marginBottom: 28 }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: 18,
+                background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 6,
+                boxShadow: "0 8px 32px rgba(255,107,44,0.3)",
+              }}
+            >
+              <img
+                src="/kestrel-logo.png"
+                alt="Kestrel"
+                style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+              />
+            </div>
+          </motion.div>
+
           <motion.h1
-            {...fadeUp}
+            {...fadeUpDelay(0.05)}
             style={{
               fontSize: "clamp(48px, 7vw, 80px)",
               fontWeight: 800,
@@ -1487,6 +1517,21 @@ export default function PitchPage() {
               paddingTop: 40,
             }}
           >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                marginBottom: 10,
+              }}
+            >
+              <img
+                src="/lumi-logo-white.png"
+                alt="Lumi AI"
+                style={{ height: 20, objectFit: "contain", opacity: 0.6 }}
+              />
+            </div>
             <p
               style={{
                 fontSize: 14,
