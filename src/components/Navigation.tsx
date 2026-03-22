@@ -13,6 +13,7 @@ import {
   Sun,
   Moon,
   ChevronRight,
+  ArrowRight,
 } from "lucide-react";
 
 const NAV_ITEMS: { view: View; label: string; icon: typeof Kanban }[] = [
@@ -206,20 +207,21 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
         <a
           href="/pitch"
           style={{
-            fontSize: 11,
-            fontWeight: 500,
-            color: theme === "light" ? "#888" : "rgba(255,255,255,0.5)",
+            fontSize: 12,
+            fontWeight: 600,
+            color: theme === "light" ? "#FF6B2C" : "#FF8F5C",
             textDecoration: "none",
             display: "inline-flex",
             alignItems: "center",
-            gap: 4,
-            padding: "4px 10px",
-            borderRadius: 6,
-            border: theme === "light" ? "1px solid #e0e0e0" : "1px solid rgba(255,255,255,0.1)",
+            gap: 5,
+            padding: "5px 14px",
+            borderRadius: 8,
+            background: theme === "light" ? "rgba(255,107,44,0.06)" : "rgba(255,107,44,0.08)",
+            border: theme === "light" ? "1px solid rgba(255,107,44,0.15)" : "1px solid rgba(255,107,44,0.15)",
             transition: "all 0.2s",
           }}
         >
-          About <ChevronRight size={10} />
+          About <ArrowRight size={11} />
         </a>
 
         {/* Online status */}

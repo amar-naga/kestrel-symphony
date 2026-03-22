@@ -200,8 +200,8 @@ export function HeroSplash() {
           ))}
         </motion.div>
 
-        {/* Enter Demo button */}
-        <motion.div variants={fadeUp} className="mt-12">
+        {/* CTA buttons */}
+        <motion.div variants={fadeUp} className="mt-12 flex items-center gap-4 flex-wrap justify-center">
           <motion.button
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
@@ -223,6 +223,30 @@ export function HeroSplash() {
               />
             </div>
           </motion.button>
+
+          <motion.a
+            href="/pitch"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative group cursor-pointer"
+            style={{ textDecoration: "none" }}
+          >
+            <div
+              className="relative px-8 py-4 rounded-2xl flex items-center gap-3 font-semibold tracking-wide text-sm"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                color: "rgba(255,255,255,0.8)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
+            >
+              About Symphony
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+                style={{ opacity: 0.6 }}
+              />
+            </div>
+          </motion.a>
         </motion.div>
 
         {/* Bottom brand */}
