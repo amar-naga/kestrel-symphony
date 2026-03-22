@@ -48,12 +48,16 @@ export function Navigation({ onToggleInspector, theme, onToggleTheme }: { onTogg
         >
           Symphony
         </span>
-        <span
-          className="text-[10px] font-mono"
-          style={{ color: theme === "light" ? "#999999" : "rgba(255,255,255,0.50)" }}
-        >
-          by Lumi AI
-        </span>
+        <img
+          src="/lumi-logo-white.png"
+          alt="Lumi AI"
+          style={{
+            height: 14,
+            objectFit: "contain",
+            opacity: theme === "light" ? 0.4 : 0.35,
+            filter: theme === "light" ? "invert(1)" : "none",
+          }}
+        />
       </button>
 
       {/* Nav Items */}

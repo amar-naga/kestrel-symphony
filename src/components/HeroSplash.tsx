@@ -253,12 +253,11 @@ export function HeroSplash() {
           variants={fadeUp}
           className="mt-16 flex flex-col items-center gap-3"
         >
-          <span className="text-[11px] tracking-wide" style={{ color: "var(--text-faint)" }}>
-            by{" "}
-            <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>Lumi AI</span>
-            {" · "}
-            <span className="font-mono" style={{ color: "var(--text-faint)" }}>lumicorp.ai</span>
-          </span>
+          <img
+            src="/lumi-logo-white.png"
+            alt="Lumi AI"
+            style={{ height: 18, objectFit: "contain", opacity: 0.5 }}
+          />
           <span
             className="text-[9px] font-mono tracking-[0.25em] uppercase px-3 py-1 rounded"
             style={{
