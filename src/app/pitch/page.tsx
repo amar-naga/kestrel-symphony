@@ -183,60 +183,72 @@ export default function PitchPage() {
         </div>
 
         <div style={{ ...container, position: "relative", textAlign: "center" }}>
-          {/* Kestrel logo with orbiting dots */}
-          <motion.div {...fadeUp} style={{ marginBottom: 28, position: "relative", display: "inline-block" }}>
-            {/* Orbiting dots */}
-            {Array.from({ length: 8 }).map((_, i) => (
-              <motion.div
-                key={i}
-                style={{
-                  position: "absolute",
-                  width: i % 2 === 0 ? 4 : 3,
-                  height: i % 2 === 0 ? 4 : 3,
-                  borderRadius: "50%",
-                  background: ORANGE,
-                  opacity: 0.4 + (i % 3) * 0.15,
-                  top: "50%",
-                  left: "50%",
-                }}
-                animate={{
-                  x: [
-                    Math.cos((i * Math.PI * 2) / 8) * (44 + i * 3),
-                    Math.cos((i * Math.PI * 2) / 8 + Math.PI * 2) * (44 + i * 3),
-                  ],
-                  y: [
-                    Math.sin((i * Math.PI * 2) / 8) * (44 + i * 3),
-                    Math.sin((i * Math.PI * 2) / 8 + Math.PI * 2) * (44 + i * 3),
-                  ],
-                }}
-                transition={{
-                  duration: 8 + i * 1.5,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              />
-            ))}
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 18,
-                background: "linear-gradient(135deg, #FF6B2C, #FF8F5C)",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 6,
-                boxShadow: "0 8px 32px rgba(255,107,44,0.3)",
-                position: "relative",
-                zIndex: 1,
-              }}
+          {/* Kestrel logo with floating dots (same as demo landing) */}
+          <motion.div {...fadeUp} style={{ marginBottom: 28 }}>
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              style={{ position: "relative", display: "inline-block" }}
             >
-              <img
-                src="/kestrel-logo.png"
-                alt="Kestrel"
-                style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)" }}
-              />
-            </div>
+              {/* Slow floating dots */}
+              {[
+                { size: 5, color: "#FF6B2C", opacity: 0.85, duration: 14, delay: 0,
+                  x: [20, 50, 30, -40, -50, -20, 20],
+                  y: [-70, -30, 20, 30, -10, -50, -70] },
+                { size: 4, color: "#FF8F5C", opacity: 0.6, duration: 18, delay: 3,
+                  x: [-30, -50, -20, 40, 55, 25, -30],
+                  y: [-65, -15, 35, 20, -25, -55, -65] },
+                { size: 3, color: "#FF6B2C", opacity: 0.45, duration: 16, delay: 6,
+                  x: [45, 15, -35, -45, -10, 35, 45],
+                  y: [-60, -20, 10, -15, -45, -55, -60] },
+              ].map((dot, i) => (
+                <motion.div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    width: dot.size,
+                    height: dot.size,
+                    borderRadius: "50%",
+                    background: dot.color,
+                    opacity: dot.opacity,
+                    boxShadow: `0 0 ${dot.size * 3}px ${dot.color}60`,
+                    top: "50%",
+                    left: "50%",
+                    marginTop: -dot.size / 2,
+                    marginLeft: -dot.size / 2,
+                  }}
+                  animate={{ x: dot.x, y: dot.y }}
+                  transition={{
+                    duration: dot.duration,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: dot.delay,
+                  }}
+                />
+              ))}
+
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  width: 64,
+                  height: 64,
+                  borderRadius: 18,
+                  background: "linear-gradient(135deg, #FF6B2C, #FF8F5C, #CC5623)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 6,
+                  boxShadow: "0 8px 32px rgba(255,107,44,0.3)",
+                }}
+              >
+                <img
+                  src="/kestrel-logo.png"
+                  alt="Kestrel"
+                  style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+                />
+              </div>
+            </motion.div>
           </motion.div>
 
           <motion.h1
