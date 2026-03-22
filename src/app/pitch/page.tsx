@@ -768,36 +768,20 @@ export default function PitchPage() {
             </div>
           </motion.div>
 
-          {/* Three bullets */}
-          <div
+          {/* Single statement */}
+          <motion.p
+            {...stagger(0.15)}
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              maxWidth: 640,
+              fontSize: 18,
+              fontWeight: 600,
+              color: "#1a1a1e",
+              textAlign: "center",
+              maxWidth: 600,
               margin: "0 auto",
             }}
           >
-            {[
-              "Symphony does not replace your backlog. It reads from it.",
-              "Symphony does not replace your AI tools. It orchestrates them.",
-              "Symphony does not replace your infrastructure. It runs on it.",
-            ].map((text, i) => (
-              <motion.p
-                key={i}
-                {...stagger(0.15 + i * 0.08)}
-                style={{
-                  fontSize: 17,
-                  lineHeight: 1.6,
-                  color: "#333",
-                  paddingLeft: 20,
-                  borderLeft: `3px solid ${ORANGE}`,
-                }}
-              >
-                {text}
-              </motion.p>
-            ))}
-          </div>
+            Symphony connects your existing tools with governance. It replaces nothing. It orchestrates everything.
+          </motion.p>
         </div>
       </section>
 
