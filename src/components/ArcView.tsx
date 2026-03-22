@@ -399,7 +399,7 @@ export function ArcView() {
           Customize tollgate criteria, scoring weights, and governance rules for your organization.
         </motion.p>
         <motion.p variants={stagger.item} className="text-xs font-mono" style={{ color: "var(--text-faint)" }}>
-          Powered by Arc &mdash; &quot;Define it. Arc builds it.&quot;
+          Powered by Arc. &quot;Define it. Arc builds it.&quot;
         </motion.p>
       </motion.div>
 

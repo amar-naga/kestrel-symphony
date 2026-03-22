@@ -150,7 +150,7 @@ export const SAMPLE_STORIES: JiraStory[] = [
     blueprint: {
       storyId: "s6",
       reasoning:
-        "RBAC stories require Plan + Build + Deploy. The auth module has had 3 tollgate failures in the last 8 stories — recommending security-focused Code Auditor role. Similar stories NCP-1089 and NCP-1134 averaged 14 dev-hours with the dev team.",
+        "RBAC stories require Plan + Build + Deploy. The auth module has had 3 tollgate failures in the last 8 stories, recommending security-focused Code Auditor role. Similar stories NCP-1089 and NCP-1134 averaged 14 dev-hours with the dev team.",
       phases: [
         { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
         { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub"], humanMode: "review", estimatedMinutes: 45, estimatedCost: 4.20 },
@@ -219,7 +219,7 @@ export const SAMPLE_STORIES: JiraStory[] = [
     blueprint: {
       storyId: "s7",
       reasoning:
-        "Bug fix — skipping Plan and Design phases. Direct to Build + Deploy. The search module's last 2 deployments both triggered performance alerts. Adding Code Auditor for security review given the query construction changes.",
+        "Bug fix, skipping Plan and Design phases. Direct to Build + Deploy. The search module's last 2 deployments both triggered performance alerts. Adding Code Auditor for security review given the query construction changes.",
       phases: [
         { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub", "pgBench"], humanMode: "review", estimatedMinutes: 30, estimatedCost: 3.60 },
         { id: "deploy", name: "Deploy", roles: ["Agent Ops"], tools: ["GitHub Actions", "AWS", "CloudWatch"], humanMode: "delegated", estimatedMinutes: 10, estimatedCost: 0.80 },
@@ -333,7 +333,7 @@ export const SAMPLE_STORIES: JiraStory[] = [
     ],
     blueprint: {
       storyId: "s8",
-      reasoning: "Standard notification feature — Plan + Build + Deploy pipeline. The notifications module has been stable with no recent tollgate failures. Using standard role composition.",
+      reasoning: "Standard notification feature. Plan + Build + Deploy pipeline. The notifications module has been stable with no recent tollgate failures. Using standard role composition.",
       phases: [
         { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
         { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub", "SendGrid"], humanMode: "review", estimatedMinutes: 90, estimatedCost: 5.20 },
@@ -377,7 +377,7 @@ export function generateBlueprint(story: JiraStory): Blueprint {
     const archDiscussions = (hash % 3) + 1; // 1-3, deterministic
     return {
       storyId: story.id,
-      reasoning: `Spike/research ticket — Plan phase only. No build or deployment required. The ${story.component} module has had ${archDiscussions} architecture discussions in the last sprint. Recommending Requirements Dev to structure the investigation.`,
+      reasoning: `Spike/research ticket. Plan phase only. No build or deployment required. The ${story.component} module has had ${archDiscussions} architecture discussions in the last sprint. Recommending Requirements Dev to structure the investigation.`,
       phases: [
         { id: "plan", name: "Plan", roles: ["Requirements Dev"], tools: ["Jira", "Confluence", "Notion"], humanMode: "collaborative", estimatedMinutes: 45, estimatedCost: 3.20 },
       ],
@@ -391,7 +391,7 @@ export function generateBlueprint(story: JiraStory): Blueprint {
   if (isBug) {
     return {
       storyId: story.id,
-      reasoning: `Bug fix on the ${story.component} module — skipping Plan and Design. Direct to Build + Deploy. ${story.priority === "critical" ? "Critical priority — fast-tracking with Code Auditor for safety." : "Standard bug flow with automated testing."}`,
+      reasoning: `Bug fix on the ${story.component} module, skipping Plan and Design. Direct to Build + Deploy. ${story.priority === "critical" ? "Critical priority, fast-tracking with Code Auditor for safety." : "Standard bug flow with automated testing."}`,
       phases: [
         { id: "build", name: "Build", roles: ["Agent Engineer", "Code Auditor"], tools: ["Claude Code", "GitHub"], humanMode: "review", estimatedMinutes: 25, estimatedCost: 3.10 },
         { id: "deploy", name: "Deploy", roles: ["Agent Ops"], tools: ["GitHub Actions", "Vercel"], humanMode: "delegated", estimatedMinutes: 10, estimatedCost: 0.80 },
@@ -408,7 +408,7 @@ export function generateBlueprint(story: JiraStory): Blueprint {
   const avgDevHours = 10 + (hash % 6); // 10-15, deterministic per story
   return {
     storyId: story.id,
-    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories — adding security-focused Code Auditor role. " : "has been stable — standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${avgDevHours} dev-hours with the dev team.`,
+    reasoning: `Feature story requiring full Plan → Build → Deploy pipeline. The ${story.component} module ${hasAuthComponent ? "has had 3 tollgate failures in the last 8 stories, adding security-focused Code Auditor role. " : "has been stable. Standard role composition. "}Similar stories ${story.labels.includes("enterprise") ? "(enterprise tier)" : ""} averaged ${avgDevHours} dev-hours with the dev team.`,
     phases: [
       { id: "plan", name: "Plan", roles: ["Requirements Dev", "Process Leader"], tools: ["Jira", "Confluence"], humanMode: "collaborative", estimatedMinutes: 30, estimatedCost: 2.80 },
       { id: "build", name: "Build", roles: ["Agent Engineer", hasAuthComponent ? "Code Auditor" : "Data Steward"], tools: ["Claude Code", "GitHub", "Supabase"], humanMode: "review", estimatedMinutes: 45, estimatedCost: 4.20 },
@@ -491,7 +491,7 @@ export const RBAC_PLAN_LOG: SessionLogEntry[] = [
   { id: "pl7", timestamp: "2026-03-21T08:30:22Z", action: "Security finding", role: "Process Leader", details: "Edge case: role downgrade with active sessions" },
   { id: "pl8", timestamp: "2026-03-21T08:36:40Z", action: "Artifact updated", role: "Requirements Dev", tool: "Confluence MCP", details: "Spec updated with role transition handling" },
   { id: "pl9", timestamp: "2026-03-21T08:40:55Z", action: "Artifact created", role: "Process Leader", tool: "Confluence MCP", details: "Approval Gate Definition finalized" },
-  { id: "pl10", timestamp: "2026-03-21T08:42:00Z", action: "Phase ready", role: "Symphony", details: "Plan phase complete — triggering tollgate evaluation" },
+  { id: "pl10", timestamp: "2026-03-21T08:42:00Z", action: "Phase ready", role: "Symphony", details: "Plan phase complete. Triggering tollgate evaluation" },
 ];
 
 /* ================================================================
@@ -504,7 +504,7 @@ export const RBAC_DEPLOY_MESSAGES: SessionMessage[] = [
     role: "Agent Ops",
     roleIcon: "Activity",
     roleColor: "#FF8F5C",
-    content: "Picking up Build artifacts from feature/ncp-1252-rbac. Running CI pipeline — linting, type checks, and 47 unit tests. All green. Preparing staging deployment.",
+    content: "Picking up Build artifacts from feature/ncp-1252-rbac. Running CI pipeline: linting, type checks, and 47 unit tests. All green. Preparing staging deployment.",
     timestamp: "2026-03-21T09:15:08Z",
     artifacts: ["ci-pipeline-log.txt"],
   },
@@ -522,7 +522,7 @@ export const RBAC_DEPLOY_MESSAGES: SessionMessage[] = [
     role: "Agent Ops",
     roleIcon: "Activity",
     roleColor: "#FF8F5C",
-    content: "Smoke tests passed: 12/12 endpoints responding correctly. Permission checks verified for all 4 roles. Tenant isolation confirmed — cross-tenant requests return 403. P95 latency: 45ms. Promoting to production.",
+    content: "Smoke tests passed: 12/12 endpoints responding correctly. Permission checks verified for all 4 roles. Tenant isolation confirmed, cross-tenant requests return 403. P95 latency: 45ms. Promoting to production.",
     timestamp: "2026-03-21T09:22:15Z",
     artifacts: ["smoke-test-report.json"],
   },
@@ -543,9 +543,9 @@ export const RBAC_DEPLOY_LOG: SessionLogEntry[] = [
   { id: "dl3", timestamp: "2026-03-21T09:15:08Z", action: "Tests passing", role: "Agent Ops", tool: "GitHub Actions", details: "CI pipeline: 47/47 tests, lint clean, types clean" },
   { id: "dl4", timestamp: "2026-03-21T09:18:30Z", action: "Code pushed", role: "Agent Ops", tool: "Vercel", details: "Staging deployment live at preview-ncp-1252.vercel.app" },
   { id: "dl5", timestamp: "2026-03-21T09:22:15Z", action: "Tests passing", role: "Agent Ops", tool: "GitHub Actions", details: "Smoke tests: 12/12 passed, P95: 45ms" },
-  { id: "dl6", timestamp: "2026-03-21T09:26:40Z", action: "Code pushed", role: "Agent Ops", tool: "Vercel", details: "Production deployment complete — feature flag enabled" },
+  { id: "dl6", timestamp: "2026-03-21T09:26:40Z", action: "Code pushed", role: "Agent Ops", tool: "Vercel", details: "Production deployment complete. Feature flag enabled" },
   { id: "dl7", timestamp: "2026-03-21T09:27:00Z", action: "MCP connected", role: "Agent Ops", tool: "CloudWatch", details: "Monitoring alarms configured" },
-  { id: "dl8", timestamp: "2026-03-21T09:27:30Z", action: "Phase ready", role: "Symphony", details: "Deploy phase complete — triggering tollgate evaluation" },
+  { id: "dl8", timestamp: "2026-03-21T09:27:30Z", action: "Phase ready", role: "Symphony", details: "Deploy phase complete. Triggering tollgate evaluation" },
 ];
 
 /* ================================================================
@@ -576,7 +576,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     role: "Agent Engineer",
     roleIcon: "Cpu",
     roleColor: "#FF6B2C",
-    content: "Created the permission middleware. Using a hierarchical model — Super Admin inherits all permissions, Account Manager inherits Support Agent permissions, etc. Connected to GitHub via MCP — pushing to feature/ncp-1252-rbac branch.",
+    content: "Created the permission middleware. Using a hierarchical model: Super Admin inherits all permissions, Account Manager inherits Support Agent permissions, etc. Connected to GitHub via MCP, pushing to feature/ncp-1252-rbac branch.",
     timestamp: "2026-03-21T08:52:30Z",
     artifacts: ["rbac-middleware.ts"],
   },
@@ -603,7 +603,7 @@ export const RBAC_BUILD_MESSAGES: SessionMessage[] = [
     role: "Code Auditor",
     roleIcon: "ShieldCheck",
     roleColor: "#f87171",
-    content: "Tenant scoping confirmed. All 47 tests passing. Running security scan now... No vulnerabilities detected. The audit logging requirement from the Plan phase is properly implemented — every permission change writes to the audit_events table with actor, action, and timestamp. Ready for tollgate.",
+    content: "Tenant scoping confirmed. All 47 tests passing. Running security scan now... No vulnerabilities detected. The audit logging requirement from the Plan phase is properly implemented. Every permission change writes to the audit_events table with actor, action, and timestamp. Ready for tollgate.",
     timestamp: "2026-03-21T09:12:55Z",
   },
 ];
@@ -618,7 +618,7 @@ export const RBAC_BUILD_LOG: SessionLogEntry[] = [
   { id: "l7", timestamp: "2026-03-21T08:56:18Z", action: "Security finding", role: "Code Auditor", details: "Tenant isolation gap detected in permission check" },
   { id: "l8", timestamp: "2026-03-21T09:04:42Z", action: "Code updated", role: "Agent Engineer", tool: "GitHub MCP", details: "Added tenant scoping + 47 unit tests" },
   { id: "l9", timestamp: "2026-03-21T09:12:55Z", action: "Security scan", role: "Code Auditor", tool: "Snyk MCP", details: "0 vulnerabilities detected" },
-  { id: "l10", timestamp: "2026-03-21T09:13:00Z", action: "Phase ready", role: "Symphony", details: "Build phase complete — triggering tollgate evaluation" },
+  { id: "l10", timestamp: "2026-03-21T09:13:00Z", action: "Phase ready", role: "Symphony", details: "Build phase complete. Triggering tollgate evaluation" },
 ];
 
 /* ================================================================
@@ -671,7 +671,7 @@ export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { m
         { id: "gl3", timestamp: new Date().toISOString(), action: "Role joined", role: "Process Leader", details: "Compliance review mode activated" },
         { id: "gl4", timestamp: new Date().toISOString(), action: "Artifact created", role: "Requirements Dev", tool: "Confluence MCP", details: "Requirements spec published" },
         { id: "gl5", timestamp: new Date().toISOString(), action: "Review complete", role: "Process Leader", details: "Approval gates and edge cases documented" },
-        { id: "gl6", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Plan phase complete — triggering tollgate evaluation` },
+        { id: "gl6", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Plan phase complete. Triggering tollgate evaluation` },
       ],
     };
   }
@@ -711,7 +711,7 @@ export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { m
         { id: "gl4", timestamp: new Date().toISOString(), action: "Staging deployed", role: "Agent Ops", tool: "Vercel", details: "Staging environment updated" },
         { id: "gl5", timestamp: new Date().toISOString(), action: "Smoke tests", role: "Agent Ops", details: "All smoke tests passed" },
         { id: "gl6", timestamp: new Date().toISOString(), action: "Production deployed", role: "Agent Ops", tool: "Vercel", details: "Production deployment complete" },
-        { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Deploy phase complete — triggering tollgate evaluation` },
+        { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Deploy phase complete. Triggering tollgate evaluation` },
       ],
     };
   }
@@ -734,7 +734,7 @@ export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { m
       },
       {
         id: "gm3", role: "Agent Engineer", roleIcon: "Cpu", roleColor: "#FF6B2C",
-        content: `Implementation in progress. Following the existing patterns in the ${component} module. Connected to GitHub via MCP — pushing to feature/${story.key.toLowerCase()} branch.`,
+        content: `Implementation in progress. Following the existing patterns in the ${component} module. Connected to GitHub via MCP, pushing to feature/${story.key.toLowerCase()} branch.`,
         timestamp: new Date().toISOString(),
         artifacts: [`${component}-implementation.ts`],
       },
@@ -746,13 +746,13 @@ export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { m
       },
       {
         id: "gm5", role: "Agent Engineer", roleIcon: "Cpu", roleColor: "#FF6B2C",
-        content: `Addressed Code Auditor's review comments. Added comprehensive test coverage — ${testCount} unit tests covering the main scenarios. All tests passing.`,
+        content: `Addressed Code Auditor's review comments. Added comprehensive test coverage, ${testCount} unit tests covering the main scenarios. All tests passing.`,
         timestamp: new Date().toISOString(),
         artifacts: [`${component}-implementation.ts`, `${component}.test.ts`],
       },
       {
         id: "gm6", role: "Code Auditor", roleIcon: "ShieldCheck", roleColor: "#f87171",
-        content: `Final review complete. All ${testCount} tests passing. Security scan clear — no vulnerabilities detected. Code follows ${component} module conventions. Ready for tollgate.`,
+        content: `Final review complete. All ${testCount} tests passing. Security scan clear, no vulnerabilities detected. Code follows ${component} module conventions. Ready for tollgate.`,
         timestamp: new Date().toISOString(),
       },
     ],
@@ -763,7 +763,7 @@ export function generateSessionMessages(story: JiraStory, phaseId: PhaseId): { m
       { id: "gl4", timestamp: new Date().toISOString(), action: "Artifact received", role: "Agent Engineer", tool: "Confluence MCP", details: "Loaded requirements spec from Plan phase" },
       { id: "gl5", timestamp: new Date().toISOString(), action: "Code pushed", role: "Agent Engineer", tool: "GitHub MCP", details: `feature/${story.key.toLowerCase()} branch created` },
       { id: "gl6", timestamp: new Date().toISOString(), action: "Review complete", role: "Code Auditor", tool: "Snyk MCP", details: "Security scan clean" },
-      { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Build phase complete — triggering tollgate evaluation` },
+      { id: "gl7", timestamp: new Date().toISOString(), action: "Phase ready", role: "Symphony", details: `Build phase complete. Triggering tollgate evaluation` },
     ],
   };
 }
@@ -798,7 +798,7 @@ export function generateAgentReply(story: JiraStory, phaseId: PhaseId, userMessa
   } else if (lowerMsg.includes("test") || lowerMsg.includes("coverage")) {
     content = `Test coverage for ${story.key} is currently tracking well. We have comprehensive unit tests covering the main scenarios for the ${story.component} module. Integration tests will run during the tollgate evaluation.`;
   } else {
-    content = `Noted — factoring that into the current ${phaseId} phase for ${story.key}. I'll coordinate with ${activeRoles.length > 1 ? activeRoles[1] : "the team"} to incorporate your input. This will be reflected in the next tollgate evaluation.`;
+    content = `Noted, factoring that into the current ${phaseId} phase for ${story.key}. I'll coordinate with ${activeRoles.length > 1 ? activeRoles[1] : "the team"} to incorporate your input. This will be reflected in the next tollgate evaluation.`;
   }
 
   return {
@@ -863,10 +863,10 @@ export const COCKPIT_METRICS = {
     { role: "Agent Ops", model: "Claude Haiku 4.5", tokens: 310000, cost: 0.16 },
   ],
   auditTrail: [
-    { time: "09:28", event: "Tollgate BLOCKED", story: "NCP-1253", detail: "Security scan failed — CVE-2026-3891", severity: "critical" },
+    { time: "09:28", event: "Tollgate BLOCKED", story: "NCP-1253", detail: "Security scan failed, CVE-2026-3891", severity: "critical" },
     { time: "09:13", event: "Phase completed", story: "NCP-1252", detail: "Build phase passed tollgate (96/100)", severity: "info" },
-    { time: "08:42", event: "Tollgate passed", story: "NCP-1252", detail: "Plan phase — requirements complete", severity: "success" },
-    { time: "08:15", event: "Story pulled", story: "NCP-1252", detail: "Blueprint approved — 3 phases, est. $8.40", severity: "info" },
-    { time: "08:02", event: "Sprint started", story: "—", detail: "Sprint 14 — 14 stories, 3 in Symphony", severity: "info" },
+    { time: "08:42", event: "Tollgate passed", story: "NCP-1252", detail: "Plan phase, requirements complete", severity: "success" },
+    { time: "08:15", event: "Story pulled", story: "NCP-1252", detail: "Blueprint approved. 3 phases, est. $8.40", severity: "info" },
+    { time: "08:02", event: "Sprint started", story: "-", detail: "Sprint 14. 14 stories, 3 in Symphony", severity: "info" },
   ],
 };

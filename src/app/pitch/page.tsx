@@ -638,7 +638,7 @@ export default function PitchPage() {
               {
                 layer: "LAYER 1",
                 name: "Role Cards",
-                tagline: "The agent catalog — composable, standalone plugins",
+                tagline: "The agent catalog. Composable, standalone plugins",
                 bg: "#f7f7f9",
                 color: "#1a1a1e",
                 textMuted: "#6b6b76",
@@ -825,7 +825,7 @@ export default function PitchPage() {
             style={{ ...sectionDesc, color: "#6b6b76", marginBottom: 56 }}
           >
             Symphony uses open protocols so every layer is swappable. Your choice
-            of engine, LLM, and tools — always.
+            of engine, LLM, and tools. Always.
           </motion.p>
 
           <div
@@ -1235,7 +1235,7 @@ export default function PitchPage() {
               Raw frameworks require engineers to build everything. Locked
               platforms tie you to one vendor. Nobody has built the governed
               composition layer that sits between the backlog and the tools
-              &mdash; engine-agnostic, cross-phase, with built-in quality gates
+              : engine-agnostic, cross-phase, with built-in quality gates
               and institutional memory.
             </p>
           </motion.div>
@@ -1282,7 +1282,7 @@ export default function PitchPage() {
                 step: "2",
                 title: "Blueprint proposed",
                 timing: "30 seconds",
-                desc: "Phases, roles, tools, cost — human approves",
+                desc: "Phases, roles, tools, cost. Human approves",
                 icon: <Layers size={20} />,
               },
               {
@@ -1296,7 +1296,7 @@ export default function PitchPage() {
                 step: "4",
                 title: "Gates enforce governance",
                 timing: "Visible",
-                desc: "One gate passes, one fails and blocks — governance in action",
+                desc: "One gate passes, one fails and blocks. Governance in action",
                 icon: <Shield size={20} />,
               },
             ].map((item, i) => (

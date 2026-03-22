@@ -71,7 +71,7 @@ const ACTION_COLORS: Record<string, string> = {
   "Cross-reference": "#fbbf24",
   "MCP connected": "#888888",
   "Tests passing": "#4ade80",
-  "Rate limit hit — retrying": "#f59e0b",
+  "Rate limit hit. Retrying": "#f59e0b",
   "Human input processed": "#4ade80",
 };
 
@@ -447,7 +447,7 @@ function LogEntry({ entry, isNew }: { entry: SessionLogEntry; isNew?: boolean })
           {entry.details && (
             <span className="text-white/40">
               {" "}
-              &mdash; {entry.details}
+              &middot; {entry.details}
             </span>
           )}
         </span>
@@ -652,7 +652,7 @@ export function SessionView() {
           setVisibleLogs((prev) => [...prev, {
             id: "l-retry",
             timestamp: new Date().toISOString(),
-            action: "Rate limit hit — retrying",
+            action: "Rate limit hit. Retrying",
             role: msg.role,
             details: "Claude API returned 429. Backing off 2s and retrying. Attempt 2/3 succeeded.",
           }]);
@@ -674,7 +674,7 @@ export function SessionView() {
           timestamp: new Date().toISOString(),
           action: "Phase ready",
           role: "Symphony",
-          details: `${activePhase.name} phase complete — triggering tollgate evaluation`,
+          details: `${activePhase.name} phase complete. Triggering tollgate evaluation`,
         },
       ]);
     }, elapsed));

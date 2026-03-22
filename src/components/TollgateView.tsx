@@ -383,7 +383,7 @@ function HandoverManifestModal({ phase, nextPhase, onClose }: { phase: PhaseStat
   };
 
   const risks: Record<string, string[]> = {
-    plan: ["Tenant isolation is critical — must scope all permission checks"],
+    plan: ["Tenant isolation is critical. Must scope all permission checks"],
     build: ["Monitor for performance impact on permission checks at scale"],
     deploy: ["Rollback procedure requires manual feature flag toggle"],
   };
@@ -804,7 +804,7 @@ export function TollgateView() {
                   <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Tollgate Evaluation</h2>
                 </div>
                 <p className="text-sm mb-4" style={{ color: "var(--text-faint)" }}>
-                  Quality gates powered by Arc &mdash; enforcing governance at every phase transition
+                  Quality gates powered by Arc. Enforcing governance at every phase transition
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-semibold text-white/50">{story.key} &middot; {phaseLabel(tollgate.phaseId)} Phase</span>
@@ -874,17 +874,17 @@ export function TollgateView() {
                   <ScoreRing score={tollgate.overallScore} passed={tollgate.passed || !!tollgate.override} />
                   {!tollgate.passed && !tollgate.override && (
                     <motion.p className="text-sm font-semibold text-center max-w-md" style={{ color: tollgate.mode === "enforced" ? "#f87171" : "#f59e0b" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                      {tollgate.mode === "enforced" ? "Pipeline blocked \u2014 remediation required" : "Warning \u2014 pipeline may continue"}
+                      {tollgate.mode === "enforced" ? "Pipeline blocked. Remediation required" : "Warning: pipeline may continue"}
                     </motion.p>
                   )}
                   {tollgate.override && (
                     <motion.p className="text-sm font-semibold text-amber-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                      Override applied &mdash; pipeline unblocked
+                      Override applied. Pipeline unblocked
                     </motion.p>
                   )}
                   {tollgate.passed && !tollgate.override && (
                     <motion.p className="text-sm font-semibold text-emerald-400 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-                      All criteria met &mdash; clear to proceed
+                      All criteria met. Clear to proceed
                     </motion.p>
                   )}
                 </motion.div>

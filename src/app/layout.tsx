@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kestrel Symphony — Agent Team Platform",
+  title: "Kestrel Symphony | Agent Team Platform",
   description: "Composable, role-based agent team platform by Lumicorp AI",
 };
 

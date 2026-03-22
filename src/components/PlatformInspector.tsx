@@ -45,17 +45,17 @@ type InspectorTab = "engine" | "wiring" | "guardrails" | "context" | "knowledge"
 const ENGINE_CONFIG = {
   selected: "CrewAI Flows",
   version: "v0.4.2",
-  reason: "Team has 3+ agents with sequential handoffs and tollgate governance — CrewAI Flows optimal for structured multi-stage pipelines.",
+  reason: "Team has 3+ agents with sequential handoffs and tollgate governance. CrewAI Flows optimal for structured multi-stage pipelines.",
   alternatives: [
     { name: "LangGraph", fit: 72, reason: "Better for cyclic agent graphs, overkill for linear pipelines" },
     { name: "AutoGen", fit: 58, reason: "Stronger for open-ended multi-turn debate, less suited for governed SDLC" },
   ],
   llmRouting: [
-    { role: "Requirements Dev", model: "Claude Opus 4.6", costPer1k: 0.015, reason: "Complex reasoning — translating ambiguous requirements into structured specs", tokens: 24200 },
-    { role: "Process Leader", model: "Claude Sonnet 4", costPer1k: 0.003, reason: "Structured validation — pattern matching against SOPs", tokens: 12400 },
-    { role: "Agent Engineer", model: "Claude Opus 4.6", costPer1k: 0.015, reason: "Code generation — producing correct, tested implementations", tokens: 38100 },
-    { role: "Code Auditor", model: "Claude Sonnet 4", costPer1k: 0.003, reason: "Security scanning — pattern matching against CVE databases", tokens: 18900 },
-    { role: "Agent Ops", model: "Claude Haiku 4.5", costPer1k: 0.001, reason: "Monitoring and routing — high-volume, low-complexity tasks", tokens: 8200 },
+    { role: "Requirements Dev", model: "Claude Opus 4.6", costPer1k: 0.015, reason: "Complex reasoning: translating ambiguous requirements into structured specs", tokens: 24200 },
+    { role: "Process Leader", model: "Claude Sonnet 4", costPer1k: 0.003, reason: "Structured validation: pattern matching against SOPs", tokens: 12400 },
+    { role: "Agent Engineer", model: "Claude Opus 4.6", costPer1k: 0.015, reason: "Code generation: producing correct, tested implementations", tokens: 38100 },
+    { role: "Code Auditor", model: "Claude Sonnet 4", costPer1k: 0.003, reason: "Security scanning: pattern matching against CVE databases", tokens: 18900 },
+    { role: "Agent Ops", model: "Claude Haiku 4.5", costPer1k: 0.001, reason: "Monitoring and routing: high-volume, low-complexity tasks", tokens: 8200 },
   ],
 };
 
@@ -74,8 +74,8 @@ const MCP_CONNECTIONS = [
   { name: "Jira", status: "connected", calls: 3, lastCall: "12m ago", auth: "API key" },
   { name: "Confluence", status: "connected", calls: 4, lastCall: "8m ago", auth: "OAuth token" },
   { name: "Snyk", status: "connected", calls: 3, lastCall: "4m ago", auth: "API key" },
-  { name: "Supabase", status: "idle", calls: 0, lastCall: "—", auth: "Service key" },
-  { name: "CloudWatch", status: "idle", calls: 0, lastCall: "—", auth: "IAM role" },
+  { name: "Supabase", status: "idle", calls: 0, lastCall: "-", auth: "Service key" },
+  { name: "CloudWatch", status: "idle", calls: 0, lastCall: "-", auth: "IAM role" },
 ];
 
 const GUARDRAILS = {
@@ -111,7 +111,7 @@ const CONTEXT_FLOW = {
         "Super Admin inherits all lower permissions",
         "Audit log required for all permission changes",
       ],
-      risks: ["Tenant isolation is critical — must scope all permission checks"],
+      risks: ["Tenant isolation is critical. Must scope all permission checks"],
       strategy: "Summarize + attach",
       tokensSaved: "62%",
     },
@@ -1075,7 +1075,7 @@ export function PlatformInspector({ open, onClose }: { open: boolean; onClose: (
               <div className="flex-1">
                 <h2 className="text-sm font-bold text-white/90">Platform Inspector</h2>
                 <p className="text-[10px] font-mono" style={{ color: "var(--text-faint)" }}>
-                  {activeStory ? `${activeStory.key} — ${activeStory.title}` : "Behind the scenes — engine, wiring, guardrails"}
+                  {activeStory ? `${activeStory.key}: ${activeStory.title}` : "Behind the scenes: engine, wiring, guardrails"}
                 </p>
               </div>
               <button

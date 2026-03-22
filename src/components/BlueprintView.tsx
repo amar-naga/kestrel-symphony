@@ -219,7 +219,7 @@ function ProvisioningSteps() {
     "Applying guardrails: PII filter, dependency audit...",
     "Setting governance mode: Enforced...",
     "Running pre-flight checks...",
-    "All systems ready — entering Plan phase...",
+    "All systems ready. Entering Plan phase...",
   ];
   const progress = Math.min(((step + 1) / steps.length) * 100, 100);
 
