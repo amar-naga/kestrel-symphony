@@ -120,23 +120,11 @@ export default function PitchPage() {
             padding: "0 24px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img
-              src="/lumi-logo-white.png"
-              alt="Lumi AI"
-              style={{ height: 22, objectFit: "contain" }}
-            />
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "#fff",
-                letterSpacing: "0.04em",
-              }}
-            >
-              LUMI AI
-            </span>
-          </div>
+          <img
+            src="/lumi-logo-white.png"
+            alt="Lumi AI"
+            style={{ height: 24, objectFit: "contain" }}
+          />
           <a
             href="/"
             style={{
