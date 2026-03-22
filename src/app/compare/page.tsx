@@ -49,19 +49,23 @@ const sectionTitle: React.CSSProperties = {
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-// SVG illustrations for each gap card
+// SVG illustrations for each gap card — muted grey with subtle orange accents
+const O = "#FF6B2C"; // Lumi orange for accent touches
+const O40 = "rgba(255,107,44,0.4)";
+const O25 = "rgba(255,107,44,0.25)";
+
 function OrchestrationIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Disconnected nodes — dots not wired together */}
+      {/* Disconnected nodes — one orange (the missing coordinator) */}
       <circle cx="30" cy="20" r="8" fill="#e5e5e5" />
-      <circle cx="80" cy="16" r="8" fill="#e5e5e5" />
+      <circle cx="80" cy="16" r="8" fill={O40} />
       <circle cx="130" cy="22" r="8" fill="#e5e5e5" />
       <circle cx="55" cy="46" r="8" fill="#e5e5e5" />
       <circle cx="105" cy="48" r="8" fill="#e5e5e5" />
-      {/* Dashed lines showing missing connections */}
+      {/* Dashed lines — one orange showing the connection that should exist */}
       <line x1="38" y1="22" x2="72" y2="18" stroke="#d0d0d0" strokeWidth="1.5" strokeDasharray="4 4" />
-      <line x1="88" y1="18" x2="122" y2="22" stroke="#d0d0d0" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="88" y1="18" x2="122" y2="22" stroke={O25} strokeWidth="1.5" strokeDasharray="4 4" />
       <line x1="35" y1="27" x2="50" y2="40" stroke="#d0d0d0" strokeWidth="1.5" strokeDasharray="4 4" />
       <line x1="63" y1="46" x2="97" y2="48" stroke="#d0d0d0" strokeWidth="1.5" strokeDasharray="4 4" />
     </svg>
@@ -71,18 +75,17 @@ function OrchestrationIcon() {
 function GovernanceIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Pipeline with broken gate in the middle */}
+      {/* Pipeline with open gate — question mark in orange */}
       <rect x="8" y="24" width="40" height="16" rx="4" fill="#e5e5e5" />
       <rect x="112" y="24" width="40" height="16" rx="4" fill="#e5e5e5" />
-      {/* Arrow through */}
       <line x1="52" y1="32" x2="108" y2="32" stroke="#d0d0d0" strokeWidth="1.5" strokeDasharray="4 4" />
-      {/* Open gate bars */}
+      {/* Gate bars */}
       <line x1="78" y1="12" x2="78" y2="24" stroke="#ccc" strokeWidth="2" strokeLinecap="round" />
       <line x1="82" y1="12" x2="82" y2="24" stroke="#ccc" strokeWidth="2" strokeLinecap="round" />
       <line x1="78" y1="40" x2="78" y2="52" stroke="#ccc" strokeWidth="2" strokeLinecap="round" />
       <line x1="82" y1="40" x2="82" y2="52" stroke="#ccc" strokeWidth="2" strokeLinecap="round" />
-      {/* Question mark */}
-      <text x="80" y="36" textAnchor="middle" fontSize="14" fill="#bbb" fontWeight="700">?</text>
+      {/* Orange question mark — the missing governance */}
+      <text x="80" y="36" textAnchor="middle" fontSize="14" fill={O} fontWeight="700">?</text>
     </svg>
   );
 }
@@ -90,14 +93,13 @@ function GovernanceIcon() {
 function EconomicsIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Receipt/document shape */}
+      {/* Receipt */}
       <rect x="48" y="6" width="64" height="52" rx="6" fill="#f0f0f0" stroke="#e0e0e0" strokeWidth="1" />
-      {/* Lines on receipt */}
       <line x1="58" y1="18" x2="102" y2="18" stroke="#ddd" strokeWidth="2" strokeLinecap="round" />
       <line x1="58" y1="26" x2="90" y2="26" stroke="#ddd" strokeWidth="2" strokeLinecap="round" />
       <line x1="58" y1="34" x2="96" y2="34" stroke="#ddd" strokeWidth="2" strokeLinecap="round" />
-      {/* Dollar with question */}
-      <text x="80" y="50" textAnchor="middle" fontSize="11" fill="#bbb" fontWeight="600">$?.??</text>
+      {/* Orange dollar — the invisible cost */}
+      <text x="80" y="50" textAnchor="middle" fontSize="11" fill={O} fontWeight="600">$?.??</text>
     </svg>
   );
 }
@@ -107,11 +109,11 @@ function MemoryIcon() {
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
       {/* Brain circle */}
       <circle cx="80" cy="32" r="22" fill="#f0f0f0" stroke="#e0e0e0" strokeWidth="1" />
-      {/* Reset arrow around it */}
-      <path d="M 60 15 A 28 28 0 1 1 55 38" stroke="#d0d0d0" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <polygon points="56,12 64,16 58,20" fill="#d0d0d0" />
-      {/* Zero in the brain */}
-      <text x="80" y="37" textAnchor="middle" fontSize="16" fill="#ccc" fontWeight="700">0</text>
+      {/* Orange reset arrow — the problem (wiping memory each time) */}
+      <path d="M 60 15 A 28 28 0 1 1 55 38" stroke={O40} strokeWidth="2" fill="none" strokeLinecap="round" />
+      <polygon points="56,12 64,16 58,20" fill={O40} />
+      {/* Orange zero — starts from nothing */}
+      <text x="80" y="37" textAnchor="middle" fontSize="16" fill={O} fontWeight="700">0</text>
     </svg>
   );
 }
@@ -119,14 +121,14 @@ function MemoryIcon() {
 function LockInIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Chain links */}
+      {/* Chain links — grey */}
       <rect x="28" y="20" width="28" height="24" rx="12" fill="none" stroke="#d5d5d5" strokeWidth="2" />
       <rect x="50" y="20" width="28" height="24" rx="12" fill="none" stroke="#d5d5d5" strokeWidth="2" />
       <rect x="72" y="20" width="28" height="24" rx="12" fill="none" stroke="#d5d5d5" strokeWidth="2" />
-      {/* Lock */}
-      <rect x="110" y="28" width="20" height="16" rx="3" fill="#e5e5e5" />
-      <path d="M 114 28 L 114 22 A 6 6 0 0 1 126 22 L 126 28" stroke="#d0d0d0" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <circle cx="120" cy="36" r="2" fill="#ccc" />
+      {/* Orange lock — the constraint */}
+      <rect x="110" y="28" width="20" height="16" rx="3" fill={O25} />
+      <path d="M 114 28 L 114 22 A 6 6 0 0 1 126 22 L 126 28" stroke={O40} strokeWidth="2" fill="none" strokeLinecap="round" />
+      <circle cx="120" cy="36" r="2" fill={O} />
     </svg>
   );
 }
