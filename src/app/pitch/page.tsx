@@ -454,7 +454,7 @@ export default function PitchPage() {
               textTransform: "uppercase" as const,
             }}
           >
-            AI-Native SDLC Orchestration Platform
+            The governed layer between your backlog and your AI teams
           </motion.p>
 
           <motion.div
@@ -507,9 +507,9 @@ export default function PitchPage() {
                 fontWeight: 600,
               }}
             >
-              Symphony is the orchestration layer
+              Today you buy AI productivity per developer.
               <br />
-              between your backlog and your AI tools.
+              With Symphony, you buy it per team.
             </p>
           </motion.div>
 
