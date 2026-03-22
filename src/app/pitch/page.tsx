@@ -804,240 +804,166 @@ export default function PitchPage() {
       {/* ── 4. 3-LAYER ARCHITECTURE (white bg) ────────────────────────────── */}
       <section id="architecture" style={{ ...sectionPadding, background: "#fff" }}>
         <div style={container}>
-          <motion.p {...fadeUp} style={sectionLabel}>
+          <motion.p {...fadeUp} style={{ ...sectionLabel, textAlign: "center" }}>
             Architecture
           </motion.p>
-          <motion.h2 {...fadeUpDelay(0.1)} style={{ ...sectionTitle, color: "#1a1a1e" }}>
-            Three-layer composable platform
+          <motion.h2
+            {...fadeUpDelay(0.1)}
+            style={{ ...sectionTitle, color: "#1a1a1e", textAlign: "center" }}
+          >
+            Three layers. Zero lock-in.
           </motion.h2>
           <motion.p
             {...fadeUpDelay(0.15)}
             style={{
-              fontSize: 18,
-              lineHeight: 1.65,
-              maxWidth: 680,
+              fontSize: 17,
+              lineHeight: 1.6,
               color: "#6b6b76",
               marginBottom: 56,
+              textAlign: "center",
+              maxWidth: 600,
+              margin: "0 auto 56px",
             }}
           >
-            Each layer is independent. Swap engines, add roles, or customize
-            governance without touching the layers above or below.
+            Each layer is independent. Swap engines, add roles, or customize governance without touching the layers above or below.
           </motion.p>
 
-          <div
-            style={{
-              perspective: 1200,
-              display: "flex",
-              flexDirection: "column",
-              gap: 0,
-            }}
-          >
-            {[
-              {
-                layer: "LAYER 3",
-                name: "Kestrel Runtime",
-                tagline: "The enterprise platform layer",
-                bg: "#1a1a1e",
-                color: "#fff",
-                textMuted: "rgba(255,255,255,0.5)",
-                textFeature: "rgba(255,255,255,0.7)",
-                capabilities: [
-                  "Deployment management",
-                  "Cost tracking per story",
-                  "Immutable audit logs",
-                  "Enterprise admin",
-                ],
-                delay: 0.4,
-                shadow: "0 -20px 60px rgba(0,0,0,0.3)",
-                zIndex: 3,
-              },
-              {
-                layer: "LAYER 2",
-                name: "Arc Composer",
-                tagline: '"Define it. Arc builds it."',
-                bg: "#fff8f4",
-                color: "#1a1a1e",
-                textMuted: "#6b6b76",
-                textFeature: "#555",
-                capabilities: [
-                  "Phase-tollgate sequencing",
-                  "Weighted quality criteria",
-                  "Advisory + enforced modes",
-                  "Industry presets",
-                ],
-                delay: 0.25,
-                shadow: "0 8px 40px rgba(255,107,44,0.12)",
-                zIndex: 2,
-                accentBorder: true,
-              },
-              {
-                layer: "LAYER 1",
-                name: "Role Cards",
-                tagline: "The agent catalog. Composable, standalone plugins",
-                bg: "#f7f7f9",
-                color: "#1a1a1e",
-                textMuted: "#6b6b76",
-                textFeature: "#555",
-                capabilities: [
-                  "Requirements Dev",
-                  "Process Leader",
-                  "Agent Engineer",
-                  "Code Auditor",
-                  "Agent Ops",
-                  "Data Steward",
-                ],
-                delay: 0.1,
-                shadow: "0 4px 20px rgba(0,0,0,0.06)",
-                zIndex: 1,
-                isRoles: true,
-              },
-            ].map((layer, i) => (
-              <motion.div key={i}>
-                {i > 0 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: 40,
-                      position: "relative",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 2,
-                        height: "100%",
-                        background: `linear-gradient(to bottom, ${ORANGE}40, ${ORANGE}15)`,
-                      }}
-                    />
-                    <span
-                      style={{
-                        position: "absolute",
-                        fontSize: 9,
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        color: ORANGE,
-                        opacity: 0.6,
-                        background: "#fff",
-                        padding: "2px 10px",
-                        borderRadius: 100,
-                        border: `1px solid rgba(255,107,44,0.15)`,
-                      }}
-                    >
-                      {i === 1 ? "ORCHESTRATES" : "GOVERNS"}
-                    </span>
-                  </div>
-                )}
+          {/* 3 cards side by side */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {/* Layer 3: Kestrel Runtime */}
+            <motion.div
+              {...stagger(0)}
+              style={{
+                background: "#1a1a1e",
+                borderRadius: 16,
+                padding: "28px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+              }}
+              whileHover={{ y: -4, boxShadow: "0 8px 30px rgba(0,0,0,0.2)" }}
+            >
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.4)" }}>LAYER 3</p>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>Kestrel Runtime</h3>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.6)" }}>
+                The enterprise platform. Deployment, cost tracking per story, immutable audit logs, admin controls.
+              </p>
+              {/* SVG: Dashboard/cockpit illustration */}
+              <div style={{ marginTop: "auto", paddingTop: 12 }}>
+                <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+                  {/* Dashboard frame */}
+                  <rect x="20" y="8" width="120" height="48" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+                  {/* Top bar */}
+                  <rect x="26" y="14" width="108" height="8" rx="2" fill="rgba(255,255,255,0.08)" />
+                  <circle cx="32" cy="18" r="2" fill={O40} />
+                  <circle cx="40" cy="18" r="2" fill="rgba(255,255,255,0.15)" />
+                  <circle cx="48" cy="18" r="2" fill="rgba(255,255,255,0.15)" />
+                  {/* Metric cards */}
+                  <rect x="26" y="26" width="30" height="24" rx="3" fill="rgba(255,255,255,0.08)" />
+                  <rect x="62" y="26" width="30" height="24" rx="3" fill="rgba(255,255,255,0.08)" />
+                  <rect x="98" y="26" width="30" height="24" rx="3" fill="rgba(255,255,255,0.08)" />
+                  {/* Bar chart in first card */}
+                  <rect x="30" y="38" width="4" height="8" rx="1" fill="rgba(255,255,255,0.2)" />
+                  <rect x="36" y="34" width="4" height="12" rx="1" fill={O40} />
+                  <rect x="42" y="36" width="4" height="10" rx="1" fill="rgba(255,255,255,0.2)" />
+                  {/* Dollar in second card */}
+                  <text x="77" y="42" textAnchor="middle" fontSize="10" fill={O} fontWeight="600">$</text>
+                  {/* Check in third card */}
+                  <text x="113" y="42" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.3)" fontWeight="600">&#10003;</text>
+                </svg>
+              </div>
+            </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 40, rotateX: 8 }}
-                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.7,
-                    delay: layer.delay,
-                    ease: "easeOut",
-                  }}
-                  whileHover={{ scale: 1.01 }}
-                  style={{
-                    background: layer.bg,
-                    padding: "36px 40px",
-                    borderRadius: 14,
-                    boxShadow: layer.shadow,
-                    position: "relative",
-                    zIndex: layer.zIndex,
-                    border: layer.accentBorder
-                      ? `1.5px solid rgba(255,107,44,0.2)`
-                      : layer.bg === "#1a1a1e"
-                        ? "none"
-                        : "1px solid #e8e8ec",
-                    cursor: "default",
-                    transition: "box-shadow 0.3s ease, transform 0.3s ease",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      flexWrap: "wrap",
-                      gap: 24,
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: "0.15em",
-                          color: layer.accentBorder ? ORANGE : layer.textMuted,
-                          marginBottom: 8,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {layer.layer}
-                      </div>
-                      <h3
-                        style={{
-                          fontSize: 24,
-                          fontWeight: 700,
-                          color: layer.color,
-                          marginBottom: 4,
-                        }}
-                      >
-                        {layer.name}
-                      </h3>
-                      <p style={{ fontSize: 13, color: layer.textMuted }}>
-                        {layer.tagline}
-                      </p>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: layer.isRoles ? 10 : 24,
-                      }}
-                    >
-                      {layer.capabilities.map((c, ci) =>
-                        layer.isRoles ? (
-                          <div
-                            key={ci}
-                            style={{
-                              padding: "10px 16px",
-                              background: "#fff",
-                              borderRadius: 8,
-                              fontSize: 12,
-                              fontWeight: 600,
-                              color: "#1a1a1e",
-                              border: "1px solid #e8e8ec",
-                              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                            }}
-                          >
-                            {c}
-                          </div>
-                        ) : (
-                          <div
-                            key={ci}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8,
-                              fontSize: 13,
-                              color: layer.textFeature,
-                            }}
-                          >
-                            <CheckCircle2
-                              size={14}
-                              style={{ color: ORANGE }}
-                            />
-                            {c}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            ))}
+            {/* Layer 2: Arc Composer */}
+            <motion.div
+              {...stagger(0.08)}
+              style={{
+                background: "#fafafa",
+                borderRadius: 16,
+                padding: "28px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                border: `1.5px solid rgba(255,107,44,0.15)`,
+              }}
+              whileHover={{ y: -4, boxShadow: `0 8px 30px rgba(255,107,44,0.1)` }}
+            >
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: ORANGE }}>LAYER 2</p>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1a1a1e", lineHeight: 1.2 }}>Arc Composer</h3>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "#666" }}>
+                The governance engine. Phase sequencing, weighted tollgates, enforced and advisory modes, industry presets.
+              </p>
+              {/* SVG: Tollgate pipeline illustration */}
+              <div style={{ marginTop: "auto", paddingTop: 12 }}>
+                <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+                  {/* Phase nodes */}
+                  <rect x="10" y="22" width="28" height="20" rx="4" fill="#e8e8ec" />
+                  <rect x="66" y="22" width="28" height="20" rx="4" fill="#e8e8ec" />
+                  <rect x="122" y="22" width="28" height="20" rx="4" fill="#e8e8ec" />
+                  {/* Phase labels */}
+                  <text x="24" y="36" textAnchor="middle" fontSize="7" fill="#888" fontWeight="600">Plan</text>
+                  <text x="80" y="36" textAnchor="middle" fontSize="7" fill="#888" fontWeight="600">Build</text>
+                  <text x="136" y="36" textAnchor="middle" fontSize="7" fill="#888" fontWeight="600">Deploy</text>
+                  {/* Tollgate diamonds between phases */}
+                  <polygon points="50,32 56,26 62,32 56,38" fill={O25} stroke={O} strokeWidth="1" />
+                  <polygon points="106,32 112,26 118,32 112,38" fill={O25} stroke={O} strokeWidth="1" />
+                  {/* Connection lines */}
+                  <line x1="38" y1="32" x2="50" y2="32" stroke="#d0d0d0" strokeWidth="1.5" />
+                  <line x1="62" y1="32" x2="66" y2="32" stroke="#d0d0d0" strokeWidth="1.5" />
+                  <line x1="94" y1="32" x2="106" y2="32" stroke="#d0d0d0" strokeWidth="1.5" />
+                  <line x1="118" y1="32" x2="122" y2="32" stroke="#d0d0d0" strokeWidth="1.5" />
+                  {/* Check marks in tollgates */}
+                  <text x="56" y="34" textAnchor="middle" fontSize="6" fill={O} fontWeight="700">&#10003;</text>
+                  <text x="112" y="34" textAnchor="middle" fontSize="6" fill={O} fontWeight="700">&#10003;</text>
+                </svg>
+              </div>
+            </motion.div>
+
+            {/* Layer 1: Role Cards */}
+            <motion.div
+              {...stagger(0.16)}
+              style={{
+                background: "#fafafa",
+                borderRadius: 16,
+                padding: "28px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                border: "1px solid #f0f0f0",
+              }}
+              whileHover={{ y: -4, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
+            >
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#999" }}>LAYER 1</p>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1a1a1e", lineHeight: 1.2 }}>Role Cards</h3>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "#666" }}>
+                The agent catalog. Composable, standalone plugins. Each role declares its skills, tools, and tollgate criteria.
+              </p>
+              {/* SVG: Grid of role cards illustration */}
+              <div style={{ marginTop: "auto", paddingTop: 12 }}>
+                <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+                  {/* 2x3 grid of small cards */}
+                  <rect x="18" y="8" width="34" height="22" rx="4" fill="#e8e8ec" />
+                  <rect x="58" y="8" width="34" height="22" rx="4" fill="#e8e8ec" />
+                  <rect x="98" y="8" width="34" height="22" rx="4" fill={O25} />
+                  <rect x="18" y="34" width="34" height="22" rx="4" fill={O25} />
+                  <rect x="58" y="34" width="34" height="22" rx="4" fill="#e8e8ec" />
+                  <rect x="98" y="34" width="34" height="22" rx="4" fill="#e8e8ec" />
+                  {/* Tiny role icons */}
+                  <circle cx="28" cy="16" r="3" fill="#ccc" />
+                  <rect x="33" y="14" width="14" height="3" rx="1" fill="#ddd" />
+                  <circle cx="68" cy="16" r="3" fill="#ccc" />
+                  <rect x="73" y="14" width="14" height="3" rx="1" fill="#ddd" />
+                  <circle cx="108" cy="16" r="3" fill={O40} />
+                  <rect x="113" y="14" width="14" height="3" rx="1" fill={O25} />
+                  <circle cx="28" cy="42" r="3" fill={O40} />
+                  <rect x="33" y="40" width="14" height="3" rx="1" fill={O25} />
+                  <circle cx="68" cy="42" r="3" fill="#ccc" />
+                  <rect x="73" y="40" width="14" height="3" rx="1" fill="#ddd" />
+                  <circle cx="108" cy="42" r="3" fill="#ccc" />
+                  <rect x="113" y="40" width="14" height="3" rx="1" fill="#ddd" />
+                </svg>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
