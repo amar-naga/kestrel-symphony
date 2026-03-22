@@ -187,17 +187,15 @@ const integrations: { category: string; tools: string[] }[] = [
   { category: "Observability", tools: ["Langfuse", "LangSmith", "Datadog"] },
 ];
 
-// SVG illustrations for compound cards
+// SVG illustrations for compound cards — boosted visibility on dark bg
 function FeedbackIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Circular arrow showing feedback loop */}
-      <path d="M 60 32 A 24 24 0 1 1 100 32" stroke="rgba(255,255,255,0.2)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <path d="M 100 32 A 24 24 0 1 1 60 32" stroke="rgba(255,107,44,0.5)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <polygon points="58,26 66,32 58,38" fill="rgba(255,107,44,0.5)" />
-      {/* Sprint labels */}
-      <text x="52" y="36" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.3)" fontWeight="600">S1</text>
-      <text x="108" y="36" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.3)" fontWeight="600">S2</text>
+      <path d="M 60 32 A 24 24 0 1 1 100 32" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M 100 32 A 24 24 0 1 1 60 32" stroke={O} strokeWidth="2" fill="none" strokeLinecap="round" />
+      <polygon points="58,26 66,32 58,38" fill={O} />
+      <text x="52" y="36" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.6)" fontWeight="700">S1</text>
+      <text x="108" y="36" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.6)" fontWeight="700">S2</text>
     </svg>
   );
 }
@@ -205,18 +203,16 @@ function FeedbackIcon() {
 function KnowledgeIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Network of connected nodes showing pattern detection */}
-      <circle cx="50" cy="20" r="6" fill="rgba(255,107,44,0.3)" />
-      <circle cx="80" cy="14" r="6" fill="rgba(255,255,255,0.15)" />
-      <circle cx="110" cy="22" r="6" fill="rgba(255,255,255,0.15)" />
-      <circle cx="65" cy="46" r="6" fill="rgba(255,255,255,0.15)" />
-      <circle cx="95" cy="48" r="6" fill="rgba(255,107,44,0.3)" />
-      {/* Connected lines */}
-      <line x1="55" y1="22" x2="75" y2="16" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-      <line x1="85" y1="16" x2="105" y2="22" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-      <line x1="53" y1="25" x2="62" y2="41" stroke="rgba(255,107,44,0.3)" strokeWidth="1.5" />
-      <line x1="70" y1="46" x2="90" y2="48" stroke="rgba(255,107,44,0.3)" strokeWidth="1.5" />
-      <line x1="98" y1="43" x2="108" y2="27" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+      <circle cx="50" cy="20" r="6" fill={O40} />
+      <circle cx="80" cy="14" r="6" fill="rgba(255,255,255,0.3)" />
+      <circle cx="110" cy="22" r="6" fill="rgba(255,255,255,0.3)" />
+      <circle cx="65" cy="46" r="6" fill="rgba(255,255,255,0.3)" />
+      <circle cx="95" cy="48" r="6" fill={O40} />
+      <line x1="55" y1="22" x2="75" y2="16" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+      <line x1="85" y1="16" x2="105" y2="22" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+      <line x1="53" y1="25" x2="62" y2="41" stroke={O40} strokeWidth="1.5" />
+      <line x1="70" y1="46" x2="90" y2="48" stroke={O40} strokeWidth="1.5" />
+      <line x1="98" y1="43" x2="108" y2="27" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -224,14 +220,11 @@ function KnowledgeIcon() {
 function RoiIcon() {
   return (
     <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
-      {/* Bar chart showing before/after */}
-      <rect x="40" y="14" width="18" height="40" rx="3" fill="rgba(255,255,255,0.12)" />
-      <rect x="70" y="28" width="18" height="26" rx="3" fill="rgba(255,107,44,0.4)" />
-      {/* Arrow down between them */}
-      <text x="60" y="54" textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.2)">&#8595;</text>
-      {/* Percentage */}
-      <text x="115" y="38" textAnchor="middle" fontSize="16" fill="rgba(255,107,44,0.5)" fontWeight="700">60%</text>
-      <text x="115" y="50" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.25)" fontWeight="500">saved</text>
+      <rect x="40" y="14" width="18" height="40" rx="3" fill="rgba(255,255,255,0.25)" />
+      <rect x="70" y="28" width="18" height="26" rx="3" fill={O} />
+      <text x="60" y="54" textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.4)">&#8595;</text>
+      <text x="115" y="38" textAnchor="middle" fontSize="16" fill={O} fontWeight="700">60%</text>
+      <text x="115" y="50" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.5)" fontWeight="600">saved</text>
     </svg>
   );
 }
@@ -758,16 +751,17 @@ export default function ComparePage() {
           <motion.p
             {...fadeUpDelay(0.3)}
             style={{
-              fontSize: 17,
-              lineHeight: 1.65,
-              color: "#555",
-              maxWidth: 720,
+              fontSize: 18,
+              lineHeight: 1.5,
+              color: "#1a1a1e",
+              fontWeight: 600,
+              maxWidth: 600,
               marginTop: 48,
+              textAlign: "center",
+              margin: "48px auto 0",
             }}
           >
-            Your CTO picked Azure and GitHub? Symphony runs on Azure and
-            integrates with GitHub. Your team prefers Claude and CrewAI? Symphony
-            uses Claude and CrewAI. The stack is yours to choose.
+            The stack is yours to choose. Symphony runs on it.
           </motion.p>
         </div>
       </section>
@@ -819,8 +813,8 @@ export default function ComparePage() {
                   key={card.title}
                   {...stagger(i * 0.1)}
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.12)",
                     borderRadius: 16,
                     padding: "28px 24px",
                     display: "flex",
@@ -829,7 +823,7 @@ export default function ComparePage() {
                     transition: "border-color 0.3s",
                   }}
                   whileHover={{
-                    borderColor: "rgba(255,107,44,0.3)",
+                    borderColor: "rgba(255,107,44,0.4)",
                   }}
                 >
                   {/* Category label */}
@@ -839,7 +833,7 @@ export default function ComparePage() {
                       fontWeight: 700,
                       letterSpacing: "0.14em",
                       textTransform: "uppercase",
-                      color: "rgba(255,255,255,0.35)",
+                      color: "rgba(255,255,255,0.5)",
                     }}
                   >
                     {card.category}
@@ -862,7 +856,7 @@ export default function ComparePage() {
                     style={{
                       fontSize: 14,
                       lineHeight: 1.6,
-                      color: "rgba(255,255,255,0.5)",
+                      color: "rgba(255,255,255,0.7)",
                     }}
                   >
                     {card.body}
