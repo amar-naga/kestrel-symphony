@@ -183,8 +183,39 @@ export default function PitchPage() {
         </div>
 
         <div style={{ ...container, position: "relative", textAlign: "center" }}>
-          {/* Kestrel logo */}
-          <motion.div {...fadeUp} style={{ marginBottom: 28 }}>
+          {/* Kestrel logo with orbiting dots */}
+          <motion.div {...fadeUp} style={{ marginBottom: 28, position: "relative", display: "inline-block" }}>
+            {/* Orbiting dots */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                style={{
+                  position: "absolute",
+                  width: i % 2 === 0 ? 4 : 3,
+                  height: i % 2 === 0 ? 4 : 3,
+                  borderRadius: "50%",
+                  background: ORANGE,
+                  opacity: 0.4 + (i % 3) * 0.15,
+                  top: "50%",
+                  left: "50%",
+                }}
+                animate={{
+                  x: [
+                    Math.cos((i * Math.PI * 2) / 8) * (44 + i * 3),
+                    Math.cos((i * Math.PI * 2) / 8 + Math.PI * 2) * (44 + i * 3),
+                  ],
+                  y: [
+                    Math.sin((i * Math.PI * 2) / 8) * (44 + i * 3),
+                    Math.sin((i * Math.PI * 2) / 8 + Math.PI * 2) * (44 + i * 3),
+                  ],
+                }}
+                transition={{
+                  duration: 8 + i * 1.5,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+            ))}
             <div
               style={{
                 width: 64,
@@ -196,6 +227,8 @@ export default function PitchPage() {
                 justifyContent: "center",
                 padding: 6,
                 boxShadow: "0 8px 32px rgba(255,107,44,0.3)",
+                position: "relative",
+                zIndex: 1,
               }}
             >
               <img
