@@ -6,26 +6,24 @@ import {
   Shield,
   Layers,
   Zap,
-  BarChart3,
-  GitBranch,
-  Lock,
-  AlertTriangle,
   CheckCircle2,
   XCircle,
   FileText,
   Users,
   Cpu,
-  Database,
   Eye,
   Plug,
-  MessageSquare,
-  DollarSign,
-  Clock,
-  TrendingDown,
   Settings,
-  Globe,
   Activity,
   ChevronRight,
+  TrendingUp,
+  RefreshCw,
+  Brain,
+  BarChart3,
+  Clock,
+  Check,
+  X,
+  Minus,
 } from "lucide-react";
 
 // ─── Animation Presets ───────────────────────────────────────────────────────
@@ -163,7 +161,7 @@ export default function PitchPage() {
       >
         {/* Floating dots */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-          {Array.from({ length: 40 }).map((_, i) => (
+          {Array.from({ length: 30 }).map((_, i) => (
             <motion.div
               key={i}
               style={{
@@ -171,45 +169,32 @@ export default function PitchPage() {
                 width: 2,
                 height: 2,
                 borderRadius: "50%",
-                background: `rgba(255,107,44,${0.15 + Math.random() * 0.2})`,
+                background: `rgba(255,107,44,${0.1 + Math.random() * 0.15})`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
               }}
               animate={{
-                y: [0, -20 - Math.random() * 30, 0],
-                opacity: [0.2, 0.6, 0.2],
+                y: [0, -15 - Math.random() * 20, 0],
+                opacity: [0.15, 0.5, 0.15],
               }}
               transition={{
-                duration: 4 + Math.random() * 4,
+                duration: 5 + Math.random() * 5,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: Math.random() * 3,
+                delay: Math.random() * 4,
               }}
             />
           ))}
         </div>
 
         <div style={{ ...container, position: "relative", textAlign: "center" }}>
-          <motion.p
-            {...fadeUp}
-            style={{
-              fontSize: 14,
-              color: "rgba(255,255,255,0.5)",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              marginBottom: 24,
-            }}
-          >
-            Lumi AI presents
-          </motion.p>
-
           <motion.h1
-            {...fadeUpDelay(0.1)}
+            {...fadeUp}
             style={{
               fontSize: "clamp(48px, 7vw, 80px)",
               fontWeight: 800,
               lineHeight: 1.05,
-              marginBottom: 24,
+              marginBottom: 20,
               background: `linear-gradient(135deg, #fff 30%, ${ORANGE})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
@@ -219,36 +204,67 @@ export default function PitchPage() {
           </motion.h1>
 
           <motion.p
-            {...fadeUpDelay(0.2)}
+            {...fadeUpDelay(0.1)}
             style={{
               fontSize: "clamp(18px, 2.5vw, 24px)",
               color: "rgba(255,255,255,0.7)",
               fontWeight: 400,
-              marginBottom: 32,
+              marginBottom: 40,
               letterSpacing: "0.02em",
             }}
           >
-            AI-Native SDLC Orchestration
-          </motion.p>
-
-          <motion.p
-            {...fadeUpDelay(0.3)}
-            style={{
-              fontSize: 17,
-              color: "rgba(255,255,255,0.5)",
-              lineHeight: 1.7,
-              maxWidth: 620,
-              margin: "0 auto 48px",
-            }}
-          >
-            The governed layer between your backlog and your AI agent teams.
-            Replace $5-20M outsourced development with orchestrated AI agents
-            that deliver faster, cheaper, and with built-in governance.
+            AI-Native SDLC Orchestration Platform
           </motion.p>
 
           <motion.div
-            {...fadeUpDelay(0.4)}
-            style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}
+            {...fadeUpDelay(0.2)}
+            style={{
+              maxWidth: 640,
+              margin: "0 auto 24px",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 17,
+                color: "rgba(255,255,255,0.55)",
+                lineHeight: 1.75,
+                marginBottom: 16,
+              }}
+            >
+              Every developer has an AI assistant. Individual productivity is solved.
+            </p>
+            <p
+              style={{
+                fontSize: 17,
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: 1.75,
+                marginBottom: 16,
+              }}
+            >
+              But team-level delivery? Still ungoverned. Still disconnected. Still invisible.
+            </p>
+            <p
+              style={{
+                fontSize: 18,
+                color: "rgba(255,255,255,0.75)",
+                lineHeight: 1.75,
+                fontWeight: 500,
+              }}
+            >
+              Symphony is the orchestration layer between your backlog and your AI tools.
+            </p>
+          </motion.div>
+
+          <motion.div
+            {...fadeUpDelay(0.35)}
+            style={{
+              display: "flex",
+              gap: 16,
+              justifyContent: "center",
+              flexWrap: "wrap",
+              marginTop: 48,
+            }}
           >
             <a
               href="/"
@@ -285,23 +301,23 @@ export default function PitchPage() {
                 border: "1px solid rgba(255,255,255,0.12)",
               }}
             >
-              Contact Us <ChevronRight size={16} />
+              Talk to Us <ChevronRight size={16} />
             </a>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 2. THE PROBLEM ──────────────────────────────────────────────── */}
+      {/* ── 2. THE GAP ────────────────────────────────────────────────────── */}
       <section style={{ ...sectionPadding, background: "#fff" }}>
         <div style={container}>
           <motion.p {...fadeUp} style={sectionLabel}>
-            The Problem
+            The Gap
           </motion.p>
           <motion.h2
             {...fadeUpDelay(0.1)}
-            style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 48 }}
+            style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 56 }}
           >
-            Enterprise software delivery is broken
+            Individual AI is solved. Team AI is not.
           </motion.h2>
 
           <div
@@ -309,26 +325,42 @@ export default function PitchPage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: 24,
-              marginBottom: 64,
             }}
           >
             {[
               {
-                icon: <DollarSign size={24} />,
-                stat: "$5-20M / year",
-                desc: "on outsourced dev teams that are slow, expensive, and hard to manage",
+                heading: "Individual AI",
+                status: "solved",
+                color: "#22c55e",
+                icon: <CheckCircle2 size={24} />,
+                lines: [
+                  "Every dev has Copilot, Cursor, or Claude Code.",
+                  "Individual productivity is solved.",
+                ],
               },
               {
-                icon: <Clock size={24} />,
-                stat: "8-12 week cycles",
-                desc: "from ticket to production with traditional teams and handoff delays",
+                heading: "Team AI",
+                status: "missing",
+                color: "#ef4444",
+                icon: <XCircle size={24} />,
+                lines: [
+                  "No cross-phase governance.",
+                  "No cost visibility.",
+                  "No audit trail for AI-generated code.",
+                ],
               },
               {
-                icon: <AlertTriangle size={24} />,
-                stat: "Zero governance",
-                desc: "over AI tool usage across engineering teams, creating risk and inconsistency",
+                heading: "The Gap",
+                status: "critical",
+                color: ORANGE,
+                icon: <Eye size={24} />,
+                lines: [
+                  "Context doesn't flow.",
+                  "Quality isn't verified between handoffs.",
+                  "Nobody knows what AI code is in production.",
+                ],
               },
-            ].map((item, i) => (
+            ].map((col, i) => (
               <motion.div
                 key={i}
                 {...stagger}
@@ -340,103 +372,108 @@ export default function PitchPage() {
                   background: "#fff",
                 }}
               >
-                <div style={{ color: ORANGE, marginBottom: 16 }}>{item.icon}</div>
                 <div
                   style={{
-                    fontSize: 28,
-                    fontWeight: 700,
-                    color: "#1a1a1e",
-                    marginBottom: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    marginBottom: 20,
                   }}
                 >
-                  {item.stat}
+                  <div style={{ color: col.color }}>{col.icon}</div>
+                  <div
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 700,
+                      color: "#1a1a1e",
+                    }}
+                  >
+                    {col.heading}
+                  </div>
                 </div>
-                <p style={{ fontSize: 15, color: "#6b6b76", lineHeight: 1.6 }}>{item.desc}</p>
+                {col.lines.map((line, li) => (
+                  <p
+                    key={li}
+                    style={{
+                      fontSize: 15,
+                      color: "#6b6b76",
+                      lineHeight: 1.65,
+                      marginBottom: li < col.lines.length - 1 ? 8 : 0,
+                    }}
+                  >
+                    {line}
+                  </p>
+                ))}
               </motion.div>
             ))}
           </div>
-
-          <motion.blockquote
-            {...fadeUp}
-            style={{
-              borderLeft: `3px solid ${ORANGE}`,
-              paddingLeft: 24,
-              fontSize: 20,
-              fontWeight: 500,
-              color: "#1a1a1e",
-              lineHeight: 1.6,
-              maxWidth: 640,
-            }}
-          >
-            Today you buy AI productivity per developer.
-            <br />
-            With Symphony, you buy AI productivity <em>per team</em>.
-          </motion.blockquote>
         </div>
       </section>
 
-      {/* ── 3. HOW IT WORKS ─────────────────────────────────────────────── */}
+      {/* ── 3. WHAT SYMPHONY DOES ─────────────────────────────────────────── */}
       <section style={{ ...sectionPadding, background: LIGHT_GREY }}>
         <div style={container}>
           <motion.p {...fadeUp} style={sectionLabel}>
             The Solution
           </motion.p>
           <motion.h2 {...fadeUpDelay(0.1)} style={{ ...sectionTitle, color: "#1a1a1e" }}>
-            From backlog to production, orchestrated
+            The connective tissue between your backlog and your tools
           </motion.h2>
           <motion.p
             {...fadeUpDelay(0.15)}
             style={{ ...sectionDesc, color: "#6b6b76", marginBottom: 56 }}
           >
-            Symphony transforms Jira stories into governed, multi-agent build sessions
-            with human-in-the-loop tollgates at every phase.
+            Takes a Jira story, proposes a Blueprint, human approves, orchestrates
+            execution across Plan, Design, Build, Deploy with automated quality
+            gates between every phase.
           </motion.p>
 
-          <div
+          {/* Pipeline flow */}
+          <motion.div
+            {...fadeUpDelay(0.2)}
             style={{
               display: "flex",
               flexWrap: "wrap",
+              alignItems: "center",
               gap: 0,
-              alignItems: "flex-start",
+              marginBottom: 64,
             }}
           >
             {[
-              { label: "Jira Board", sub: "Story intake", icon: <FileText size={20} /> },
-              { label: "Blueprint", sub: "AI-generated spec", icon: <Layers size={20} /> },
-              { label: "Plan Session", sub: "Architecture + tasks", icon: <GitBranch size={20} /> },
-              { label: "Tollgate", sub: "Quality gate", icon: <Shield size={20} />, isTollgate: true },
-              { label: "Build Session", sub: "Multi-agent execution", icon: <Cpu size={20} /> },
-              { label: "Tollgate", sub: "Code review gate", icon: <Shield size={20} />, isTollgate: true },
-              { label: "Deploy", sub: "CI/CD + staging", icon: <Zap size={20} /> },
-              { label: "Tollgate", sub: "Release gate", icon: <Shield size={20} />, isTollgate: true },
-              { label: "Cockpit", sub: "Observability", icon: <Activity size={20} /> },
+              { label: "Jira Story", icon: <FileText size={18} />, isTollgate: false },
+              { label: "Blueprint", icon: <Layers size={18} />, isTollgate: false },
+              { label: "Plan", icon: <Activity size={18} />, isTollgate: false },
+              { label: "Tollgate", icon: <Shield size={18} />, isTollgate: true },
+              { label: "Build", icon: <Cpu size={18} />, isTollgate: false },
+              { label: "Tollgate", icon: <Shield size={18} />, isTollgate: true },
+              { label: "Deploy", icon: <Zap size={18} />, isTollgate: false },
+              { label: "Tollgate", icon: <Shield size={18} />, isTollgate: true },
+              { label: "Cockpit", icon: <Eye size={18} />, isTollgate: false },
             ].map((step, i) => (
-              <motion.div
+              <div
                 key={i}
-                {...stagger}
-                transition={{ ...stagger.transition, delay: i * 0.06 }}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  marginBottom: 12,
+                  marginBottom: 8,
                 }}
               >
                 <div
                   style={{
-                    width: step.isTollgate ? 100 : 120,
                     textAlign: "center",
-                    padding: "16px 8px",
+                    padding: step.isTollgate ? "12px 14px" : "14px 16px",
                     background: step.isTollgate ? "rgba(255,107,44,0.08)" : "#fff",
                     border: step.isTollgate
                       ? `1.5px solid ${ORANGE}`
                       : "1px solid #e8e8ec",
-                    borderRadius: step.isTollgate ? 24 : 10,
+                    borderRadius: step.isTollgate ? 20 : 10,
+                    minWidth: step.isTollgate ? 90 : 100,
                   }}
                 >
                   <div
                     style={{
                       color: step.isTollgate ? ORANGE : "#1a1a1e",
-                      marginBottom: 6,
+                      marginBottom: 4,
                       display: "flex",
                       justifyContent: "center",
                     }}
@@ -452,96 +489,69 @@ export default function PitchPage() {
                   >
                     {step.label}
                   </div>
-                  <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>{step.sub}</div>
                 </div>
                 {i < 8 && (
-                  <div style={{ padding: "0 4px", color: "#ccc", fontSize: 14 }}>
+                  <div style={{ padding: "0 4px", color: "#ccc" }}>
                     <ChevronRight size={14} />
                   </div>
                 )}
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Three key points */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: 24,
+            }}
+          >
+            {[
+              {
+                title: "Not a replacement",
+                desc: "Symphony doesn't replace Jira, GitHub, or Claude Code. It wires them together. Each tool keeps doing what it does best. Symphony is the connective tissue.",
+                icon: <Plug size={22} />,
+              },
+              {
+                title: "Quality gates, not speed bumps",
+                desc: "Tollgates are automated. When they pass, context flows to the next phase. When they fail, work stops. No silent failures.",
+                icon: <Shield size={22} />,
+              },
+              {
+                title: "Full lifecycle visibility",
+                desc: "Every decision, artifact, and cost in one Cockpit. Single dashboard from story intake to production.",
+                icon: <Eye size={22} />,
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={i}
+                {...stagger}
+                transition={{ ...stagger.transition, delay: i * 0.12 }}
+                style={{
+                  padding: 32,
+                  background: "#fff",
+                  border: "1px solid #e8e8ec",
+                  borderRadius: 12,
+                }}
+              >
+                <div style={{ color: ORANGE, marginBottom: 16 }}>{card.icon}</div>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: "#1a1a1e",
+                    marginBottom: 10,
+                  }}
+                >
+                  {card.title}
+                </div>
+                <p style={{ fontSize: 15, color: "#6b6b76", lineHeight: 1.65 }}>
+                  {card.desc}
+                </p>
               </motion.div>
             ))}
           </div>
-
-          {/* Feedback & Context Flow */}
-          <motion.div
-            {...fadeUpDelay(0.4)}
-            style={{
-              marginTop: 48,
-              position: "relative",
-              padding: "32px 0",
-            }}
-          >
-            {/* Divider */}
-            <div style={{
-              height: 1,
-              background: "linear-gradient(90deg, transparent, #e0e0e0, transparent)",
-              marginBottom: 32,
-            }} />
-
-            {/* Feedback loop row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
-              {/* Curved arrow SVG */}
-              <svg width="100%" height="48" viewBox="0 0 1000 48" fill="none" style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
-                <path
-                  d="M900 8 C900 40, 100 40, 100 8"
-                  stroke="url(#feedbackGrad)"
-                  strokeWidth="2"
-                  strokeDasharray="6 4"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-                <defs>
-                  <linearGradient id="feedbackGrad" x1="900" y1="0" x2="100" y2="0" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#FF6B2C" stopOpacity={0.6} />
-                    <stop offset="100%" stopColor="#FF6B2C" stopOpacity={0.15} />
-                  </linearGradient>
-                  <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-                    <polygon points="0 0, 8 3, 0 6" fill="#FF6B2C" fillOpacity={0.4} />
-                  </marker>
-                </defs>
-              </svg>
-
-              {/* Three feedback concepts */}
-              {[
-                { title: "Context Handover", desc: "Artifacts, decisions, and risks flow forward between phases", icon: <MessageSquare size={16} /> },
-                { title: "Pattern Library", desc: "Successful patterns from completed stories improve future blueprints", icon: <Database size={16} /> },
-                { title: "Continuous Learning", desc: "Cockpit analytics refine cost estimates and agent selection", icon: <TrendingDown size={16} /> },
-              ].map((item, i) => (
-                <div key={i} style={{ flex: 1, textAlign: "center", position: "relative", zIndex: 1 }}>
-                  <div style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: "rgba(255,107,44,0.08)",
-                    color: ORANGE,
-                    marginBottom: 10,
-                    border: "1px solid rgba(255,107,44,0.15)",
-                  }}>
-                    {item.icon}
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1e", marginBottom: 4 }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: "#999", lineHeight: 1.5, maxWidth: 220, margin: "0 auto" }}>{item.desc}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Label */}
-            <div style={{
-              textAlign: "center",
-              marginTop: 24,
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              color: ORANGE,
-              opacity: 0.7,
-            }}>
-              &larr; FEEDBACK LOOP
-            </div>
-          </motion.div>
         </div>
       </section>
 
@@ -562,7 +572,14 @@ export default function PitchPage() {
             governance without touching the layers above or below.
           </motion.p>
 
-          <div style={{ perspective: 1200, display: "flex", flexDirection: "column", gap: 0 }}>
+          <div
+            style={{
+              perspective: 1200,
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+            }}
+          >
             {[
               {
                 layer: "LAYER 3",
@@ -572,7 +589,12 @@ export default function PitchPage() {
                 color: "#fff",
                 textMuted: "rgba(255,255,255,0.5)",
                 textFeature: "rgba(255,255,255,0.7)",
-                capabilities: ["Deployment management", "Cost tracking per story", "Immutable audit logs", "Enterprise admin"],
+                capabilities: [
+                  "Deployment management",
+                  "Cost tracking per story",
+                  "Immutable audit logs",
+                  "Enterprise admin",
+                ],
                 delay: 0.4,
                 shadow: "0 -20px 60px rgba(0,0,0,0.3)",
                 zIndex: 3,
@@ -585,7 +607,12 @@ export default function PitchPage() {
                 color: "#1a1a1e",
                 textMuted: "#6b6b76",
                 textFeature: "#555",
-                capabilities: ["Phase-tollgate sequencing", "Weighted quality criteria", "Advisory + enforced modes", "Industry presets"],
+                capabilities: [
+                  "Phase-tollgate sequencing",
+                  "Weighted quality criteria",
+                  "Advisory + enforced modes",
+                  "Industry presets",
+                ],
                 delay: 0.25,
                 shadow: "0 8px 40px rgba(255,107,44,0.12)",
                 zIndex: 2,
@@ -599,7 +626,14 @@ export default function PitchPage() {
                 color: "#1a1a1e",
                 textMuted: "#6b6b76",
                 textFeature: "#555",
-                capabilities: ["Requirements Dev", "Process Leader", "Agent Engineer", "Code Auditor", "Agent Ops", "Data Steward"],
+                capabilities: [
+                  "Requirements Dev",
+                  "Process Leader",
+                  "Agent Engineer",
+                  "Code Auditor",
+                  "Agent Ops",
+                  "Data Steward",
+                ],
                 delay: 0.1,
                 shadow: "0 4px 20px rgba(0,0,0,0.06)",
                 zIndex: 1,
@@ -609,30 +643,36 @@ export default function PitchPage() {
               <motion.div key={i}>
                 {/* Connector between layers */}
                 {i > 0 && (
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: 40,
-                    position: "relative",
-                  }}>
-                    <div style={{
-                      width: 2,
-                      height: "100%",
-                      background: `linear-gradient(to bottom, ${ORANGE}40, ${ORANGE}15)`,
-                    }} />
-                    <span style={{
-                      position: "absolute",
-                      fontSize: 9,
-                      fontWeight: 600,
-                      letterSpacing: "0.1em",
-                      color: ORANGE,
-                      opacity: 0.6,
-                      background: "#fff",
-                      padding: "2px 10px",
-                      borderRadius: 100,
-                      border: `1px solid rgba(255,107,44,0.15)`,
-                    }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: 40,
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 2,
+                        height: "100%",
+                        background: `linear-gradient(to bottom, ${ORANGE}40, ${ORANGE}15)`,
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        fontSize: 9,
+                        fontWeight: 600,
+                        letterSpacing: "0.1em",
+                        color: ORANGE,
+                        opacity: 0.6,
+                        background: "#fff",
+                        padding: "2px 10px",
+                        borderRadius: 100,
+                        border: `1px solid rgba(255,107,44,0.15)`,
+                      }}
+                    >
                       {i === 1 ? "ORCHESTRATES" : "GOVERNS"}
                     </span>
                   </div>
@@ -642,7 +682,11 @@ export default function PitchPage() {
                   initial={{ opacity: 0, y: 40, rotateX: 8 }}
                   whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.7, delay: layer.delay, ease: "easeOut" }}
+                  transition={{
+                    duration: 0.7,
+                    delay: layer.delay,
+                    ease: "easeOut",
+                  }}
                   whileHover={{ scale: 1.01 }}
                   style={{
                     background: layer.bg,
@@ -651,61 +695,93 @@ export default function PitchPage() {
                     boxShadow: layer.shadow,
                     position: "relative",
                     zIndex: layer.zIndex,
-                    border: layer.accentBorder ? `1.5px solid rgba(255,107,44,0.2)` : layer.bg === "#1a1a1e" ? "none" : "1px solid #e8e8ec",
+                    border: layer.accentBorder
+                      ? `1.5px solid rgba(255,107,44,0.2)`
+                      : layer.bg === "#1a1a1e"
+                        ? "none"
+                        : "1px solid #e8e8ec",
                     cursor: "default",
                     transition: "box-shadow 0.3s ease, transform 0.3s ease",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: 24,
+                    }}
+                  >
                     <div>
-                      <div style={{
-                        fontSize: 10,
-                        letterSpacing: "0.15em",
-                        color: layer.accentBorder ? ORANGE : layer.textMuted,
-                        marginBottom: 8,
-                        fontWeight: 700,
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: "0.15em",
+                          color: layer.accentBorder ? ORANGE : layer.textMuted,
+                          marginBottom: 8,
+                          fontWeight: 700,
+                        }}
+                      >
                         {layer.layer}
                       </div>
-                      <h3 style={{ fontSize: 24, fontWeight: 700, color: layer.color, marginBottom: 4 }}>
+                      <h3
+                        style={{
+                          fontSize: 24,
+                          fontWeight: 700,
+                          color: layer.color,
+                          marginBottom: 4,
+                        }}
+                      >
                         {layer.name}
                       </h3>
                       <p style={{ fontSize: 13, color: layer.textMuted }}>
                         {layer.tagline}
                       </p>
                     </div>
-                    <div style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: layer.isRoles ? 10 : 24,
-                    }}>
-                      {layer.capabilities.map((c, ci) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: layer.isRoles ? 10 : 24,
+                      }}
+                    >
+                      {layer.capabilities.map((c, ci) =>
                         layer.isRoles ? (
-                          <div key={ci} style={{
-                            padding: "10px 16px",
-                            background: "#fff",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#1a1a1e",
-                            border: "1px solid #e8e8ec",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                          }}>
+                          <div
+                            key={ci}
+                            style={{
+                              padding: "10px 16px",
+                              background: "#fff",
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: "#1a1a1e",
+                              border: "1px solid #e8e8ec",
+                              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                            }}
+                          >
                             {c}
                           </div>
                         ) : (
-                          <div key={ci} style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                            fontSize: 13,
-                            color: layer.textFeature,
-                          }}>
-                            <CheckCircle2 size={14} style={{ color: ORANGE }} />
+                          <div
+                            key={ci}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              fontSize: 13,
+                              color: layer.textFeature,
+                            }}
+                          >
+                            <CheckCircle2
+                              size={14}
+                              style={{ color: ORANGE }}
+                            />
                             {c}
                           </div>
                         )
-                      ))}
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -719,17 +795,20 @@ export default function PitchPage() {
       <section style={{ ...sectionPadding, background: "#fff" }}>
         <div style={container}>
           <motion.p {...fadeUp} style={sectionLabel}>
-            Interoperability
+            No Vendor Lock-In
           </motion.p>
-          <motion.h2 {...fadeUpDelay(0.1)} style={{ ...sectionTitle, color: "#1a1a1e" }}>
-            Engine-agnostic by design
+          <motion.h2
+            {...fadeUpDelay(0.1)}
+            style={{ ...sectionTitle, color: "#1a1a1e" }}
+          >
+            No vendor lock-in at any level
           </motion.h2>
           <motion.p
             {...fadeUpDelay(0.15)}
             style={{ ...sectionDesc, color: "#6b6b76", marginBottom: 56 }}
           >
-            Symphony uses open protocols so every layer is swappable.
-            No vendor lock-in at any level of the stack.
+            Symphony uses open protocols so every layer is swappable. Your choice
+            of engine, LLM, and tools — always.
           </motion.p>
 
           <div
@@ -745,28 +824,32 @@ export default function PitchPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {[
                   {
-                    label: "Your Tools",
+                    label: "MCP",
+                    desc: "Connects agents to tools",
                     items: "GitHub, Jira, Confluence, Snyk...",
-                    protocol: "MCP (Model Context Protocol)",
                     icon: <Plug size={18} />,
+                    protocol: "Model Context Protocol",
                   },
                   {
-                    label: "Your Agents",
+                    label: "A2A",
+                    desc: "Agent-to-agent collaboration",
                     items: "Requirements Dev, Code Auditor...",
-                    protocol: "A2A (Agent-to-Agent Protocol)",
                     icon: <Users size={18} />,
+                    protocol: "Agent-to-Agent Protocol",
                   },
                   {
-                    label: "Your Engine",
-                    items: "CrewAI / LangGraph / AutoGen",
-                    protocol: null,
+                    label: "Engine",
+                    desc: "Your orchestration framework",
+                    items: "CrewAI / LangGraph / AutoGen / Claude SDK",
                     icon: <Settings size={18} />,
+                    protocol: null,
                   },
                   {
-                    label: "Your LLMs",
-                    items: "Claude / GPT / Gemini / Llama",
-                    protocol: null,
+                    label: "LLM",
+                    desc: "Per-role optimization",
+                    items: "Expensive model for architecture, fast model for code, open-source for internal",
                     icon: <Cpu size={18} />,
+                    protocol: null,
                   },
                 ].map((row, i) => (
                   <div key={i}>
@@ -782,11 +865,30 @@ export default function PitchPage() {
                       }}
                     >
                       <div style={{ color: ORANGE }}>{row.icon}</div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1e" }}>
-                          {row.label}
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: "#1a1a1e",
+                            }}
+                          >
+                            {row.label}
+                          </span>
+                          <span style={{ fontSize: 12, color: "#999" }}>
+                            {row.desc}
+                          </span>
                         </div>
-                        <div style={{ fontSize: 12, color: "#999" }}>{row.items}</div>
+                        <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
+                          {row.items}
+                        </div>
                       </div>
                     </div>
                     {row.protocol && (
@@ -808,7 +910,7 @@ export default function PitchPage() {
               </div>
             </motion.div>
 
-            {/* Comparison Table */}
+            {/* Comparison Table — 3-column */}
             <motion.div {...fadeUpDelay(0.25)}>
               <table
                 style={{
@@ -819,31 +921,92 @@ export default function PitchPage() {
               >
                 <thead>
                   <tr style={{ borderBottom: "2px solid #e8e8ec" }}>
-                    <th style={{ textAlign: "left", padding: "12px 16px", fontWeight: 600, color: "#1a1a1e" }}>
+                    <th
+                      style={{
+                        textAlign: "left",
+                        padding: "12px 12px",
+                        fontWeight: 600,
+                        color: "#1a1a1e",
+                      }}
+                    >
                       Capability
                     </th>
-                    <th style={{ textAlign: "left", padding: "12px 16px", fontWeight: 600, color: ORANGE }}>
+                    <th
+                      style={{
+                        textAlign: "center",
+                        padding: "12px 12px",
+                        fontWeight: 600,
+                        color: ORANGE,
+                      }}
+                    >
                       Symphony
                     </th>
-                    <th style={{ textAlign: "left", padding: "12px 16px", fontWeight: 600, color: "#999" }}>
-                      DIY
+                    <th
+                      style={{
+                        textAlign: "center",
+                        padding: "12px 12px",
+                        fontWeight: 600,
+                        color: "#999",
+                      }}
+                    >
+                      DIY Frameworks
+                    </th>
+                    <th
+                      style={{
+                        textAlign: "center",
+                        padding: "12px 12px",
+                        fontWeight: 600,
+                        color: "#999",
+                      }}
+                    >
+                      Locked Platforms
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    ["Engine choice", "Any (CrewAI, LangGraph, AutoGen)", "Locked in"],
-                    ["LLM routing", "Per-role optimization", "One model fits all"],
-                    ["Tool integration", "MCP standard", "Custom adapters"],
-                    ["Governance", "Arc tollgates", "Manual reviews"],
-                    ["Cost tracking", "Per-story, per-role", "Unknown"],
-                  ].map(([cap, sym, diy], i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #f0f0f2" }}>
-                      <td style={{ padding: "12px 16px", color: "#1a1a1e", fontWeight: 500 }}>
-                        {cap}
+                    ["Engine choice", true, false, false],
+                    ["Cross-phase governance", true, false, false],
+                    ["LLM per-role routing", true, false, false],
+                    ["MCP tool integration", true, true, false],
+                    ["Cost tracking per story", true, false, true],
+                    ["Audit trail", true, false, true],
+                    ["Institutional memory", true, false, false],
+                  ].map(([cap, sym, diy, locked], i) => (
+                    <tr
+                      key={i}
+                      style={{ borderBottom: "1px solid #f0f0f2" }}
+                    >
+                      <td
+                        style={{
+                          padding: "11px 12px",
+                          color: "#1a1a1e",
+                          fontWeight: 500,
+                          fontSize: 13,
+                        }}
+                      >
+                        {cap as string}
                       </td>
-                      <td style={{ padding: "12px 16px", color: "#333" }}>{sym}</td>
-                      <td style={{ padding: "12px 16px", color: "#999" }}>{diy}</td>
+                      {[sym, diy, locked].map((val, vi) => (
+                        <td
+                          key={vi}
+                          style={{
+                            padding: "11px 12px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {val ? (
+                            <Check
+                              size={16}
+                              style={{
+                                color: vi === 0 ? ORANGE : "#999",
+                              }}
+                            />
+                          ) : (
+                            <Minus size={16} style={{ color: "#ddd" }} />
+                          )}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -853,7 +1016,7 @@ export default function PitchPage() {
         </div>
       </section>
 
-      {/* ── 6. GOVERNANCE / ARC ──────────────────────────────────────────── */}
+      {/* ── 6. THREE COMPOUNDING ADVANTAGES ────────────────────────────────── */}
       <section
         style={{
           ...sectionPadding,
@@ -862,173 +1025,113 @@ export default function PitchPage() {
         }}
       >
         <div style={container}>
-          <motion.p {...fadeUp} style={{ ...sectionLabel }}>
-            Governance
+          <motion.p {...fadeUp} style={sectionLabel}>
+            The Moat
           </motion.p>
           <motion.h2
             {...fadeUpDelay(0.1)}
-            style={{ ...sectionTitle, color: "#fff", marginBottom: 12 }}
+            style={{ ...sectionTitle, color: "#fff", marginBottom: 56 }}
           >
-            Powered by Arc Tollgates
+            Three compounding advantages
           </motion.h2>
-          <motion.p
-            {...fadeUpDelay(0.15)}
-            style={{
-              fontSize: 17,
-              color: "rgba(255,255,255,0.5)",
-              marginBottom: 56,
-              maxWidth: 540,
-              lineHeight: 1.6,
-            }}
-          >
-            Every phase transition is earned, not assumed. Arc ensures quality,
-            compliance, and auditability at every step.
-          </motion.p>
 
-          {/* Tollgate flow */}
-          <motion.div
-            {...fadeUpDelay(0.2)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 56,
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
-            {[
-              { label: "Plan", phase: true },
-              { label: "Pass / Fail", phase: false },
-              { label: "Build", phase: true },
-              { label: "Pass / Fail", phase: false },
-              { label: "Deploy", phase: true },
-            ].map((s, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div
-                  style={{
-                    padding: s.phase ? "14px 28px" : "10px 18px",
-                    borderRadius: s.phase ? 10 : 20,
-                    background: s.phase
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(255,107,44,0.12)",
-                    border: s.phase
-                      ? "1px solid rgba(255,255,255,0.1)"
-                      : `1px solid rgba(255,107,44,0.3)`,
-                    fontSize: s.phase ? 14 : 12,
-                    fontWeight: 600,
-                    color: s.phase ? "#fff" : ORANGE,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  {!s.phase && <Shield size={12} />}
-                  {s.label}
-                </div>
-                {i < 4 && (
-                  <ChevronRight size={14} style={{ color: "rgba(255,255,255,0.2)" }} />
-                )}
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Mode cards */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 16,
-              marginBottom: 48,
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: 24,
             }}
           >
             {[
               {
-                mode: "Enforced",
-                desc: "Failures block the pipeline. Nothing passes without meeting criteria.",
-                icon: <XCircle size={20} />,
-                color: "#f87171",
+                num: "01",
+                title: "Feedback Loop",
+                icon: <RefreshCw size={24} />,
+                body: "Production incidents and performance data flow back into planning. The team never repeats the same mistakes.",
               },
               {
-                mode: "Advisory",
-                desc: "Failures warn but allow continuation. Ideal for early adoption.",
-                icon: <AlertTriangle size={20} />,
-                color: "#fbbf24",
+                num: "02",
+                title: "Knowledge Layer",
+                icon: <Brain size={24} />,
+                body: "Across hundreds of stories, Symphony detects patterns no individual tool can see. Which modules are fragile. Which changes cause incidents. Where AI estimates miss. This institutional memory is the long-term moat.",
               },
               {
-                mode: "Override",
-                desc: "Requires justification and creates an immutable audit trail entry.",
-                icon: <Lock size={20} />,
-                color: ORANGE,
+                num: "03",
+                title: "ROI Engine",
+                icon: <BarChart3 size={24} />,
+                body: "Every story shows before-and-after economics. Not projections \u2014 measured data from actual execution. Time saved. Cost reduced. Quality improved.",
               },
-            ].map((m, i) => (
+            ].map((card, i) => (
               <motion.div
                 key={i}
                 {...stagger}
-                transition={{ ...stagger.transition, delay: i * 0.1 }}
+                transition={{ ...stagger.transition, delay: i * 0.12 }}
                 style={{
-                  padding: 28,
+                  padding: 40,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 12,
+                  borderRadius: 14,
                 }}
               >
-                <div style={{ color: m.color, marginBottom: 12 }}>{m.icon}</div>
-                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{m.mode} Mode</div>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-                  {m.desc}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    marginBottom: 20,
+                  }}
+                >
+                  <div style={{ color: ORANGE }}>{card.icon}</div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.1em",
+                      color: "rgba(255,255,255,0.3)",
+                    }}
+                  >
+                    {card.num}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    marginBottom: 14,
+                    color: "#fff",
+                  }}
+                >
+                  {card.title}
+                </div>
+                <p
+                  style={{
+                    fontSize: 15,
+                    color: "rgba(255,255,255,0.55)",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {card.body}
                 </p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Governance features */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: 12,
-            }}
-          >
-            {[
-              "Weighted criteria per phase",
-              "Customizable pass thresholds",
-              "Industry presets (Healthcare, FinServ, Gov)",
-              "Immutable audit trail",
-              "Override with justification",
-              "Auto-escalation after 2 retries",
-            ].map((feat, i) => (
-              <motion.div
-                key={i}
-                {...stagger}
-                transition={{ ...stagger.transition, delay: 0.3 + i * 0.05 }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontSize: 13,
-                  color: "rgba(255,255,255,0.6)",
-                  padding: "10px 0",
-                }}
-              >
-                <CheckCircle2 size={14} style={{ color: ORANGE, flexShrink: 0 }} />
-                {feat}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 7. ROI ──────────────────────────────────────────────────────── */}
+      {/* ── 7. MARKET ─────────────────────────────────────────────────────── */}
       <section style={{ ...sectionPadding, background: "#fff" }}>
         <div style={container}>
           <motion.p {...fadeUp} style={sectionLabel}>
-            Return on Investment
+            Market
           </motion.p>
-          <motion.h2 {...fadeUpDelay(0.1)} style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 48 }}>
-            Conservative estimates, real impact
+          <motion.h2
+            {...fadeUpDelay(0.1)}
+            style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 56 }}
+          >
+            The market is ready. The gap is clear.
           </motion.h2>
 
+          {/* Big stats */}
           <div
             style={{
               display: "grid",
@@ -1038,9 +1141,21 @@ export default function PitchPage() {
             }}
           >
             {[
-              { stat: "60%", label: "Time Saved", desc: "vs traditional dev cycles" },
-              { stat: "60%", label: "Cost Saved", desc: "vs outsourced team costs" },
-              { stat: "8 weeks", label: "To Production", desc: "from concept to deployed agents" },
+              {
+                stat: "$11B \u2192 $50B",
+                label: "AI agent market 2026\u20132030",
+                icon: <TrendingUp size={22} />,
+              },
+              {
+                stat: "40%",
+                label: "Enterprise apps with AI agents by year-end",
+                icon: <Layers size={22} />,
+              },
+              {
+                stat: "0",
+                label: "Platforms providing governed, engine-agnostic SDLC orchestration",
+                icon: <Eye size={22} />,
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -1055,238 +1170,326 @@ export default function PitchPage() {
               >
                 <div
                   style={{
-                    fontSize: 48,
-                    fontWeight: 800,
                     color: ORANGE,
+                    marginBottom: 16,
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  {item.icon}
+                </div>
+                <div
+                  style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: "#1a1a1e",
                     lineHeight: 1,
-                    marginBottom: 8,
+                    marginBottom: 10,
                   }}
                 >
                   {item.stat}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a1e", marginBottom: 4 }}>
+                <div style={{ fontSize: 14, color: "#6b6b76", lineHeight: 1.5 }}>
                   {item.label}
                 </div>
-                <div style={{ fontSize: 14, color: "#999" }}>{item.desc}</div>
               </motion.div>
             ))}
           </div>
 
+          {/* Positioning statement */}
           <motion.div
             {...fadeUp}
             style={{
               background: "#f9f9fb",
               borderRadius: 16,
-              padding: 40,
+              padding: "40px 48px",
               border: "1px solid #e8e8ec",
+              maxWidth: 900,
+              margin: "0 auto",
             }}
           >
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: "#1a1a1e", marginBottom: 20 }}>
-              How the math works
-            </h3>
-            <div
+            <p
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 32,
-                fontSize: 15,
-                lineHeight: 1.7,
+                fontSize: 17,
                 color: "#555",
+                lineHeight: 1.75,
               }}
             >
-              <div>
-                <div style={{ fontWeight: 600, color: "#1a1a1e", marginBottom: 8 }}>
-                  Symphony Cost Per Story
-                </div>
-                <p>
-                  AI compute: $8-15 per story. Platform license: predictable monthly fee.
-                  Human oversight: ~30 min per story at senior engineer rate. Total: a fraction
-                  of the traditional cost.
-                </p>
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, color: "#1a1a1e", marginBottom: 8 }}>
-                  Traditional Cost Per Story
-                </div>
-                <p>
-                  Fully-loaded developer cost: $150-250K/year. At ~200 stories/year, that is
-                  $750-1,250 per story. Multiply by team size and add management overhead.
-                </p>
-              </div>
-            </div>
+              Raw frameworks require engineers to build everything. Locked
+              platforms tie you to one vendor. Nobody has built the governed
+              composition layer that sits between the backlog and the tools
+              &mdash; engine-agnostic, cross-phase, with built-in quality gates
+              and institutional memory.
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ── 8. TECH STACK ──────────────────────────────────────────────── */}
+      {/* ── 8. THE PoC ────────────────────────────────────────────────────── */}
       <section style={{ ...sectionPadding, background: LIGHT_GREY }}>
         <div style={container}>
           <motion.p {...fadeUp} style={sectionLabel}>
-            Tech Stack
+            Proof of Concept
           </motion.p>
-          <motion.h2 {...fadeUpDelay(0.1)} style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 48 }}>
-            Built on proven foundations
+          <motion.h2
+            {...fadeUpDelay(0.1)}
+            style={{ ...sectionTitle, color: "#1a1a1e", marginBottom: 16 }}
+          >
+            See it work. Minutes. Single-digit dollars.
           </motion.h2>
+          <motion.p
+            {...fadeUpDelay(0.15)}
+            style={{ ...sectionDesc, color: "#6b6b76", marginBottom: 56 }}
+          >
+            One story through the full pipeline proves the thesis.
+          </motion.p>
 
+          {/* Four steps */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: 16,
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: 20,
+              marginBottom: 56,
             }}
           >
             {[
               {
-                name: "Claude (Anthropic)",
-                desc: "Primary LLM for reasoning and code generation. Sonnet 4 default, Opus 4.6 for complex reasoning.",
+                step: "1",
+                title: "Story enters Symphony",
+                timing: "Instant",
+                desc: "One Jira story is ingested",
+                icon: <FileText size={20} />,
+              },
+              {
+                step: "2",
+                title: "Blueprint proposed",
+                timing: "30 seconds",
+                desc: "Phases, roles, tools, cost — human approves",
+                icon: <Layers size={20} />,
+              },
+              {
+                step: "3",
+                title: "AI teams execute",
+                timing: "8 minutes",
+                desc: "Plan + Build phases run with agent coordination",
                 icon: <Cpu size={20} />,
               },
               {
-                name: "CrewAI Flows",
-                desc: "Default orchestration engine for multi-agent team execution. Swappable via engine-agnostic design.",
-                icon: <GitBranch size={20} />,
+                step: "4",
+                title: "Gates enforce governance",
+                timing: "Visible",
+                desc: "One gate passes, one fails and blocks — governance in action",
+                icon: <Shield size={20} />,
               },
-              {
-                name: "Supabase",
-                desc: "PostgreSQL + pgvector + PostGIS. Database, auth, and real-time subscriptions.",
-                icon: <Database size={20} />,
-              },
-              {
-                name: "MCP Protocol",
-                desc: "Model Context Protocol for standardized tool integration. GitHub, Jira, Confluence, and more.",
-                icon: <Plug size={20} />,
-              },
-              {
-                name: "A2A Protocol",
-                desc: "Agent-to-Agent communication standard. Enables cross-role coordination and data exchange.",
-                icon: <MessageSquare size={20} />,
-              },
-              {
-                name: "Langfuse",
-                desc: "Observability and tracing for every agent action. Cost tracking, latency metrics, and debugging.",
-                icon: <Eye size={20} />,
-              },
-            ].map((tech, i) => (
+            ].map((item, i) => (
               <motion.div
                 key={i}
                 {...stagger}
-                transition={{ ...stagger.transition, delay: i * 0.08 }}
+                transition={{ ...stagger.transition, delay: i * 0.1 }}
                 style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 16,
-                  padding: 24,
+                  padding: 32,
                   background: "#fff",
-                  borderRadius: 12,
                   border: "1px solid #e8e8ec",
+                  borderRadius: 12,
+                  position: "relative",
                 }}
               >
                 <div
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: "rgba(255,107,44,0.08)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    position: "absolute",
+                    top: 16,
+                    right: 20,
+                    fontSize: 11,
+                    fontWeight: 600,
                     color: ORANGE,
-                    flexShrink: 0,
+                    letterSpacing: "0.04em",
                   }}
                 >
-                  {tech.icon}
+                  {item.timing}
                 </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1e", marginBottom: 4 }}>
-                    {tech.name}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#6b6b76", lineHeight: 1.55 }}>
-                    {tech.desc}
-                  </div>
+                <div style={{ color: ORANGE, marginBottom: 14 }}>
+                  {item.icon}
                 </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#999",
+                    letterSpacing: "0.1em",
+                    marginBottom: 6,
+                  }}
+                >
+                  STEP {item.step}
+                </div>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#1a1a1e",
+                    marginBottom: 8,
+                  }}
+                >
+                  {item.title}
+                </div>
+                <p style={{ fontSize: 14, color: "#6b6b76", lineHeight: 1.55 }}>
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
+
+          {/* Cost callout + CTA */}
+          <motion.div
+            {...fadeUp}
+            style={{ textAlign: "center" }}
+          >
+            <p
+              style={{
+                fontSize: 20,
+                fontWeight: 600,
+                color: "#1a1a1e",
+                marginBottom: 8,
+              }}
+            >
+              Total cost: under $10.
+            </p>
+            <p
+              style={{
+                fontSize: 16,
+                color: "#6b6b76",
+                marginBottom: 32,
+              }}
+            >
+              That&apos;s the proof the thesis works.
+            </p>
+            <a
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "14px 28px",
+                background: ORANGE,
+                color: "#fff",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontSize: 15,
+                fontWeight: 600,
+              }}
+            >
+              View Live Demo <ArrowRight size={16} />
+            </a>
+          </motion.div>
         </div>
       </section>
 
-      {/* ── 9. FOOTER ──────────────────────────────────────────────────── */}
-      <footer
+      {/* ── 9. CLOSING ────────────────────────────────────────────────────── */}
+      <section
         style={{
+          ...sectionPadding,
+          paddingTop: 120,
+          paddingBottom: 120,
           background: DARK,
           color: "#fff",
-          padding: "64px 24px",
           textAlign: "center",
         }}
       >
-        <div style={container}>
+        <div style={{ ...container, maxWidth: 800 }}>
           <motion.div {...fadeUp}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, letterSpacing: "0.04em" }}>
-              Lumi AI
-            </div>
-            <a
-              href="https://lumicorp.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: 14, color: ORANGE, textDecoration: "none" }}
-            >
-              lumicorp.ai
-            </a>
             <p
               style={{
-                fontSize: 15,
-                color: "rgba(255,255,255,0.45)",
-                marginTop: 16,
-                marginBottom: 32,
+                fontSize: "clamp(22px, 3.5vw, 34px)",
+                fontWeight: 700,
+                lineHeight: 1.45,
+                color: "#fff",
+                marginBottom: 12,
+              }}
+            >
+              Today, organizations buy AI productivity per developer.
+            </p>
+            <p
+              style={{
+                fontSize: "clamp(22px, 3.5vw, 34px)",
+                fontWeight: 700,
+                lineHeight: 1.45,
+                marginBottom: 12,
+              }}
+            >
+              <span style={{ color: "#fff" }}>With Symphony, they buy AI productivity </span>
+              <span
+                style={{
+                  background: `linear-gradient(135deg, ${ORANGE}, #ff9a5c)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                per team
+              </span>
+              <span style={{ color: "#fff" }}> &mdash;</span>
+            </p>
+            <p
+              style={{
+                fontSize: "clamp(18px, 2.5vw, 24px)",
+                color: "rgba(255,255,255,0.6)",
+                lineHeight: 1.6,
+                marginBottom: 48,
+              }}
+            >
+              governed, auditable, engine-agnostic, and compounding.
+            </p>
+          </motion.div>
+
+          <motion.p
+            {...fadeUpDelay(0.2)}
+            style={{
+              fontSize: 20,
+              fontWeight: 600,
+              color: ORANGE,
+              marginBottom: 64,
+            }}
+          >
+            The IT team becomes the builder, not the buyer.
+          </motion.p>
+
+          <motion.div
+            {...fadeUpDelay(0.35)}
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.08)",
+              paddingTop: 40,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.5)",
+                letterSpacing: "0.06em",
+                marginBottom: 6,
+              }}
+            >
+              Lumi AI &middot;{" "}
+              <a
+                href="https://lumicorp.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}
+              >
+                lumicorp.ai
+              </a>
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.3)",
                 fontStyle: "italic",
               }}
             >
-              Builders not consultants &mdash; AI agents to production in 8 weeks
+              &ldquo;Builders not consultants&rdquo;
             </p>
-
-            <div
-              style={{
-                display: "flex",
-                gap: 24,
-                justifyContent: "center",
-                marginBottom: 40,
-              }}
-            >
-              {[
-                { label: "View Live Demo", href: "/" },
-                { label: "GitHub", href: "https://github.com/lumicorp" },
-                { label: "Contact", href: "https://lumicorp.ai" },
-              ].map((link, i) => (
-                <a
-                  key={i}
-                  href={link.href}
-                  target={link.href.startsWith("http") ? "_blank" : undefined}
-                  rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  style={{
-                    fontSize: 13,
-                    color: "rgba(255,255,255,0.5)",
-                    textDecoration: "none",
-                    fontWeight: 500,
-                  }}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-
-            <div
-              style={{
-                fontSize: 12,
-                color: "rgba(255,255,255,0.25)",
-                borderTop: "1px solid rgba(255,255,255,0.06)",
-                paddingTop: 24,
-              }}
-            >
-              Confidential &middot; Demo Build v0.5
-            </div>
           </motion.div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }
