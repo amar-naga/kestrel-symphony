@@ -51,54 +51,34 @@ const sectionTitle: React.CSSProperties = {
 
 const gaps = [
   {
-    number: "01",
-    name: "Team Orchestration",
-    problem:
-      "AI works per developer, not per team. Ten developers with Copilot is ten independent AI sessions. No coordination, no shared context, no role specialization.",
-    exists:
-      "GitHub Copilot Workspace (multi-file from issues), Cursor Composer (multi-file edits), Devin (autonomous coding agent)",
-    fallsShort:
-      'Single agent, single phase. No concept of "Requirements Dev validates the spec, then Agent Engineer builds, then Code Auditor reviews." One AI doing everything vs. specialized roles doing what they do best.',
+    category: "TEAM DELIVERY",
+    name: "Orchestration",
+    description:
+      "AI works per developer, not per team. Ten Copilot sessions is not a coordinated team. No shared context, no role specialization, no handoffs.",
   },
   {
-    number: "02",
-    name: "Cross-Phase Governance",
-    problem:
-      "CI/CD governs the build step. But who governs that the Plan was validated before Build started? That Design was reviewed before code was written? That security passed before deployment?",
-    exists:
-      "GitHub Actions, Azure DevOps Pipelines, Jenkins (CI/CD). Branch protection rules. PR review requirements.",
-    fallsShort:
-      "Pipeline governance stops at code merge. No quality gates between planning and building. No tollgates between building and deploying. The entire lifecycle before and after the CI/CD step is ungoverned.",
+    category: "GOVERNANCE",
+    name: "Cross-Phase Gates",
+    description:
+      "CI/CD governs the build step. Nobody governs Plan to Build to Deploy. The entire lifecycle before and after code merge is ungoverned.",
   },
   {
-    number: "03",
-    name: "Per-Story Economics",
-    problem:
-      '"What did story NCP-1252 cost in AI compute vs. what the dev team would have charged?" Enterprises cannot answer this. No per-story, per-role, per-phase cost visibility.',
-    exists:
-      "Azure Cost Management, AWS Cost Explorer, OpenAI usage dashboard. LLM provider billing.",
-    fallsShort:
-      'These show cloud spend or API spend, not story economics. You see "$4,200 in OpenAI costs this month." You cannot see "$8.40 for this story, $12.10 for that story, 60% cheaper than the traditional estimate."',
+    category: "ECONOMICS",
+    name: "Per-Story Costs",
+    description:
+      "You see monthly API spend. Not what each story cost vs. traditional. No per-story, per-role, per-phase cost visibility for your CFO.",
   },
   {
-    number: "04",
+    category: "INTELLIGENCE",
     name: "Institutional Memory",
-    problem:
-      "Each AI session starts from zero context. Story #247 learns nothing from stories #1 through #246. The same mistakes repeat. The same patterns go undetected.",
-    exists:
-      "RAG pipelines, vector databases (Pinecone, Weaviate), Retrieval-Augmented Generation. Knowledge bases.",
-    fallsShort:
-      'Retrieval is not learning. RAG can find similar documents, but it cannot detect: "Auth module stories fail security tollgate 37% of the time, so auto-add Code Auditor to Plan phase." Pattern detection across hundreds of stories with automatic guardrail evolution is fundamentally different from document search.',
+    description:
+      "Every AI session starts from zero. Story #247 learns nothing from #1 through #246. The same mistakes repeat. The same patterns go undetected.",
   },
   {
-    number: "05",
-    name: "Engine Lock-in",
-    problem:
-      "Pick a framework, you are married to it. Pick a model provider, you are locked in. Enterprises need flexibility as the AI landscape shifts every quarter.",
-    exists:
-      "LangChain, CrewAI, LangGraph, AutoGen, Semantic Kernel. Each is an excellent framework.",
-    fallsShort:
-      "Frameworks assume one engine and often one model provider. Switching from CrewAI to LangGraph means rewriting your orchestration. Switching from OpenAI to Claude means updating every prompt. The composition layer should be engine-agnostic so the customer picks what fits, and can change their mind later.",
+    category: "FLEXIBILITY",
+    name: "Engine Choice",
+    description:
+      "Pick a framework, you are married to it. Pick a model, you are locked in. The AI landscape shifts every quarter. Your orchestration layer should not.",
   },
 ];
 
@@ -278,131 +258,136 @@ export default function ComparePage() {
               textTransform: "uppercase",
               color: ORANGE,
               marginBottom: 16,
+              textAlign: "center",
             }}
           >
             The Problem
           </motion.p>
           <motion.h2
             {...fadeUpDelay(0.05)}
-            style={{ ...sectionTitle, marginBottom: 64 }}
+            style={{ ...sectionTitle, marginBottom: 56, textAlign: "center" }}
           >
-            Five structural gaps no current tool addresses
+            Five gaps no current tool addresses
           </motion.h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 56 }}>
+          {/* Card grid — 5 cards in a row */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(5, 1fr)",
+              gap: 20,
+              marginBottom: 48,
+            }}
+          >
             {gaps.map((gap, i) => (
               <motion.div
-                key={gap.number}
+                key={gap.name}
                 {...stagger(i * 0.08)}
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "80px 1fr",
-                  gap: 32,
-                  paddingBottom: i < gaps.length - 1 ? 56 : 0,
-                  borderBottom:
-                    i < gaps.length - 1 ? "1px solid #eee" : "none",
+                  background: "#fafafa",
+                  borderRadius: 16,
+                  padding: "28px 24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  border: "1px solid #f0f0f0",
+                  transition: "box-shadow 0.3s, transform 0.3s",
+                }}
+                whileHover={{
+                  y: -4,
+                  boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
                 }}
               >
-                <div
+                {/* Category label */}
+                <p
                   style={{
-                    fontSize: 48,
-                    fontWeight: 800,
-                    color: ORANGE,
-                    lineHeight: 1,
-                    opacity: 0.85,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "#999",
                   }}
                 >
-                  {gap.number}
-                </div>
-                <div>
-                  <h3
+                  {gap.category}
+                </p>
+
+                {/* Title */}
+                <h3
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 800,
+                    color: "#1a1a1e",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {gap.name}
+                </h3>
+
+                {/* Description */}
+                <p
+                  style={{
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    color: "#666",
+                  }}
+                >
+                  {gap.description}
+                </p>
+
+                {/* Subtle decorative element */}
+                <div
+                  style={{
+                    marginTop: "auto",
+                    paddingTop: 16,
+                    opacity: 0.15,
+                  }}
+                >
+                  <div
                     style={{
-                      fontSize: 22,
-                      fontWeight: 700,
-                      marginBottom: 16,
+                      width: "100%",
+                      height: 48,
+                      borderRadius: 8,
+                      background: `linear-gradient(135deg, #e0e0e0, #f5f5f5)`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 4,
                     }}
                   >
-                    {gap.name}
-                  </h3>
-
-                  <div style={{ marginBottom: 16 }}>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                        color: "#999",
-                        marginBottom: 6,
-                      }}
-                    >
-                      The Problem
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 16,
-                        lineHeight: 1.65,
-                        color: "#333",
-                        maxWidth: 720,
-                      }}
-                    >
-                      {gap.problem}
-                    </p>
-                  </div>
-
-                  <div style={{ marginBottom: 16 }}>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                        color: "#999",
-                        marginBottom: 6,
-                      }}
-                    >
-                      What Exists Today
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 16,
-                        lineHeight: 1.65,
-                        color: "#333",
-                        maxWidth: 720,
-                      }}
-                    >
-                      {gap.exists}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                        color: "#999",
-                        marginBottom: 6,
-                      }}
-                    >
-                      Why It Falls Short
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 16,
-                        lineHeight: 1.65,
-                        color: "#555",
-                        maxWidth: 720,
-                      }}
-                    >
-                      {gap.fallsShort}
-                    </p>
+                    {/* Abstract lines as illustration placeholder */}
+                    {[...Array(4)].map((_, j) => (
+                      <div
+                        key={j}
+                        style={{
+                          width: j === 1 ? "40%" : j === 2 ? "25%" : "30%",
+                          height: 4,
+                          borderRadius: 2,
+                          background: j === 0 ? "#bbb" : "#d5d5d5",
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* Closing statement */}
+          <motion.p
+            {...fadeUpDelay(0.4)}
+            style={{
+              fontSize: 17,
+              lineHeight: 1.7,
+              color: "#555",
+              textAlign: "center",
+              maxWidth: 680,
+              margin: "0 auto",
+              fontStyle: "italic",
+            }}
+          >
+            Copilot, Cursor, and Claude Code are excellent at what they do.
+            The gap is what happens between sessions.
+          </motion.p>
         </div>
       </section>
 
