@@ -185,18 +185,72 @@ const integrations: { category: string; tools: string[] }[] = [
   { category: "Observability", tools: ["Langfuse", "LangSmith", "Datadog"] },
 ];
 
+// SVG illustrations for compound cards
+function FeedbackIcon() {
+  return (
+    <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+      {/* Circular arrow showing feedback loop */}
+      <path d="M 60 32 A 24 24 0 1 1 100 32" stroke="rgba(255,255,255,0.2)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M 100 32 A 24 24 0 1 1 60 32" stroke="rgba(255,107,44,0.5)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <polygon points="58,26 66,32 58,38" fill="rgba(255,107,44,0.5)" />
+      {/* Sprint labels */}
+      <text x="52" y="36" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.3)" fontWeight="600">S1</text>
+      <text x="108" y="36" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.3)" fontWeight="600">S2</text>
+    </svg>
+  );
+}
+
+function KnowledgeIcon() {
+  return (
+    <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+      {/* Network of connected nodes showing pattern detection */}
+      <circle cx="50" cy="20" r="6" fill="rgba(255,107,44,0.3)" />
+      <circle cx="80" cy="14" r="6" fill="rgba(255,255,255,0.15)" />
+      <circle cx="110" cy="22" r="6" fill="rgba(255,255,255,0.15)" />
+      <circle cx="65" cy="46" r="6" fill="rgba(255,255,255,0.15)" />
+      <circle cx="95" cy="48" r="6" fill="rgba(255,107,44,0.3)" />
+      {/* Connected lines */}
+      <line x1="55" y1="22" x2="75" y2="16" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+      <line x1="85" y1="16" x2="105" y2="22" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+      <line x1="53" y1="25" x2="62" y2="41" stroke="rgba(255,107,44,0.3)" strokeWidth="1.5" />
+      <line x1="70" y1="46" x2="90" y2="48" stroke="rgba(255,107,44,0.3)" strokeWidth="1.5" />
+      <line x1="98" y1="43" x2="108" y2="27" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function RoiIcon() {
+  return (
+    <svg width="100%" height="64" viewBox="0 0 160 64" fill="none">
+      {/* Bar chart showing before/after */}
+      <rect x="40" y="14" width="18" height="40" rx="3" fill="rgba(255,255,255,0.12)" />
+      <rect x="70" y="28" width="18" height="26" rx="3" fill="rgba(255,107,44,0.4)" />
+      {/* Arrow down between them */}
+      <text x="60" y="54" textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.2)">&#8595;</text>
+      {/* Percentage */}
+      <text x="115" y="38" textAnchor="middle" fontSize="16" fill="rgba(255,107,44,0.5)" fontWeight="700">60%</text>
+      <text x="115" y="50" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.25)" fontWeight="500">saved</text>
+    </svg>
+  );
+}
+
+const compoundIcons = [FeedbackIcon, KnowledgeIcon, RoiIcon];
+
 const compoundCards = [
   {
+    category: "LEARNING",
     title: "Feedback Loop",
-    body: "Production incidents and performance data flow back into the planning phase of future related work. The team never repeats the same mistakes. Sprint 1 informs Sprint 2. Story #200 is smarter than Story #1.",
+    body: "Production data flows back to planning. Sprint 1 informs Sprint 2. The team never repeats the same mistakes.",
   },
   {
+    category: "PATTERNS",
     title: "Knowledge Layer",
-    body: "Across hundreds of stories, Symphony detects patterns no individual tool can see: which modules are fragile, which change combinations cause incidents, where AI estimates consistently miss. This institutional memory is the long-term moat.",
+    body: "Detects patterns across hundreds of stories. Fragile modules, risky changes, estimate misses. Institutional memory.",
   },
   {
+    category: "MEASUREMENT",
     title: "ROI Engine",
-    body: "Every story shows before-and-after economics. Time saved, cost reduced, quality improved. Not projections. Measured data from actual execution. Your CFO gets a dashboard, not a spreadsheet.",
+    body: "Every story shows before-and-after economics. Measured data, not projections. Your CFO gets a dashboard.",
   },
 ];
 
@@ -752,42 +806,73 @@ export default function ComparePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: 32,
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 24,
             }}
           >
-            {compoundCards.map((card, i) => (
-              <motion.div
-                key={card.title}
-                {...stagger(i * 0.1)}
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 16,
-                  padding: 32,
-                }}
-              >
-                <h3
+            {compoundCards.map((card, i) => {
+              const Icon = compoundIcons[i];
+              return (
+                <motion.div
+                  key={card.title}
+                  {...stagger(i * 0.1)}
                   style={{
-                    fontSize: 20,
-                    fontWeight: 700,
-                    marginBottom: 16,
-                    color: "#fff",
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 16,
+                    padding: "28px 24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                    transition: "border-color 0.3s",
+                  }}
+                  whileHover={{
+                    borderColor: "rgba(255,107,44,0.3)",
                   }}
                 >
-                  {card.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: 15,
-                    lineHeight: 1.7,
-                    color: "rgba(255,255,255,0.6)",
-                  }}
-                >
-                  {card.body}
-                </p>
-              </motion.div>
-            ))}
+                  {/* Category label */}
+                  <p
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: "rgba(255,255,255,0.35)",
+                    }}
+                  >
+                    {card.category}
+                  </p>
+
+                  {/* Title */}
+                  <h3
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 800,
+                      color: "#fff",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {card.title}
+                  </h3>
+
+                  {/* Short description */}
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      color: "rgba(255,255,255,0.5)",
+                    }}
+                  >
+                    {card.body}
+                  </p>
+
+                  {/* Illustration */}
+                  <div style={{ marginTop: "auto", paddingTop: 8 }}>
+                    <Icon />
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
