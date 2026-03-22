@@ -462,6 +462,86 @@ export default function PitchPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Feedback & Context Flow */}
+          <motion.div
+            {...fadeUpDelay(0.4)}
+            style={{
+              marginTop: 48,
+              position: "relative",
+              padding: "32px 0",
+            }}
+          >
+            {/* Divider */}
+            <div style={{
+              height: 1,
+              background: "linear-gradient(90deg, transparent, #e0e0e0, transparent)",
+              marginBottom: 32,
+            }} />
+
+            {/* Feedback loop row */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
+              {/* Curved arrow SVG */}
+              <svg width="100%" height="48" viewBox="0 0 1000 48" fill="none" style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
+                <path
+                  d="M900 8 C900 40, 100 40, 100 8"
+                  stroke="url(#feedbackGrad)"
+                  strokeWidth="2"
+                  strokeDasharray="6 4"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+                <defs>
+                  <linearGradient id="feedbackGrad" x1="900" y1="0" x2="100" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#FF6B2C" stopOpacity={0.6} />
+                    <stop offset="100%" stopColor="#FF6B2C" stopOpacity={0.15} />
+                  </linearGradient>
+                  <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#FF6B2C" fillOpacity={0.4} />
+                  </marker>
+                </defs>
+              </svg>
+
+              {/* Three feedback concepts */}
+              {[
+                { title: "Context Handover", desc: "Artifacts, decisions, and risks flow forward between phases", icon: <MessageSquare size={16} /> },
+                { title: "Pattern Library", desc: "Successful patterns from completed stories improve future blueprints", icon: <Database size={16} /> },
+                { title: "Continuous Learning", desc: "Cockpit analytics refine cost estimates and agent selection", icon: <TrendingDown size={16} /> },
+              ].map((item, i) => (
+                <div key={i} style={{ flex: 1, textAlign: "center", position: "relative", zIndex: 1 }}>
+                  <div style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "rgba(255,107,44,0.08)",
+                    color: ORANGE,
+                    marginBottom: 10,
+                    border: "1px solid rgba(255,107,44,0.15)",
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1e", marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 11, color: "#999", lineHeight: 1.5, maxWidth: 220, margin: "0 auto" }}>{item.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Label */}
+            <div style={{
+              textAlign: "center",
+              marginTop: 24,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              color: ORANGE,
+              opacity: 0.7,
+            }}>
+              &larr; FEEDBACK LOOP
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -482,118 +562,155 @@ export default function PitchPage() {
             governance without touching the layers above or below.
           </motion.p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 2, borderRadius: 16, overflow: "hidden" }}>
-            {/* Layer 3 */}
-            <motion.div
-              {...fadeUpDelay(0.1)}
-              style={{
-                background: "#1a1a1e",
+          <div style={{ perspective: 1200, display: "flex", flexDirection: "column", gap: 0 }}>
+            {[
+              {
+                layer: "LAYER 3",
+                name: "Kestrel Runtime",
+                tagline: "The enterprise platform layer",
+                bg: "#1a1a1e",
                 color: "#fff",
-                padding: "40px 36px",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
-                <div>
-                  <div style={{ fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
-                    LAYER 3
-                  </div>
-                  <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Kestrel Runtime</h3>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
-                    The enterprise platform layer
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
-                  {["Deployment management", "Cost tracking per story", "Immutable audit logs", "Enterprise admin controls"].map(
-                    (c, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "rgba(255,255,255,0.65)" }}>
-                        <CheckCircle2 size={14} style={{ color: ORANGE }} />
-                        {c}
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Layer 2 */}
-            <motion.div
-              {...fadeUpDelay(0.2)}
-              style={{
-                background: "rgba(255,107,44,0.06)",
-                padding: "40px 36px",
-                borderLeft: `3px solid ${ORANGE}`,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
-                <div>
-                  <div style={{ fontSize: 11, letterSpacing: "0.1em", color: ORANGE, marginBottom: 8 }}>
-                    LAYER 2
-                  </div>
-                  <h3 style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1e", marginBottom: 6 }}>
-                    Arc Composer
-                  </h3>
-                  <p style={{ fontSize: 14, color: "#6b6b76" }}>
-                    Tollgated workflow engine &mdash; &quot;Define it. Arc builds it.&quot;
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
-                  {["Phase-tollgate sequencing", "Weighted quality criteria", "Advisory + enforced modes", "Industry presets"].map(
-                    (c, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#555" }}>
-                        <CheckCircle2 size={14} style={{ color: ORANGE }} />
-                        {c}
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Layer 1 */}
-            <motion.div
-              {...fadeUpDelay(0.3)}
-              style={{
-                background: "#f5f5f7",
-                padding: "40px 36px",
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.1em", color: "#999", marginBottom: 8 }}>
-                  LAYER 1
-                </div>
-                <h3 style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1e", marginBottom: 6 }}>
-                  Role Cards
-                </h3>
-                <p style={{ fontSize: 14, color: "#6b6b76", marginBottom: 20 }}>
-                  The agent catalog &mdash; each role is a standalone, composable plugin
-                </p>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
-                {[
-                  "Requirements Dev",
-                  "Process Leader",
-                  "Agent Engineer",
-                  "Code Auditor",
-                  "Agent Ops",
-                  "Data Steward",
-                ].map((role, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "14px 16px",
-                      background: "#fff",
-                      borderRadius: 8,
-                      fontSize: 13,
+                textMuted: "rgba(255,255,255,0.5)",
+                textFeature: "rgba(255,255,255,0.7)",
+                capabilities: ["Deployment management", "Cost tracking per story", "Immutable audit logs", "Enterprise admin"],
+                delay: 0.4,
+                shadow: "0 -20px 60px rgba(0,0,0,0.3)",
+                zIndex: 3,
+              },
+              {
+                layer: "LAYER 2",
+                name: "Arc Composer",
+                tagline: '"Define it. Arc builds it."',
+                bg: "#fff8f4",
+                color: "#1a1a1e",
+                textMuted: "#6b6b76",
+                textFeature: "#555",
+                capabilities: ["Phase-tollgate sequencing", "Weighted quality criteria", "Advisory + enforced modes", "Industry presets"],
+                delay: 0.25,
+                shadow: "0 8px 40px rgba(255,107,44,0.12)",
+                zIndex: 2,
+                accentBorder: true,
+              },
+              {
+                layer: "LAYER 1",
+                name: "Role Cards",
+                tagline: "The agent catalog — composable, standalone plugins",
+                bg: "#f7f7f9",
+                color: "#1a1a1e",
+                textMuted: "#6b6b76",
+                textFeature: "#555",
+                capabilities: ["Requirements Dev", "Process Leader", "Agent Engineer", "Code Auditor", "Agent Ops", "Data Steward"],
+                delay: 0.1,
+                shadow: "0 4px 20px rgba(0,0,0,0.06)",
+                zIndex: 1,
+                isRoles: true,
+              },
+            ].map((layer, i) => (
+              <motion.div key={i}>
+                {/* Connector between layers */}
+                {i > 0 && (
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: 40,
+                    position: "relative",
+                  }}>
+                    <div style={{
+                      width: 2,
+                      height: "100%",
+                      background: `linear-gradient(to bottom, ${ORANGE}40, ${ORANGE}15)`,
+                    }} />
+                    <span style={{
+                      position: "absolute",
+                      fontSize: 9,
                       fontWeight: 600,
-                      color: "#1a1a1e",
-                      border: "1px solid #e8e8ec",
-                    }}
-                  >
-                    {role}
+                      letterSpacing: "0.1em",
+                      color: ORANGE,
+                      opacity: 0.6,
+                      background: "#fff",
+                      padding: "2px 10px",
+                      borderRadius: 100,
+                      border: `1px solid rgba(255,107,44,0.15)`,
+                    }}>
+                      {i === 1 ? "ORCHESTRATES" : "GOVERNS"}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </motion.div>
+                )}
+
+                <motion.div
+                  initial={{ opacity: 0, y: 40, rotateX: 8 }}
+                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: layer.delay, ease: "easeOut" }}
+                  whileHover={{ scale: 1.01 }}
+                  style={{
+                    background: layer.bg,
+                    padding: "36px 40px",
+                    borderRadius: 14,
+                    boxShadow: layer.shadow,
+                    position: "relative",
+                    zIndex: layer.zIndex,
+                    border: layer.accentBorder ? `1.5px solid rgba(255,107,44,0.2)` : layer.bg === "#1a1a1e" ? "none" : "1px solid #e8e8ec",
+                    cursor: "default",
+                    transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 24 }}>
+                    <div>
+                      <div style={{
+                        fontSize: 10,
+                        letterSpacing: "0.15em",
+                        color: layer.accentBorder ? ORANGE : layer.textMuted,
+                        marginBottom: 8,
+                        fontWeight: 700,
+                      }}>
+                        {layer.layer}
+                      </div>
+                      <h3 style={{ fontSize: 24, fontWeight: 700, color: layer.color, marginBottom: 4 }}>
+                        {layer.name}
+                      </h3>
+                      <p style={{ fontSize: 13, color: layer.textMuted }}>
+                        {layer.tagline}
+                      </p>
+                    </div>
+                    <div style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: layer.isRoles ? 10 : 24,
+                    }}>
+                      {layer.capabilities.map((c, ci) => (
+                        layer.isRoles ? (
+                          <div key={ci} style={{
+                            padding: "10px 16px",
+                            background: "#fff",
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: "#1a1a1e",
+                            border: "1px solid #e8e8ec",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                          }}>
+                            {c}
+                          </div>
+                        ) : (
+                          <div key={ci} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            fontSize: 13,
+                            color: layer.textFeature,
+                          }}>
+                            <CheckCircle2 size={14} style={{ color: ORANGE }} />
+                            {c}
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
