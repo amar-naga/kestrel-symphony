@@ -824,6 +824,8 @@ export default function ComparePage() {
                   }}
                   whileHover={{
                     borderColor: "rgba(255,107,44,0.4)",
+                    y: -6,
+                    boxShadow: "0 12px 40px rgba(255,107,44,0.15), 0 0 0 1px rgba(255,107,44,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
                   }}
                 >
                   {/* Category label */}
